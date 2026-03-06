@@ -1,0 +1,12 @@
+# CODEOWNERS – définit les propriétaires de code qui doivent approuver
+# chaque pull request modifiant des fichiers de ce dépôt.
+#
+# Format : <pattern>  <propriétaire(s)>
+# Le dernier patron qui correspond à un fichier l'emporte.
+#
+# Pour que ce fichier soit effectif, activez la règle
+# "Require review from Code Owners" dans les paramètres de protection
+# de la branche main (Settings > Branches > Branch protection rules).
+
+# Tous les fichiers du dépôt → le propriétaire du dépôt doit approuver
+*   @maitrebarry
