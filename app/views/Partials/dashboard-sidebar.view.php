@@ -22,15 +22,7 @@
                     <span class="text">Projets</span>
                 </a>
             </li>
-            <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Homes/profile" class="sidebar-list__link">
-                    <span class="sidebar-list__icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
-                    </span>
-                    <span class="text">Profil utilisateur</span>
-                </a>
-            </li>
+          
             <li class="sidebar-list__item">
                 <a href="<?= ROOT ?>/Homes/departement" class="sidebar-list__link">
                     <span class="sidebar-list__icon">
@@ -38,6 +30,24 @@
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
                     </span>
                     <span class="text">Espace Département</span>
+                </a>
+            </li>
+              <li class="sidebar-list__item">
+                <a href="<?= ROOT ?>/Utilisateurs/liste_utilisateur" class="sidebar-list__link">
+                    <span class="sidebar-list__icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                    </span>
+                    <span class="text">utilisateur</span>
+                </a>
+            </li>
+            <li class="sidebar-list__item">
+                <a href="<?= ROOT ?>/Universites" class="sidebar-list__link">
+                    <span class="sidebar-list__icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                    </span>
+                    <span class="text">universiter_filiere</span>
                 </a>
             </li>
             <li class="sidebar-list__item">

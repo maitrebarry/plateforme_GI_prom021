@@ -9,7 +9,7 @@ class Homes extends Controller
         $data['projects'] = $this->getMockProjects();
 
         $this->view('home', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -31,7 +31,7 @@ class Homes extends Controller
         ];
 
         $this->view('admin_dashboard', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -41,7 +41,7 @@ class Homes extends Controller
         $data['pageTitle'] = 'Connexion';
 
         $this->view('login', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -51,7 +51,7 @@ class Homes extends Controller
         $data['pageTitle'] = 'Inscription';
 
         $this->view('register', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -62,7 +62,7 @@ class Homes extends Controller
         $data['projects'] = $this->getMockProjects();
 
         $this->view('projects', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -83,7 +83,7 @@ class Homes extends Controller
         $data['project'] = $selected;
 
         $this->view('project_detail', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -101,7 +101,7 @@ class Homes extends Controller
         ];
 
         $this->view('profile', [
-            ...$data,
+            $data,
         ]);
     }
 
@@ -129,7 +129,7 @@ class Homes extends Controller
         ];
 
         $this->view('departement', [
-            ...$data,
+            $data,
         ]);
     }
 

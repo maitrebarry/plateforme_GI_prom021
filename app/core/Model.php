@@ -334,7 +334,14 @@ class Model extends Database
         $q->execute($insert_data);
         return $q;
     }
-
+public function SelectOne($fields, $table, $where, $data = [])
+{
+    $bdd = $this->bdd();
+    $sql = "SELECT $fields FROM $table WHERE $where LIMIT 1";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetch(PDO::FETCH_OBJ); // fetch au lieu de fetchAll
+}
     // Effectue une insertion ou mise à jour simple et retourne l'ID de la dernière insertion
     public function insertion_update_simples_insert_id($insert, $insert_data = [])
     {
