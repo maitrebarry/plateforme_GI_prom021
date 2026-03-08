@@ -18,9 +18,12 @@
                         <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/projects" class="footer-menu__link">Projets</a></li>
                         <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/departement" class="footer-menu__link">Espace Département</a></li>
                         <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/profile" class="footer-menu__link">Profil</a></li>
+                        <?php if (!isset($_SESSION['user_id'])): ?>
                         <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/login" class="footer-menu__link">Connexion</a></li>
                         <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/register" class="footer-menu__link">Inscription</a></li>
-                        <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/admin" class="footer-menu__link">Admin</a></li>
+                        <?php else: ?>
+                        <li class="footer-menu__item"><a href="<?= ROOT ?>/Homes/dashboard" class="footer-menu__link">Espace</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 <div class="dashboard-nav bg-white flx-between gap-md-3 gap-2">
+    <?php $role = strtolower((string)($_SESSION['role'] ?? 'etudiant')); ?>
     <div class="dashboard-nav__left flx-align gap-md-3 gap-2">
         <button type="button" class="icon-btn bar-icon text-heading bg-gray-seven flx-center">
             <img src="<?= ROOT ?>/assets/images/icons/menu-bar.svg" alt="">
@@ -6,7 +7,12 @@
         <button type="button" class="icon-btn arrow-icon text-heading bg-gray-seven flx-center">
             <img src="<?= ROOT ?>/assets/images/icons/angle-right.svg" alt="">
         </button>
-        <h6 class="mb-0">Administration plateforme</h6>
+        <h6 class="mb-0">
+            <?php if ($role === 'admin'): ?>Administration plateforme
+            <?php elseif ($role === 'der'): ?>Espace DER
+            <?php else: ?>Espace étudiant
+            <?php endif; ?>
+        </h6>
     </div>
     <div class="dashboard-nav bg-white flx-between gap-md-3 gap-2">
         <div class="dashboard-nav__left flx-align gap-md-3 gap-2">
@@ -24,6 +30,92 @@
                             </span>
                         </button>
                         <ul class="user-profile-dropdown">
+                            <?php if ($role === 'etudiant'): ?>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Homes/publier_projet" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Publier un projet</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Homes/mes_projets" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Mes projets</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Homes/messages_recus" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Messages reçus</span>
+                                    </a>
+                                </li>
+                            <?php elseif ($role === 'admin'): ?>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Admins/pending_projects" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Projets à valider</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Admins/projects_management" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Gestion des projets</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Admins/users_management" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Gestion des utilisateurs</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Admins/categories" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Gestion des catégories</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Admins/messages" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Messages / Contact</span>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="sidebar-list__item">
+                                    <a href="<?= ROOT ?>/Homes/der_espace" class="sidebar-list__link">
+                                        <span class="sidebar-list__icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                                        </span>
+                                        <span class="text">Gestion publications DER</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
                             <li class="sidebar-list__item">
                                 <a href="<?= ROOT ?>/Profiles/appercu" class="sidebar-list__link">
                                    

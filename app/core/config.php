@@ -8,7 +8,7 @@ if (!defined('ROOT')) {
 
 define('APP_NAME', 'Plateforme GI Promo 21');
 
-define('DB_NAME', 'plateforme_GI_promo21');
+define('DB_NAME', 'plateforme_gi_promo21');
 define('DBHOST', 'localhost');
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');

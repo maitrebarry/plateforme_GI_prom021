@@ -7,7 +7,7 @@ class Universites extends Controller
     {
 
         $universite = new Universite();
-        $filiere = new Filiere();
+        $faculte = new Faculte();
 
         // Ajouter université
         if(isset($_POST['save_universite']))
@@ -24,30 +24,38 @@ class Universites extends Controller
             $this->redirect("Universites/index");
         }
 
-        // Ajouter filiere
-        if(isset($_POST['save_filiere']))
+        // Ajouter faculté / institut
+        if(isset($_POST['save_faculte']))
         {
 
             $data = [
-                "nom_filiere" => $_POST['nom_filiere'],
+                "nom_faculte" => $_POST['nom_faculte'],
                 "universite_id" => $_POST['universite_id']
             ];
 
-            $filiere->save_filiere($data);
+            $faculte->save_faculte($data);
 
-            $filiere->set_flash("Filière ajoutée avec succès", "success");
+            $faculte->set_flash("Faculté/Institut ajouté avec succès", "success");
 
             $this->redirect("Universites/index");
         }
 
         $universites = $universite->SelectAllData("*","universites");
-        $filieres = $filiere->SelectAllData("*","filieres");
+        $facultes = $faculte->SelectAllData("*","facultes");
 
         $this->view("universiter_filiere",[
             "universites"=>$universites,
-            "filieres"=>$filieres
+            "facultes"=>$facultes
         ]);
 
+    }
+
+    public function getFacultes($universite_id)
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $faculte = new Faculte();
+        $result = $faculte->getFacultesByUniversite((int) $universite_id);
+        echo json_encode($result);
     }
 
 }

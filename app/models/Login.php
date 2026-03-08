@@ -33,13 +33,14 @@ class Login extends Model
             $_SESSION['prenom'] = $utilisateur->prenom;
             $_SESSION['email'] = $utilisateur->email;
             $_SESSION['universite'] = $utilisateur->universite;
+            $_SESSION['faculte'] = $utilisateur->faculte ?? null;
             $_SESSION['filiere'] = $utilisateur->filiere;
             $_SESSION['role'] = $utilisateur->role;
             $_SESSION['contact'] = $utilisateur->contact;
                 $_SESSION['image'] = $utilisateur->image ?? 'default.png';
     
                
-            $this->redirect("Homes/admin");
+            $this->redirect("Homes/dashboard");
         }
         else
         {

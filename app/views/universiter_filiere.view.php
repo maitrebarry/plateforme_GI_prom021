@@ -52,13 +52,13 @@
 
         </div>
 
-        <!-- Ajouter Filière -->
+        <!-- Ajouter Faculté / Institut -->
         <div class="col-md-6">
 
             <div class="card">
 
                 <div class="card-header">
-                    <h5>Ajouter Filière</h5>
+                    <h5>Ajouter Faculté / Institut</h5>
                 </div>
 
                 <div class="card-body">
@@ -89,15 +89,15 @@
 
                         <div class="mb-3">
 
-                            <label>Nom filière</label>
+                            <label>Nom faculté / institut</label>
 
-                            <input type="text" name="nom_filiere" class="form-control" required>
+                            <input type="text" name="nom_faculte" class="form-control" required>
 
                         </div>
 
-                        <button type="submit" name="save_filiere" class="btn btn-success">
+                        <button type="submit" name="save_faculte" class="btn btn-success">
 
-                            Ajouter Filière
+                            Ajouter Faculté / Institut
 
                         </button>
 
@@ -157,11 +157,11 @@
 
     </div>
 
-    <!-- Liste des filières -->
+    <!-- Liste des facultés -->
     <div class="card mt-4">
 
         <div class="card-header">
-            <h5>Liste des Filières</h5>
+            <h5>Liste des Facultés / Instituts</h5>
         </div>
 
         <div class="card-body">
@@ -174,7 +174,7 @@
 
                         <tr>
                             <th>ID</th>
-                            <th>Filière</th>
+                            <th>Faculté / Institut</th>
                             <th>Université</th>
                         </tr>
 
@@ -182,13 +182,13 @@
 
                     <tbody>
 
-                        <?php foreach ($filieres as $f): ?>
+                        <?php foreach ($facultes as $f): ?>
 
                             <tr>
 
-                                <td><?= $f->id_filiere ?></td>
+                                <td><?= $f->id_faculte ?></td>
 
-                                <td><?= $f->nom_filiere ?></td>
+                                <td><?= $f->nom_faculte ?></td>
 
                                 <td>
                                     <?php

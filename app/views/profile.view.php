@@ -33,19 +33,21 @@
                     <div class="col-xxl-3 col-xl-4">
                         <div class="profile-info">
                             <div class="profile-info__inner mb-40 text-center">
-<form action="modifier_image" method="post" enctype="multipart/form-data" id="avatarForm">
+<form action="<?= ROOT ?>/Profiles/modifier_image" method="post" enctype="multipart/form-data" id="avatarForm" class="text-center">
                                 <div class="avatar-upload mb-24">
-                                    <div class="avatar-edit">
-                                        <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg">
-                                        <label for="imageUpload"> <img src="assets/images/icons/camera.svg" alt=""> </label>
+                                    <div class="avatar-preview mb-3">
+                                        <img src="<?= ROOT ?>/image_profile/<?= htmlspecialchars($_SESSION['image'] ?? 'default.png'); ?>" class="rounded-circle" width="140" height="140" alt="Photo de profil" id="profileImage">
                                     </div>
-                                    <!-- <div class="avatar-preview">
-                                        <div id="imagePreview"> </div>
-                                    </div> -->
-                                     <label for="fileInput">
-                                        <img src="<?= ROOT ?>/image_profile/<?= $_SESSION['image']; ?>" class="rounded-circle" width="120" height="120" alt="" id="profileImage">
-                                    </label>
-                                     <input type="file" id="fileInput" name="newAvatar" style="display: none;" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                                    <input type="file" id="fileInput" name="newAvatar" accept="image/*" class="d-none">
+                                    <button type="button" class="btn btn-outline-primary w-100 mb-2" id="triggerAvatarUpload">
+                                        <i class='bx bx-image-add me-1'></i>
+                                        Choisir une nouvelle photo
+                                    </button>
+                                    <button type="submit" class="btn btn-primary w-100" id="saveAvatarBtn" disabled>
+                                        <i class='bx bx-cloud-upload me-1'></i>
+                                        Enregistrer la modification
+                                    </button>
+                                    <small class="d-block mt-2 text-muted" id="avatarHelperText">Formats acceptés: JPG, PNG, GIF, WEBP (max 5 Mo)</small>
                                 </div>
 </form>
                                 <h5 class="profile-info__name mb-1"><?= $_SESSION['nom'] . ' ' . $_SESSION['prenom']; ?></h5>
@@ -178,6 +180,41 @@
     </main>
 
     <?php $this->view('Partials/scripts'); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('fileInput');
+            const triggerBtn = document.getElementById('triggerAvatarUpload');
+            const saveBtn = document.getElementById('saveAvatarBtn');
+            const helperText = document.getElementById('avatarHelperText');
+            const previewImage = document.getElementById('profileImage');
+
+            if (!fileInput || !triggerBtn || !saveBtn || !previewImage) {
+                return;
+            }
+
+            triggerBtn.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', () => {
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    helperText.textContent = 'Formats acceptés: JPG, PNG, GIF, WEBP (max 5 Mo)';
+                    saveBtn.disabled = true;
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                helperText.textContent = `Fichier sélectionné: ${file.name}`;
+                saveBtn.disabled = false;
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        previewImage.src = event.target?.result || previewImage.src;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

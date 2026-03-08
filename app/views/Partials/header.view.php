@@ -15,7 +15,7 @@
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/profile" class="nav-menu__link">Profil</a></li>
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/login" class="nav-menu__link">Connexion</a></li>
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/register" class="nav-menu__link">Inscription</a></li>
-                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/admin" class="nav-menu__link">Admin</a></li>
+                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/dashboard" class="nav-menu__link">Espace</a></li>
                 </ul>
                    <div class="header-right flx-align">
                 <button type="button" class="header-right__button cart-btn position-relative">
@@ -65,13 +65,11 @@
                 <ul class="nav-menu flx-align ">
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/index" class="nav-menu__link">Accueil</a></li>
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/projects" class="nav-menu__link">Projets</a></li>
-                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/departement" class="nav-menu__link">Espace Département</a></li>
-                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/profile" class="nav-menu__link">Profil</a></li>
                      <?php if(!isset($_SESSION['user_id'])): ?>
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/login" class="nav-menu__link">Connexion</a></li>
                        <?php endif; ?>
                         <?php if(isset($_SESSION['user_id'])): ?>
-                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/admin" class="nav-menu__link">Admin</a></li>
+                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/dashboard" class="nav-menu__link">Espace</a></li>
                      <?php endif; ?>
                 </ul>
             </div>
@@ -82,10 +80,10 @@
                 <?php if(!isset($_SESSION['user_id'])): ?>
                 <div class="header-right__inner gap-3 flx-align d-lg-flex d-none">
 
-                    <a href="<?= ROOT ?>/Homes/register" class="btn btn-main pill">
+                    <a href="<?= ROOT ?>/Homes/register" class="btn btn-primary pill">
                         <span class="icon-left icon">
                             <img src="<?= ROOT ?>/assets/images/icons/user.svg" alt="">
-                        </span>Create Account
+                        </span>Créer un compte
                     </a>
                 </div>
                 <button type="button" class="toggle-mobileMenu d-lg-none"> <i class="las la-bars"></i> </button>

@@ -69,42 +69,54 @@ class Profiles extends Controller
     }
 public function modifier_image()
 {
-    $image = new Profile();
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['newAvatar']) && $_FILES['newAvatar']['error'] === UPLOAD_ERR_OK) {
-        $cheminTemp = $_FILES['newAvatar']['tmp_name'];
-        $nomOriginal = $_FILES['newAvatar']['name'];
-        $extensionsAutorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        $extension = strtolower(pathinfo($nomOriginal, PATHINFO_EXTENSION));
-
-        if (in_array($extension, $extensionsAutorisees)) {
-            $nomFichier = uniqid('profil_', true) . '.' . $extension;
-            $destination = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'image_profile' . DIRECTORY_SEPARATOR . $nomFichier;
-
-            if (move_uploaded_file($cheminTemp, $destination)) {
-                $_SESSION['image'] = $nomFichier;
-
-                $sql = "UPDATE users SET image = :image WHERE user_id = :id";
-                $params = ['image' => $nomFichier, 'id' => $_SESSION['user_id']];
-                $image->insertion_update_simples($sql, $params);
-
-                // Redirection pour éviter resoumission formulaire
-                header("Location: " . $_SERVER['REQUEST_URI']);
-                exit();
-            } else {
-                    $image->set_flash("Erreur lors de l'enregistrement du fichier.",'danger');
-               
-            }
-        } else {
-            $image->set_flash("Format de fichier non autorisé.",'danger');
-            
-        }
+    if (!isset($_SESSION['user_id'])) {
+        $this->redirect('Homes/login');
     }
 
-    // Passer les données à la vue
-    $this->view("profile");
+    $profileModel = new Profile();
 
-    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $profileModel->set_flash("Action non autorisée.", 'danger');
+        $this->redirect('Homes/profile');
+    }
+
+    if (!isset($_FILES['newAvatar']) || $_FILES['newAvatar']['error'] !== UPLOAD_ERR_OK) {
+        $profileModel->set_flash("Veuillez sélectionner une image valide.", 'danger');
+        $this->redirect('Homes/profile');
+    }
+
+    $cheminTemp = $_FILES['newAvatar']['tmp_name'];
+    $nomOriginal = $_FILES['newAvatar']['name'];
+    $extensionsAutorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $extension = strtolower(pathinfo($nomOriginal, PATHINFO_EXTENSION));
+    $tailleMax = 5 * 1024 * 1024; // 5 MB
+
+    if (!in_array($extension, $extensionsAutorisees, true)) {
+        $profileModel->set_flash("Format de fichier non autorisé.", 'danger');
+        $this->redirect('Homes/profile');
+    }
+
+    if (!empty($_FILES['newAvatar']['size']) && $_FILES['newAvatar']['size'] > $tailleMax) {
+        $profileModel->set_flash("L'image dépasse la taille maximale autorisée (5 Mo).", 'danger');
+        $this->redirect('Homes/profile');
+    }
+
+    $nomFichier = uniqid('profil_', true) . '.' . $extension;
+    $destination = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'image_profile' . DIRECTORY_SEPARATOR . $nomFichier;
+
+    if (!move_uploaded_file($cheminTemp, $destination)) {
+        $profileModel->set_flash("Erreur lors de l'enregistrement du fichier.", 'danger');
+        $this->redirect('Homes/profile');
+    }
+
+    $_SESSION['image'] = $nomFichier;
+
+    $sql = "UPDATE users SET image = :image WHERE user_id = :id";
+    $params = ['image' => $nomFichier, 'id' => $_SESSION['user_id']];
+    $profileModel->insertion_update_simples($sql, $params);
+
+    $profileModel->set_flash("Photo de profil mise à jour avec succès.", 'success');
+    $this->redirect('Homes/profile');
 }
 
 

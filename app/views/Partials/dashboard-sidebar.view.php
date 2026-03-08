@@ -3,9 +3,11 @@
     <div class="dashboard-sidebar__inner">
         <a href="<?= ROOT ?>/Homes/index" class="logo mb-48"><img src="<?= ROOT ?>/assets/images/logo/logo.png" alt=""></a>
 
+        <?php $role = strtolower((string)($_SESSION['role'] ?? 'etudiant')); ?>
+
         <ul class="sidebar-list">
             <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Homes/admin" class="sidebar-list__link">
+                <a href="<?= ROOT ?>/Homes/dashboard" class="sidebar-list__link">
                     <span class="sidebar-list__icon">
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon1.svg" alt="" class="icon">
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active1.svg" alt="" class="icon icon-active">
@@ -13,43 +15,93 @@
                     <span class="text">Tableau de bord</span>
                 </a>
             </li>
-            <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Homes/projects" class="sidebar-list__link">
-                    <span class="sidebar-list__icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
-                    </span>
-                    <span class="text">Projets</span>
-                </a>
-            </li>
-          
-            <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Homes/departement" class="sidebar-list__link">
-                    <span class="sidebar-list__icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                    </span>
-                    <span class="text">Espace Département</span>
-                </a>
-            </li>
-              <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Utilisateurs/liste_utilisateur" class="sidebar-list__link">
-                    <span class="sidebar-list__icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
-                    </span>
-                    <span class="text">utilisateur</span>
-                </a>
-            </li>
-            <li class="sidebar-list__item">
-                <a href="<?= ROOT ?>/Universites" class="sidebar-list__link">
-                    <span class="sidebar-list__icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
-                    </span>
-                    <span class="text">universiter_filiere</span>
-                </a>
-            </li>
+
+            <?php if ($role === 'etudiant'): ?>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Homes/publier_projet" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Publier un projet</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Homes/mes_projets" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Mes projets</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Homes/messages_recus" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Messages reçus</span>
+                    </a>
+                </li>
+            <?php elseif ($role === 'admin'): ?>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Admins/pending_projects" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Projets à valider</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Admins/projects_management" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Gestion des projets</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Admins/users_management" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Gestion des utilisateurs</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Admins/categories" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Gestion des catégories</span>
+                    </a>
+                </li>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Admins/messages" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Messages / Contact</span>
+                    </a>
+                </li>
+            <?php else: ?>
+                <li class="sidebar-list__item">
+                    <a href="<?= ROOT ?>/Homes/der_espace" class="sidebar-list__link">
+                        <span class="sidebar-list__icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
+                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
+                        </span>
+                        <span class="text">Gestion publications DER</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <li class="sidebar-list__item">
                 <a href="<?= ROOT ?>/Homes/index" class="sidebar-list__link">
                     <span class="sidebar-list__icon">

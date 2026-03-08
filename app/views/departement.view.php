@@ -11,7 +11,7 @@
             <div class="breadcrumb-two">
                 <h1 class="breadcrumb-two__title text-white mb-2">Espace Département</h1>
                 <p class="text-white mb-0">
-                    <?= htmlspecialchars($department['name'] ?? 'Département') ?> - Responsable: <?= htmlspecialchars($department['manager'] ?? 'DER') ?>
+                    <?= htmlspecialchars($department['name'] ?? 'Département') ?>
                 </p>
             </div>
         </div>
@@ -19,111 +19,34 @@
 
     <section class="padding-y-120" data-dynamic-block="department-space">
         <div class="container container-two">
-            <div class="row gy-4">
-                <div class="col-lg-8">
-                    <div class="card common-card mb-4" data-dynamic-block="department-announcements">
-                        <div class="card-body">
-                            <h5 class="mb-3">Annonces du département</h5>
-                            <?php if (!empty($departmentAnnouncements)): ?>
-                                <ul class="mb-0">
-                                    <?php foreach ($departmentAnnouncements as $item): ?>
-                                        <li class="mb-2">
-                                            <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
-                                            <span class="text-muted">(<?= htmlspecialchars($item['date'] ?? '') ?>)</span><br>
-                                            <span><?= htmlspecialchars($item['content'] ?? '') ?></span>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php else: ?>
-                                <p class="text-muted mb-0">Aucune annonce disponible.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="card common-card mb-4" data-dynamic-block="department-events">
-                        <div class="card-body">
-                            <h5 class="mb-3">Événements</h5>
-                            <?php if (!empty($departmentEvents)): ?>
-                                <ul class="mb-0">
-                                    <?php foreach ($departmentEvents as $item): ?>
-                                        <li class="mb-2">
-                                            <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
-                                            <span class="text-muted">(<?= htmlspecialchars($item['date'] ?? '') ?>)</span>
-                                            <div><?= htmlspecialchars($item['location'] ?? '') ?></div>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php else: ?>
-                                <p class="text-muted mb-0">Aucun événement disponible.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="card common-card" data-dynamic-block="department-opportunities">
-                        <div class="card-body">
-                            <h5 class="mb-3">Opportunités</h5>
-                            <?php if (!empty($departmentOpportunities)): ?>
-                                <ul class="mb-0">
-                                    <?php foreach ($departmentOpportunities as $item): ?>
-                                        <li class="mb-2">
-                                            <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
-                                            <span class="text-muted">(<?= htmlspecialchars($item['date'] ?? '') ?>)</span>
-                                            <div><?= htmlspecialchars($item['organization'] ?? '') ?></div>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php else: ?>
-                                <p class="text-muted mb-0">Aucune opportunité disponible.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card common-card mb-4" data-dynamic-block="department-results">
-                        <div class="card-body">
-                            <h5 class="mb-3">Résultats publiés</h5>
-                            <?php if (!empty($departmentResults)): ?>
-                                <ul class="mb-0">
-                                    <?php foreach ($departmentResults as $item): ?>
-                                        <li class="mb-2">
-                                            <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong><br>
-                                            <small class="text-muted"><?= htmlspecialchars($item['date'] ?? '') ?></small>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php else: ?>
-                                <p class="text-muted mb-0">Aucun résultat publié.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="card common-card" data-dynamic-block="department-publication-form">
-                        <div class="card-body">
-                            <h5 class="mb-3">Publication DER</h5>
-                            <form action="#" method="post">
-                                <div class="mb-3">
-                                    <label for="post_type" class="form-label">Type</label>
-                                    <select id="post_type" name="post_type" class="common-input common-input--bg" required>
-                                        <option value="announcement">Annonce</option>
-                                        <option value="event">Événement</option>
-                                        <option value="result">Résultat</option>
-                                        <option value="opportunity">Opportunité</option>
-                                    </select>
+            <div class="card common-card" data-dynamic-block="department-latest-posts">
+                <div class="card-body">
+                    <h5 class="mb-3">Aperçu des publications</h5>
+                    <?php if (!empty($latestDepartmentPosts)): ?>
+                        <div class="row gy-3">
+                            <?php foreach ($latestDepartmentPosts as $item): ?>
+                                <div class="col-lg-6">
+                                    <div class="border rounded p-3 h-100">
+                                        <strong><?= htmlspecialchars($item['title'] ?? '') ?></strong>
+                                        <span class="text-muted d-block mb-2"><?= htmlspecialchars($item['date'] ?? '') ?> · <?= htmlspecialchars(ucfirst($item['type'] ?? 'publication')) ?></span>
+                                        <div><?= nl2br(htmlspecialchars($item['content'] ?? '')) ?></div>
+                                        <?php if (!empty($item['files'])): ?>
+                                            <div class="mt-2">
+                                                <small class="text-muted d-block mb-1">Documents à télécharger</small>
+                                                <?php foreach ($item['files'] as $file): ?>
+                                                    <a class="d-block text-primary" href="<?= htmlspecialchars($file['url'] ?? '#') ?>" download>
+                                                        <?= htmlspecialchars($file['name'] ?? 'Fichier') ?>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="post_title" class="form-label">Titre</label>
-                                    <input id="post_title" name="post_title" type="text" class="common-input common-input--bg" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="post_content" class="form-label">Contenu</label>
-                                    <textarea id="post_content" name="post_content" class="common-input common-input--bg" rows="4" required></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-main pill w-100">Publier</button>
-                            </form>
-                            <small class="text-muted d-block mt-2">Prêt pour liaison backend (validation DER + base de données).</small>
+                            <?php endforeach; ?>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Aucune publication du DER n'est encore visible sur le site.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
