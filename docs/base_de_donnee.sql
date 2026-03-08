@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
     github VARCHAR(255) NULL,
     linkedin VARCHAR(255) NULL,
     role ENUM('etudiant','admin','der') DEFAULT 'etudiant',
+    statut_compte ENUM('actif','bloque') DEFAULT 'actif',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     universite_id INT NULL,
     faculte_id INT NULL,
@@ -79,6 +80,7 @@ ALTER TABLE users
     ADD COLUMN IF NOT EXISTS faculte_id INT NULL AFTER universite_id,
     ADD COLUMN IF NOT EXISTS autre_etablissement VARCHAR(255) NULL AFTER faculte_id,
     ADD COLUMN IF NOT EXISTS autre_departement VARCHAR(255) NULL AFTER autre_etablissement,
+    ADD COLUMN IF NOT EXISTS statut_compte ENUM('actif','bloque') DEFAULT 'actif' AFTER role,
     MODIFY COLUMN filiere VARCHAR(255) NULL;
 
 ALTER TABLE users

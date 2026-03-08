@@ -33,15 +33,52 @@
                                                     <th>Email</th>
                                                     <th>Role</th>
                                                     <th>Université - Faculté - Filière</th>
+                                                    <th>Statut</th>
+                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php foreach ($liste as $listes): ?>
+                                                    <?php
+                                                        $userStatus = $listes->statut_compte ?? 'actif';
+                                                        $isActive = $userStatus === 'actif';
+                                                        $isStudent = ($listes->role === 'etudiant');
+                                                        $isCurrentUser = ((int)($_SESSION['user_id'] ?? 0) === (int)$listes->user_id);
+                                                    ?>
                                                     <tr>
                                                         <td><?= $listes->nom . ' ' . $listes->prenom ?></td>
                                                         <td><?= $listes->email ?></td>
                                                         <td><?= $listes->role ?></td>
                                                         <td><?= trim(($listes->universite ?? 'N/A') . ' - ' . ($listes->faculte ?? 'N/A') . ' - ' . ($listes->filiere ?? 'N/A')) ?></td>
+                                                        <td>
+                                                            <span class="badge <?= $isActive ? 'bg-success' : 'bg-secondary' ?>">
+                                                                <?= $isActive ? 'Actif' : 'Bloqué' ?>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($isStudent): ?>
+                                                                <div class="d-flex flex-wrap gap-2">
+                                                                    <form method="post" action="<?= ROOT ?>/Utilisateurs/liste_utilisateur" class="d-inline">
+                                                                        <input type="hidden" name="user_action" value="toggle_status">
+                                                                        <input type="hidden" name="user_id" value="<?= (int) $listes->user_id ?>">
+                                                                        <input type="hidden" name="target_status" value="<?= $isActive ? 'bloque' : 'actif' ?>">
+                                                                        <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-warning' : 'btn-success' ?>">
+                                                                            <?= $isActive ? 'Bloquer' : 'Activer' ?>
+                                                                        </button>
+                                                                    </form>
+
+                                                                    <?php if (!$isCurrentUser): ?>
+                                                                        <form method="post" action="<?= ROOT ?>/Utilisateurs/liste_utilisateur" class="d-inline" onsubmit="return confirm('Supprimer définitivement cet utilisateur ?');">
+                                                                            <input type="hidden" name="user_action" value="delete_user">
+                                                                            <input type="hidden" name="user_id" value="<?= (int) $listes->user_id ?>">
+                                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                                                        </form>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <span class="text-muted">—</span>
+                                                            <?php endif; ?>
+                                                        </td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>

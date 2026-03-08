@@ -24,6 +24,11 @@ class Login extends Model
             return false;
         }
 
+        if (($utilisateur->statut_compte ?? 'actif') !== 'actif') {
+            $this->set_flash("Votre compte est bloqué. Veuillez contacter l'administrateur.", "warning");
+            return false;
+        }
+
         // vérifier mot de passe
         if(password_verify($password, $utilisateur->password))
         {

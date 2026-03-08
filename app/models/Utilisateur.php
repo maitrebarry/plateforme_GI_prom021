@@ -114,4 +114,26 @@ class Utilisateur extends Model
 
         return $this->insertion_update_simples($sql, $params);
     }
+
+    public function findById(int $userId)
+    {
+        return $this->FetchSelectWhere("*", "users", "user_id = ?", [$userId]);
+    }
+
+    public function updateAccountStatus(int $userId, string $status): bool
+    {
+        $allowed = ['actif', 'bloque'];
+        if (!in_array($status, $allowed, true)) {
+            return false;
+        }
+
+        $sql = "UPDATE users SET statut_compte = :statut WHERE user_id = :id";
+        return (bool) $this->insertion_update_simples($sql, [':statut' => $status, ':id' => $userId]);
+    }
+
+    public function deleteById(int $userId): bool
+    {
+        $sql = "DELETE FROM users WHERE user_id = :id";
+        return (bool) $this->insertion_update_simples($sql, [':id' => $userId]);
+    }
 }

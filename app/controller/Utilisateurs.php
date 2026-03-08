@@ -121,6 +121,54 @@ public function liste_utilisateur()
     $universiteModel->seedDefaultUniversitesIfEmpty();
     $universites = $universiteModel->getAllUniversites();
 
+    if (isset($_POST['user_action'], $_POST['user_id'])) {
+        $targetId = (int) $_POST['user_id'];
+
+        if ($targetId <= 0) {
+            $utilisateur->set_flash("Utilisateur introuvable.", "danger");
+            $this->redirect("Utilisateurs/liste_utilisateur");
+            return;
+        }
+
+        $targetUser = $utilisateur->findById($targetId);
+        if (!$targetUser || ($targetUser->role ?? '') !== 'etudiant') {
+            $utilisateur->set_flash("Action réservée aux comptes Étudiant.", "warning");
+            $this->redirect("Utilisateurs/liste_utilisateur");
+            return;
+        }
+
+        if ($targetId === (int) ($_SESSION['user_id'] ?? 0) && ($_POST['user_action'] === 'delete_user')) {
+            $utilisateur->set_flash("Vous ne pouvez pas supprimer votre propre compte.", "warning");
+            $this->redirect("Utilisateurs/liste_utilisateur");
+            return;
+        }
+
+        switch ($_POST['user_action']) {
+            case 'toggle_status':
+                $status = $_POST['target_status'] ?? '';
+                if ($utilisateur->updateAccountStatus($targetId, $status)) {
+                    $message = $status === 'actif' ? "Utilisateur réactivé." : "Utilisateur bloqué.";
+                    $utilisateur->set_flash($message, 'success');
+                } else {
+                    $utilisateur->set_flash("Impossible de mettre à jour le statut.", 'danger');
+                }
+                break;
+            case 'delete_user':
+                if ($utilisateur->deleteById($targetId)) {
+                    $utilisateur->set_flash("Utilisateur supprimé avec succès.", 'success');
+                } else {
+                    $utilisateur->set_flash("Impossible de supprimer cet utilisateur.", 'danger');
+                }
+                break;
+            default:
+                $utilisateur->set_flash("Action inconnue.", 'danger');
+                break;
+        }
+
+        $this->redirect("Utilisateurs/liste_utilisateur");
+        return;
+    }
+
       if(isset($_POST['save_user']))
         {
             if($_POST['password'] != $_POST['password_confirm'])
@@ -188,9 +236,10 @@ public function liste_utilisateur()
             prenom,
             email,
             role,
-                universite,
-                faculte,
-              filiere
+            universite,
+            faculte,
+            filiere,
+            statut_compte
         FROM users
     ";
 

@@ -6,6 +6,20 @@
     <?php $this->view('Partials/header'); ?>
     <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
 
+    <?php
+        $profileUser = $user ?? null;
+        $profilePrenom = htmlspecialchars($profileUser->prenom ?? ($_SESSION['prenom'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $profileNom = htmlspecialchars($profileUser->nom ?? ($_SESSION['nom'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $profileEmail = htmlspecialchars($profileUser->email ?? ($_SESSION['email'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $rawContact = $profileUser->contact ?? ($_SESSION['contact'] ?? '');
+        $contactDigits = preg_replace('/\D+/', '', (string)$rawContact);
+        $profileContact = $contactDigits !== '' ? trim(preg_replace('/(\d{2})(?=\d)/', '$1 ', $contactDigits)) : '';
+        $profileUniversite = htmlspecialchars($profileUser->universite ?? ($_SESSION['universite'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $profileFaculte = htmlspecialchars($profileUser->faculte ?? ($_SESSION['faculte'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $profileFiliere = htmlspecialchars($profileUser->filiere ?? ($_SESSION['filiere'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $profileImage = htmlspecialchars($_SESSION['image'] ?? ($profileUser->image ?? 'default.png'), ENT_QUOTES, 'UTF-8');
+    ?>
+
     <main class="change-gradient">
 
         <div class="cover-photo position-relative z-index-1 overflow-hidden">
@@ -36,7 +50,7 @@
 <form action="<?= ROOT ?>/Profiles/modifier_image" method="post" enctype="multipart/form-data" id="avatarForm" class="text-center">
                                 <div class="avatar-upload mb-24">
                                     <div class="avatar-preview mb-3">
-                                        <img src="<?= ROOT ?>/image_profile/<?= htmlspecialchars($_SESSION['image'] ?? 'default.png'); ?>" class="rounded-circle" width="140" height="140" alt="Photo de profil" id="profileImage">
+                                        <img src="<?= ROOT ?>/image_profile/<?= $profileImage ?>" class="rounded-circle" width="140" height="140" alt="Photo de profil" id="profileImage">
                                     </div>
                                     <input type="file" id="fileInput" name="newAvatar" accept="image/*" class="d-none">
                                     <button type="button" class="btn btn-outline-primary w-100 mb-2" id="triggerAvatarUpload">
@@ -91,84 +105,93 @@
                         <div class="dashboard-card">
                             <div class="dashboard-card__header pb-0">
                                 <ul class="nav tab-bordered nav-pills" id="pills-tab" role="tablist">
-                                    <!-- <li class="nav-item" role="presentation">
-                          <button class="nav-link font-18 font-heading active" id="pills-personalInfo-tab" data-bs-toggle="pill" data-bs-target="#pills-personalInfo" type="button" role="tab" aria-controls="pills-personalInfo" aria-selected="true">Personal Info</button>
-                        </li> -->
-
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link font-18 font-heading active" id="pills-changePassword-tab" data-bs-toggle="pill" data-bs-target="#pills-changePassword" type="button" role="tab" aria-controls="pills-changePassword" aria-selected="false">Change Password</button>
+                                        <button class="nav-link font-18 font-heading active" id="pills-personalInfo-tab" data-bs-toggle="pill" data-bs-target="#pills-personalInfo" type="button" role="tab" aria-controls="pills-personalInfo" aria-selected="true">Informations personnelles</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link font-18 font-heading" id="pills-changePassword-tab" data-bs-toggle="pill" data-bs-target="#pills-changePassword" type="button" role="tab" aria-controls="pills-changePassword" aria-selected="false">Modifier le mot de passe</button>
                                     </li>
                                 </ul>
                             </div>
 
-                            <div class="profile-info-content">
                                 <div class="tab-content" id="pills-tabContent">
-                                    <!-- <div class="tab-pane fade show active" id="pills-personalInfo" role="tabpanel" aria-labelledby="pills-personalInfo-tab" tabindex="0">
-                                        <form action="#" autocomplete="off">
+                                    <div class="tab-pane fade show active" id="pills-personalInfo" role="tabpanel" aria-labelledby="pills-personalInfo-tab" tabindex="0">
+                                        <form action="<?= ROOT ?>/Profiles/appercu" autocomplete="off" method="POST">
+                                            <input type="hidden" name="update_profile_info" value="1">
                                             <div class="row gy-4">
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="fName" class="form-label mb-2 font-18 font-heading fw-600">First Name</label>
-                                                    <input type="text" class="common-input border" name="nom" id="fName" placeholder="First Name">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Prénom</label>
+                                                    <input type="text" class="common-input border" name="user_firstname" value="<?= $profilePrenom ?>" required>
                                                 </div>
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="lastNamee" class="form-label mb-2 font-18 font-heading fw-600">Last Name</label>
-                                                    <input type="text" class="common-input border" name="prenom" id="lastNamee" placeholder="Last Name">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Nom</label>
+                                                    <input type="text" class="common-input border" name="user_lastname" value="<?= $profileNom ?>" required>
                                                 </div>
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="phonee" class="form-label mb-2 font-18 font-heading fw-600">Phone Number</label>
-                                                    <input type="tel" class="common-input border" name="contact" id="phonee" placeholder="Phone Number">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Email</label>
+                                                    <input type="email" class="common-input border" name="user_email" value="<?= $profileEmail ?>" required>
                                                 </div>
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="emailAdddd" class="form-label mb-2 font-18 font-heading fw-600">Email Address</label>
-                                                    <input type="email" class="common-input border" name="email" id="emailAdddd" placeholder="Email Address">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Contact</label>
+                                                    <input type="text" class="common-input border" name="user_contact" value="<?= htmlspecialchars($profileContact, ENT_QUOTES, 'UTF-8') ?>" placeholder="76 56 23 17" inputmode="numeric">
+                                                    <small class="text-muted">8 chiffres (ex: 76 56 23 17)</small>
                                                 </div>
-
-
+                                                <div class="col-sm-6 col-xs-6">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Université</label>
+                                                    <input type="text" class="common-input border" name="user_universite" value="<?= $profileUniversite ?>">
+                                                </div>
+                                                <div class="col-sm-6 col-xs-6">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Faculté / Institut</label>
+                                                    <input type="text" class="common-input border" name="user_faculte" value="<?= $profileFaculte ?>">
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Filière</label>
+                                                    <input type="text" class="common-input border" name="user_filiere" value="<?= $profileFiliere ?>">
+                                                </div>
                                                 <div class="col-sm-12 text-end">
-                                                    <button class="btn btn-main btn-lg pill mt-4"> Update Profile</button>
+                                                    <button class="btn btn-main btn-lg pill mt-4" type="submit">Enregistrer les modifications</button>
                                                 </div>
                                             </div>
                                         </form>
-                                    </div> -->
+                                    </div>
 
-                                    <div class="tab-pane fade fade show active" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab" tabindex="0">
-                                        <form action="#" autocomplete="off" method="POST"
-                                          <?php $this->view("set_flash"); ?>>
+                                    <div class="tab-pane fade" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab" tabindex="0">
+                                        <form action="<?= ROOT ?>/Profiles/appercu" autocomplete="off" method="POST">
                                             <div class="row gy-4">
-
                                                 <div class="col-12">
-                                                    <label for="current-password" class="form-label mb-2 font-18 font-heading fw-600">Current Password</label>
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Mot de passe actuel</label>
                                                     <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon " name="ancien_mot_de_passe"  placeholder="************">
+                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="ancien_mot_de_passe" placeholder="************" required>
                                                         <span class="input-icon input-icon--left"><img src="assets/images/icons/key-icon.svg" alt=""></span>
                                                         <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#current-password"></span>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="new-password" class="form-label mb-2 font-18 font-heading fw-600">New Password</label>
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Nouveau mot de passe</label>
                                                     <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon " name="nouveau_mot_de_passe"  placeholder="************">
+                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="nouveau_mot_de_passe" placeholder="************" required>
                                                         <span class="input-icon input-icon--left"><img src="assets/images/icons/lock-two.svg" alt=""></span>
                                                         <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#new-password"></span>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6 col-xs-6">
-                                                    <label for="confirm-password" class="form-label mb-2 font-18 font-heading fw-600">Confirm New Password</label>
+                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Confirmer le mot de passe</label>
                                                     <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon " name="comfirme_mot_de_passe"  placeholder="************">
+                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="comfirme_mot_de_passe" placeholder="************" required>
                                                         <span class="input-icon input-icon--left"><img src="assets/images/icons/lock-two.svg" alt=""></span>
                                                         <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#confirm-password"></span>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 text-end">
-                                                    <button class="btn btn-main btn-lg " type="submit" name="modifier"> Update Password</button>
+                                                    <button class="btn btn-main btn-lg" type="submit" name="modifier">Mettre à jour le mot de passe</button>
                                                 </div>
                                             </div>
                                         </form>
                                     </div>
+                                </div>
                                 </div>
                             </div>
 
