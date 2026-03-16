@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,4 +14,5 @@
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/magnific-popup.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/line-awesome.min.css">
     <link rel="stylesheet" href="<?= ROOT ?>/assets/css/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 </head>

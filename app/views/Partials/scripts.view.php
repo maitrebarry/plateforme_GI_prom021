@@ -6,4 +6,4 @@
 <script src="<?= ROOT ?>/assets/js/jquery.magnific-popup.js"></script>
 <script src="<?= ROOT ?>/assets/js/apexchart.js"></script>
 <script src="<?= ROOT ?>/assets/js/main.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>

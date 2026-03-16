@@ -16,8 +16,8 @@
     </div>
     <div class="dashboard-nav bg-white flx-between gap-md-3 gap-2">
         <div class="dashboard-nav__left flx-align gap-md-3 gap-2">
-           
-          
+
+
         </div>
         <div class="dashboard-nav__right">
             <div class="header-right flx-align">
@@ -26,105 +26,115 @@
                     <div class="user-profile">
                         <button class="user-profile__button flex-align">
                             <span class="user-profile__thumb">
-                                <img src="<?= ROOT ?>/image_profile/<?= $_SESSION['image']; ?>" class="cover-img" alt="">
+                                <img src="<?= ROOT ?>/image_profile/<?= $_SESSION['image']; ?>" class="cover-img"
+                                    alt="">
                             </span>
                         </button>
                         <ul class="user-profile-dropdown">
                             <?php if ($role === 'etudiant'): ?>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Homes/publier_projet" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Publier un projet</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Homes/mes_projets" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Mes projets</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Homes/messages_recus" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Messages reçus</span>
-                                    </a>
-                                </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Projets/mes_projets" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Mes projets</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Homes/messages_recus" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Messages reçus</span>
+                                </a>
+                            </li>
                             <?php elseif ($role === 'admin'): ?>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Admins/pending_projects" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Projets à valider</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Admins/projects_management" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Gestion des projets</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Admins/users_management" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Gestion des utilisateurs</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Admins/categories" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Gestion des catégories</span>
-                                    </a>
-                                </li>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Admins/messages" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Messages / Contact</span>
-                                    </a>
-                                </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Admins/pending_projects" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Projets à valider</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Admins/projects_management" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active3.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Gestion des projets</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Admins/users_management" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Gestion des utilisateurs</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Admins/categories" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Gestion des catégories</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Admins/messages" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Messages / Contact</span>
+                                </a>
+                            </li>
                             <?php else: ?>
-                                <li class="sidebar-list__item">
-                                    <a href="<?= ROOT ?>/Homes/der_espace" class="sidebar-list__link">
-                                        <span class="sidebar-list__icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                                            <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                                        </span>
-                                        <span class="text">Gestion publications DER</span>
-                                    </a>
-                                </li>
+                            <li class="sidebar-list__item">
+                                <a href="<?= ROOT ?>/Homes/der_espace" class="sidebar-list__link">
+                                    <span class="sidebar-list__icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
+                                            class="icon icon-active">
+                                    </span>
+                                    <span class="text">Gestion publications DER</span>
+                                </a>
+                            </li>
                             <?php endif; ?>
 
                             <li class="sidebar-list__item">
                                 <a href="<?= ROOT ?>/Profiles/appercu" class="sidebar-list__link">
-                                   
+
                                     <span class="sidebar-list__icon">
-                                  
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt="" class="icon">
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt="" class="icon icon-active">
+
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon2.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt=""
+                                            class="icon icon-active">
                                     </span>
-                                     <!-- <span class="text"><?= $_SESSION['nom']. ' ' . $_SESSION['prenom']; ?></span><span class="user-status text-muted"><?= $_SESSION['role']; ?>
+                                    <!-- <span class="text"><?= $_SESSION['nom']. ' ' . $_SESSION['prenom']; ?></span><span class="user-status text-muted"><?= $_SESSION['role']; ?>
                                 </span> -->
                                     <span class="text">Profile</span>
                                 </a>
@@ -132,8 +142,10 @@
                             <li class="sidebar-list__item">
                                 <a href="<?= ROOT ?>/Logins/logout" class="sidebar-list__link">
                                     <span class="sidebar-list__icon">
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon13.svg" alt="" class="icon">
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active13.svg" alt="" class="icon icon-active">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon13.svg" alt=""
+                                            class="icon">
+                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active13.svg" alt=""
+                                            class="icon icon-active">
                                     </span>
                                     <span class="text">Logout</span>
                                 </a>

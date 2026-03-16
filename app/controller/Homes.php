@@ -110,18 +110,6 @@ class Homes extends Controller
         $this->view('admin_dashboard', $data);
     }
 
-    public function publier_projet(): void
-    {
-        $data = $this->baseViewData();
-        $data['pageTitle'] = 'Publier un projet';
-        $data['projects'] = $this->getMockProjects();
-        $_SESSION['notification'] = [
-            'type' => 'info',
-            'message' => 'Module de publication en préparation. Vous pouvez déjà consulter les projets.',
-        ];
-
-        $this->view('projects', $data);
-    }
 
     public function mes_projets(): void
     {
