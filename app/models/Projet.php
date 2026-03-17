@@ -80,7 +80,7 @@ class Projet extends Model
         category_id=?,
         description=?,
         technologies=?,
-        video=?,
+        video=?
         WHERE id=?";
 
         return $this->insertion_update_simples( $sql, [

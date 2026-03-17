@@ -411,7 +411,8 @@
 
                                             <input type="text" id="techInput"
                                                 placeholder="Tapez une technologie puis appuyez sur Entrée"
-                                                value="<?= htmlspecialchars($project->technologies) ?>">
+                                                value="<?= htmlspecialchars($project->technologies) ?>"
+                                                name="technologies">
 
                                         </div>
 

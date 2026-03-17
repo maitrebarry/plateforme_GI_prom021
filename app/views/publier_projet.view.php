@@ -524,7 +524,7 @@
                                     <!-- VIDEO -->
 
                                     <div class='mb-4'>
-                                        <label class='form-label fw-bold'>Lien vidéo</label>
+                                        <label cslass='form-label fw-bold'>Lien vidéo</label>
                                         <input type='text' name='video' class='form-control'>
                                     </div>
 
@@ -594,11 +594,24 @@
     /*  IMAGES MULTIPLES + PREVIEW   */
     /* ============================= */
 
+
+
     const imageInput = document.getElementById("images");
     const imageDrop = document.getElementById("imageDrop");
     const preview = document.getElementById("imagePreview");
 
     let imageFiles = new DataTransfer();
+
+    /* empêcher le navigateur d'ouvrir les fichiers */
+
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+
+        document.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+    });
 
     /* ouvrir le select */
 
@@ -764,27 +777,41 @@
     /* ============================= */
     /*         DRAG & DROP           */
     /* ============================= */
-
     ["dragenter", "dragover"].forEach(event => {
+
         imageDrop.addEventListener(event, e => {
+
             e.preventDefault();
+            e.stopPropagation();
+
             imageDrop.style.borderColor = "#4a6cf7";
+
         });
+
     });
 
     ["dragleave", "drop"].forEach(event => {
+
         imageDrop.addEventListener(event, e => {
+
             e.preventDefault();
+            e.stopPropagation();
+
             imageDrop.style.borderColor = "#cfd3d7";
+
         });
+
     });
 
     imageDrop.addEventListener("drop", function(e) {
 
         e.preventDefault();
+        e.stopPropagation();
 
         Array.from(e.dataTransfer.files).forEach(file => {
+
             imageFiles.items.add(file);
+
         });
 
         imageInput.files = imageFiles.files;
@@ -793,27 +820,41 @@
 
     });
 
-
     ["dragenter", "dragover"].forEach(event => {
+
         fileDrop.addEventListener(event, e => {
+
             e.preventDefault();
+            e.stopPropagation();
+
             fileDrop.style.borderColor = "#4a6cf7";
+
         });
+
     });
 
     ["dragleave", "drop"].forEach(event => {
+
         fileDrop.addEventListener(event, e => {
+
             e.preventDefault();
+            e.stopPropagation();
+
             fileDrop.style.borderColor = "#cfd3d7";
+
         });
+
     });
 
     fileDrop.addEventListener("drop", function(e) {
 
         e.preventDefault();
+        e.stopPropagation();
 
         Array.from(e.dataTransfer.files).forEach(file => {
+
             projectFiles.items.add(file);
+
         });
 
         fileInput.files = projectFiles.files;
