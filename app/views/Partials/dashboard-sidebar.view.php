@@ -4,7 +4,27 @@
         <a href="<?= ROOT ?>/Homes/index" class="logo mb-48"><img src="<?= ROOT ?>/assets/images/logo/logo.png"
                 alt=""></a>
 
-        <?php $role = strtolower((string)($_SESSION['role'] ?? 'etudiant')); ?>
+        <?php
+        $role = strtolower((string)($_SESSION['role'] ?? 'etudiant'));
+        $studentUnreadMessages = (int) ($studentUnreadMessages ?? ($_SESSION['student_unread_messages'] ?? 0));
+        ?>
+        <style>
+        .sidebar-badge-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            margin-left: auto;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        </style>
 
         <ul class="sidebar-list">
             <li class="sidebar-list__item">
@@ -36,7 +56,8 @@
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
                             class="icon icon-active">
                     </span>
-                    <span class="text">Messages reçus</span>
+                    <span class="text">Messages recus</span>
+                    <?php if ($studentUnreadMessages > 0): ?><span class="sidebar-badge-count"><?= $studentUnreadMessages > 99 ? '99+' : $studentUnreadMessages ?></span><?php endif; ?>
                 </a>
             </li>
             <?php elseif ($role === 'admin'): ?>
@@ -47,7 +68,7 @@
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt=""
                             class="icon icon-active">
                     </span>
-                    <span class="text">Projets à valider</span>
+                    <span class="text">Projets a valider</span>
                 </a>
             </li>
             <li class="sidebar-list__item">
@@ -77,7 +98,7 @@
                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active2.svg" alt=""
                             class="icon icon-active">
                     </span>
-                    <span class="text">Gestion des catégories</span>
+                    <span class="text">Gestion des categories</span>
                 </a>
             </li>
             <li class="sidebar-list__item">

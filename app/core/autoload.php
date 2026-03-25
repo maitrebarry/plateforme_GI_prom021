@@ -10,5 +10,11 @@ spl_autoload_register(function ($class): void {
     $modelPath = __DIR__ . '/../models/' . ucfirst($class) . '.php';
     if (file_exists($modelPath)) {
         require_once $modelPath;
+        return;
+    }
+
+    $servicePath = __DIR__ . '/../services/' . ucfirst($class) . '.php';
+    if (file_exists($servicePath)) {
+        require_once $servicePath;
     }
 });

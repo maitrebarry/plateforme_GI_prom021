@@ -92,9 +92,9 @@ class Projets extends Controller
 
                 $newName = uniqid( 'img_' ).'.'.$ext;
 
-                move_uploaded_file( $tmp, $imageDir.$newName );
-
-                $projectModel->addImage( $project_id, $newName );
+                if ( move_uploaded_file( $tmp, $imageDir.$newName ) ) {
+                    $projectModel->addImage( $project_id, $newName );
+                }
             }
         }
 
@@ -121,9 +121,9 @@ class Projets extends Controller
 
                 $newName = uniqid( 'file_' ).'.'.$ext;
 
-                move_uploaded_file( $tmp, $fileDir.$newName );
-
-                $projectModel->addFile( $project_id, $newName );
+                if ( move_uploaded_file( $tmp, $fileDir.$newName ) ) {
+                    $projectModel->addFile( $project_id, $newName );
+                }
             }
         }
 
@@ -203,9 +203,9 @@ class Projets extends Controller
 
                 $newName = uniqid().'.'.$ext;
 
-                move_uploaded_file( $tmp, 'uploads/projects/images/'.$newName );
-
-                $model->addImage( $id, $newName );
+                if ( move_uploaded_file( $tmp, 'uploads/projects/images/'.$newName ) ) {
+                    $model->addImage( $id, $newName );
+                }
 
             }
 
@@ -232,9 +232,9 @@ class Projets extends Controller
 
                 $newName = uniqid().'.'.$ext;
 
-                move_uploaded_file( $tmp, 'uploads/projects/files/'.$newName );
-
-                $model->addFile( $id, $newName );
+                if ( move_uploaded_file( $tmp, 'uploads/projects/files/'.$newName ) ) {
+                    $model->addFile( $id, $newName );
+                }
 
             }
 
@@ -297,21 +297,121 @@ class Projets extends Controller
     public function detail( $id ) {
 
         $model = new Projet();
+        $projectId = (int) $id;
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
 
-        /* projet */
+        if ($projectId <= 0) {
+            $model->set_flash('Projet introuvable.', 'danger');
+            $this->redirect('Homes/index');
+        }
 
-        $data[ 'project' ] = $model->getProjectDetail( $id );
+        $project = $model->getProjectDetailEnhanced($projectId);
+        if (!$project) {
+            $model->set_flash('Projet introuvable.', 'danger');
+            $this->redirect('Homes/index');
+        }
 
-        /* images */
+        $ownerId = (int) ($project->owner_id ?? $project->user_id ?? 0);
 
-        $data[ 'images' ] = $model->getProjectImages( $id );
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
 
-        /* fichiers */
+            if ($currentUserId <= 0) {
+                $model->set_flash('Veuillez vous connecter pour interagir avec ce projet.', 'warning');
+                $this->redirect('Projets/detail/' . $projectId);
+            }
 
-        $data[ 'files' ] = $model->getProjectFiles( $id );
+            if ($action === 'toggle_like') {
+                $model->toggleProjectLike($projectId, $currentUserId);
+                $this->redirect('Projets/detail/' . $projectId);
+            }
+
+            if ($action === 'submit_review') {
+                $rating = (int) ($_POST['rating'] ?? 0);
+                $review = trim((string) ($_POST['review'] ?? ''));
+                if ($model->saveProjectReview($projectId, $currentUserId, $rating, $review)) {
+                    $model->set_flash('Votre avis a bien ete enregistre.', 'success');
+                } else {
+                    $model->set_flash('Impossible d enregistrer votre avis.', 'danger');
+                }
+                $this->redirect('Projets/detail/' . $projectId);
+            }
+
+            if ($action === 'send_message') {
+                $receiverId = (int) ($_POST['receiver_id'] ?? $ownerId);
+                $message = trim((string) ($_POST['message'] ?? ''));
+                if ($message === '') {
+                    $model->set_flash('Veuillez saisir un message.', 'warning');
+                } elseif ($receiverId <= 0) {
+                    $model->set_flash('Destinataire introuvable.', 'danger');
+                } elseif ($model->sendProjectMessage($projectId, $currentUserId, $receiverId, $message)) {
+                    $model->set_flash('Message envoye avec succes.', 'success');
+                } else {
+                    $model->set_flash('Impossible d envoyer le message.', 'danger');
+                }
+                $this->redirect('Projets/detail/' . $projectId);
+            }
+        }
+
+        $data[ 'project' ] = $project;
+        $data[ 'images' ] = $model->getProjectImages( $projectId );
+        $data[ 'files' ] = $model->getProjectFiles( $projectId );
+        $data[ 'reviewSummary' ] = $model->getProjectReviewSummary( $projectId );
+        $data[ 'reviews' ] = $model->getProjectReviews( $projectId );
+        $data[ 'likesCount' ] = $model->getProjectLikesCount( $projectId );
+        $data[ 'userHasLiked' ] = $currentUserId > 0 ? $model->hasUserLikedProject( $projectId, $currentUserId ) : false;
+        $data[ 'conversation' ] = ($currentUserId > 0 && $ownerId > 0 && $currentUserId !== $ownerId)
+            ? $model->getConversationForProject( $projectId, $currentUserId, $ownerId )
+            : [];
+        $data[ 'currentUserId' ] = $currentUserId;
+        $data[ 'ownerId' ] = $ownerId;
+        $data[ 'relatedProjects' ] = array_slice(array_values(array_filter(
+            $model->getTopLikedProjects(4),
+            static fn(array $item): bool => (int) ($item['id'] ?? 0) !== $projectId
+        )), 0, 3);
 
         $this->view( 'details-projet', $data );
 
+    }
+
+    public function ai_assistant($id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['ok' => false, 'message' => 'Requete invalide.']);
+            return;
+        }
+
+        $projectId = (int) $id;
+        $message = trim((string) ($_POST['message'] ?? ''));
+        $history = json_decode((string) ($_POST['history'] ?? '[]'), true);
+        $history = is_array($history) ? $history : [];
+        if ($projectId <= 0 || $message === '') {
+            echo json_encode(['ok' => false, 'message' => 'Question ou projet invalide.']);
+            return;
+        }
+
+        $model = new Projet();
+        $project = $model->getProjectDetailEnhanced($projectId);
+        if (!$project) {
+            echo json_encode(['ok' => false, 'message' => 'Projet introuvable.']);
+            return;
+        }
+
+        $context = [
+            'id' => $project->id ?? 0,
+            'title' => $project->title ?? '',
+            'category' => $project->categorie ?? '',
+            'description' => $project->description ?? '',
+            'technologies' => $project->technologies ?? '',
+            'owner' => trim((string) (($project->prenom ?? '') . ' ' . ($project->nom ?? ''))),
+            'university' => $project->universite ?? '',
+            'field' => $project->filiere ?? '',
+        ];
+
+        $assistant = new HuggingFaceProjectAssistant();
+        echo json_encode($assistant->answerForProject($message, $context, $history));
     }
 
     public function temps_relatif ( $datetime ) {
@@ -381,3 +481,4 @@ class Projets extends Controller
     }
 
 }
+

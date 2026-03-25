@@ -64,7 +64,7 @@
 
                 <ul class="nav-menu flx-align ">
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/index" class="nav-menu__link">Accueil</a></li>
-                    <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/projects" class="nav-menu__link">Projets</a></li>
+
                      <?php if(!isset($_SESSION['user_id'])): ?>
                     <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/login" class="nav-menu__link">Connexion</a></li>
                        <?php endif; ?>

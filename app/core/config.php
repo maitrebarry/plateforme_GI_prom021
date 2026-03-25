@@ -17,3 +17,7 @@ define( 'DB_NAME', 'plateforme_gi_promo21' );
 define( 'DBHOST', 'localhost' );
 define( 'DB_USERNAME', 'root' );
 define( 'DB_PASSWORD', '' );
+
+define('HF_API_TOKEN', getenv('HF_API_TOKEN') ?: '');
+define('HF_MODEL', getenv('HF_MODEL') ?: 'Qwen/Qwen2.5-7B-Instruct-1M');
+
