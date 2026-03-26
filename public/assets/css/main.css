@@ -3078,12 +3078,14 @@ input[type=number] {
 }
 
 .logo img {
-    max-width: 224px;
+    max-width: 72px;
+    width: auto;
+    height: auto;
 }
 
 @media screen and (max-width: 767px) {
     .logo img {
-        max-width: 160px;
+        max-width: 16px;
     }
 }
 

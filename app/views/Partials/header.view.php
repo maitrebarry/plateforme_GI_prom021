@@ -3,7 +3,7 @@
         <nav class="header-inner flx-between">
             <div class="logo">
                 <a href="<?= ROOT ?>/Homes/index" class="link">
-                    <img src="<?= ROOT ?>/assets/images/logo/logo.png" alt="Logo">
+                    <img src="<?= ROOT ?>/assets/images/logo/n'kakodon.png" alt="Logo">
                 </a>
             </div>
 
@@ -54,7 +54,7 @@
             <!-- Logo Start -->
             <div class="logo">
                 <a href="<?= ROOT ?>/Homes/index" class="link">
-                    <img src="<?= ROOT ?>/assets/images/logo/logo.png" alt="Logo">
+                    <img src="<?= ROOT ?>/assets/images/logo/n'kakodon.png" alt="Logo">
                 </a>
             </div>
             <!-- Logo End  -->
