@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1
--- Généré le : mer. 25 mars 2026 à 19:38
--- Version du serveur : 10.4.32-MariaDB
--- Version de PHP : 8.0.30
+-- Host: 127.0.0.1
+-- Generation Time: Mar 27, 2026 at 04:15 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `plateforme_gi_promo21`
+-- Database: `plateforme_gi_promo21`
 --
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `categories`
+-- Table structure for table `categories`
 --
 
 CREATE TABLE `categories` (
@@ -34,7 +34,7 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `categories`
+-- Dumping data for table `categories`
 --
 
 INSERT INTO `categories` (`id`, `nom`, `description`) VALUES
@@ -51,7 +51,7 @@ INSERT INTO `categories` (`id`, `nom`, `description`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `department_posts`
+-- Table structure for table `department_posts`
 --
 
 CREATE TABLE `department_posts` (
@@ -61,22 +61,25 @@ CREATE TABLE `department_posts` (
   `contenu` text NOT NULL,
   `type` enum('annonce','information','resultat','evenement','opportunite') DEFAULT 'annonce',
   `publication_date` date NOT NULL DEFAULT curdate(),
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_archived` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `department_posts`
+-- Dumping data for table `department_posts`
 --
 
-INSERT INTO `department_posts` (`id`, `user_id`, `titre`, `contenu`, `type`, `publication_date`, `created_at`) VALUES
-(1, 2, 'Résultat du semestre 1', 'ci-joint les resultas du semestre 1 et 2', 'resultat', '2026-03-08', '2026-03-08 17:36:48'),
-(2, 2, 'AVIS DE SUSPENSION DES COURS', 'L\'Université de Ségou porte à la connaissance de tous les étudiants et de tout le personnel que les cours seront suspendus à partir du vendredi 10 mars 2026 jusqu\'au lundi 1er mars 2026 à 7h.\r\n\r\nLa reprise des cours est prévue pour le lundi le 01 mars 2026', 'information', '2026-03-08', '2026-03-08 18:03:29'),
-(3, 2, 'stage', 'veuillez saisir l\'occasion', 'opportunite', '2026-03-08', '2026-03-08 18:17:23');
+INSERT INTO `department_posts` (`id`, `user_id`, `titre`, `contenu`, `type`, `publication_date`, `created_at`, `is_archived`) VALUES
+(1, 2, 'Résultat du semestre 1', 'ci-joint les resultas du semestre 1 et 2', 'resultat', '2026-03-08', '2026-03-08 17:36:48', 1),
+(2, 2, 'AVIS DE SUSPENSION DES COURS', 'L\'Université de Ségou porte à la connaissance de tous les étudiants et de tout le personnel que les cours seront suspendus à partir du vendredi 10 mars 2026 jusqu\'au lundi 1er mars 2026 à 7h.\r\n\r\nLa reprise des cours est prévue pour le lundi le 01 mars 2026', 'information', '2026-03-08', '2026-03-08 18:03:29', 1),
+(3, 2, 'stage', 'veuillez saisir l\'occasion', 'opportunite', '2026-03-08', '2026-03-08 18:17:23', 0),
+(4, 12, 'REPRISE DES COURS', 'DDDDDDDDDDDDDDDDDDDDDDDD\r\nDDDDDDDDDDDDDDDDDDDDDDDDD\r\nDDDDDDDDDDDDDDDDDDD\r\nDDDDDDDDDDDDD', 'information', '2026-03-26', '2026-03-27 14:39:02', 1),
+(5, 12, 'YUHJH', 'HVJGJHJN', 'annonce', '2026-03-27', '2026-03-27 14:53:41', 0);
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `department_post_files`
+-- Table structure for table `department_post_files`
 --
 
 CREATE TABLE `department_post_files` (
@@ -90,18 +93,33 @@ CREATE TABLE `department_post_files` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `department_post_files`
+-- Dumping data for table `department_post_files`
 --
 
 INSERT INTO `department_post_files` (`id`, `post_id`, `original_name`, `stored_name`, `file_path`, `file_type`, `created_at`) VALUES
 (1, 1, 'Documentation-JAGO-DANAYA.doc', 'post_69adb3b08ef6c6.61334623.doc', 'uploads/department_posts/post_69adb3b08ef6c6.61334623.doc', 'doc', '2026-03-08 17:36:48'),
 (2, 3, 'ateliko.jpeg', 'post_69adbd33d6ef30.04358663.jpeg', 'uploads/department_posts/post_69adbd33d6ef30.04358663.jpeg', 'jpeg', '2026-03-08 18:17:23'),
-(3, 3, 'syneklogo.jpeg', 'post_69adbd33d6f2c1.77473254.jpeg', 'uploads/department_posts/post_69adbd33d6f2c1.77473254.jpeg', 'jpeg', '2026-03-08 18:17:23');
+(3, 3, 'syneklogo.jpeg', 'post_69adbd33d6f2c1.77473254.jpeg', 'uploads/department_posts/post_69adbd33d6f2c1.77473254.jpeg', 'jpeg', '2026-03-08 18:17:23'),
+(4, 4, 'Screenshot 2026-02-24 080737.png', 'post_69c69686a2f838.41349429.png', 'uploads/department_posts/post_69c69686a2f838.41349429.png', 'png', '2026-03-27 14:39:02'),
+(5, 5, 'Screenshot 2026-02-24 080737.png', 'post_69c699f55bc5d1.08944611.png', 'uploads/department_posts/post_69c699f55bc5d1.08944611.png', 'png', '2026-03-27 14:53:41');
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `facultes`
+-- Table structure for table `department_post_likes`
+--
+
+CREATE TABLE `department_post_likes` (
+  `id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `facultes`
 --
 
 CREATE TABLE `facultes` (
@@ -112,7 +130,7 @@ CREATE TABLE `facultes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `facultes`
+-- Dumping data for table `facultes`
 --
 
 INSERT INTO `facultes` (`id_faculte`, `universite_id`, `nom_faculte`, `created_at`) VALUES
@@ -136,7 +154,7 @@ INSERT INTO `facultes` (`id_faculte`, `universite_id`, `nom_faculte`, `created_a
 -- --------------------------------------------------------
 
 --
--- Structure de la table `messages`
+-- Table structure for table `messages`
 --
 
 CREATE TABLE `messages` (
@@ -151,7 +169,7 @@ CREATE TABLE `messages` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `projects`
+-- Table structure for table `projects`
 --
 
 CREATE TABLE `projects` (
@@ -162,31 +180,32 @@ CREATE TABLE `projects` (
   `description` text NOT NULL,
   `technologies` text DEFAULT NULL,
   `video` varchar(255) DEFAULT NULL,
-  `status` enum('en cours','termine') DEFAULT 'en cours',
+  `status` enum('en cours','termine') NOT NULL DEFAULT 'en cours',
   `admin_status` enum('en_attente','valide','rejete') NOT NULL DEFAULT 'en_attente',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `projects`
+-- Dumping data for table `projects`
 --
 
 INSERT INTO `projects` (`id`, `user_id`, `category_id`, `title`, `description`, `technologies`, `video`, `status`, `admin_status`, `created_at`, `updated_at`) VALUES
-(1, 8, 3, 'Atelico', '&amp;lt;p&amp;gt;une application de gestion des attelier de couture &amp;lt;/p&amp;gt;', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'en cours', 'en_attente', '2026-03-16 17:20:17', '2026-03-25 16:45:29'),
-(2, 8, 2, 'GED', 'Une application de gestion electronique des documents pour les grandes entreprises', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'en cours', 'en_attente', '2026-03-16 17:58:44', '2026-03-25 16:45:29'),
-(3, 8, 1, 'Hirondelle Market', 'Hirondelle Market est une plateforme de vente en ligne con&ccedil;ue pour faciliter l&rsquo;achat et la vente de produits via Internet. L&rsquo;objectif principal du site est de permettre aux utilisateurs de d&eacute;couvrir une large gamme de produits, de comparer les prix et de commander facilement depuis leur domicile ou leur smartphone.\r\n\r\nLe site propose une interface simple, moderne et intuitive qui permet aux visiteurs de naviguer facilement entre les diff&eacute;rentes cat&eacute;gories de produits. Les utilisateurs peuvent consulter les d&eacute;tails des articles, voir les images des produits, v&eacute;rifier leur disponibilit&eacute; et effectuer leurs achats en quelques clics.\r\n\r\nHirondelle Market vise &eacute;galement &agrave; soutenir les commer&ccedil;ants et entrepreneurs en leur offrant un espace num&eacute;rique pour pr&eacute;senter et vendre leurs produits &agrave; un public plus large. Gr&acirc;ce &agrave; cette plateforme, les vendeurs peuvent g&eacute;rer leurs produits, suivre les commandes et am&eacute;liorer leur visibilit&eacute; en ligne.\r\n\r\nLe syst&egrave;me int&egrave;gre plusieurs fonctionnalit&eacute;s importantes telles que la gestion des comptes utilisateurs, la recherche de produits, la gestion des commandes, ainsi que la s&eacute;curisation des transactions. L&rsquo;objectif est d&rsquo;offrir une exp&eacute;rience d&rsquo;achat fluide, rapide et s&eacute;curis&eacute;e pour tous les utilisateurs.\r\n\r\nEn r&eacute;sum&eacute;, Hirondelle Market repr&eacute;sente une solution moderne de commerce &eacute;lectronique qui rapproche les vendeurs et les acheteurs tout en simplifiant le processus d&rsquo;achat en ligne.', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-16 18:17:59', '2026-03-25 16:45:29'),
-(4, 8, 3, 'dd', 'ryte', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 09:31:09', '2026-03-25 16:45:29'),
-(5, 8, 1, 'Atelico', '<p>ss</p>', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-17 09:59:12', '2026-03-25 16:45:29'),
-(6, 8, 2, 'list', 'la vie', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 10:19:00', '2026-03-25 16:45:29'),
-(7, 8, 2, 'fqj', 'sfq', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-17 10:19:41', '2026-03-25 16:45:29'),
-(8, 8, 4, 'fsqjf', 'sfqfs', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 10:20:23', '2026-03-25 16:45:29'),
-(9, 9, 2, 'OumouKon&amp;amp;eacute; Beauty Manager (OKBM)', '<p>OumouKoné Beauty Manager (OKBM) est une application web et/ou mobile dédiée à la gestion intelligente des salons de coiffure.\r\n\r\nElle permet aux propriétaires de salons de :\r\n\r\ngérer leurs clients\r\norganiser les rendez-vous\r\nsuivre leurs revenus\r\ngérer les coiffeuses\r\naméliorer leur visibilité\r\n\r\n👉 Le projet vise à digitaliser les salons de coiffure au Mali et en Afrique, où beaucoup fonctionnent encore de manière manuelle.</p>', 'PHP,JAVA ', 'https://pin.it/6Dt3b7lQV', 'en cours', 'en_attente', '2026-03-25 16:13:01', '2026-03-25 16:45:29');
+(1, 8, 3, 'Atelico', '&amp;lt;p&amp;gt;une application de gestion des attelier de couture &amp;lt;/p&amp;gt;', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'termine', 'valide', '2026-03-16 17:20:17', '2026-03-27 11:44:16'),
+(2, 8, 2, 'GED', 'Une application de gestion electronique des documents pour les grandes entreprises', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'termine', 'valide', '2026-03-16 17:58:44', '2026-03-27 11:44:16'),
+(3, 8, 1, 'Hirondelle Market', 'Hirondelle Market est une plateforme de vente en ligne con&ccedil;ue pour faciliter l&rsquo;achat et la vente de produits via Internet. L&rsquo;objectif principal du site est de permettre aux utilisateurs de d&eacute;couvrir une large gamme de produits, de comparer les prix et de commander facilement depuis leur domicile ou leur smartphone.\r\n\r\nLe site propose une interface simple, moderne et intuitive qui permet aux visiteurs de naviguer facilement entre les diff&eacute;rentes cat&eacute;gories de produits. Les utilisateurs peuvent consulter les d&eacute;tails des articles, voir les images des produits, v&eacute;rifier leur disponibilit&eacute; et effectuer leurs achats en quelques clics.\r\n\r\nHirondelle Market vise &eacute;galement &agrave; soutenir les commer&ccedil;ants et entrepreneurs en leur offrant un espace num&eacute;rique pour pr&eacute;senter et vendre leurs produits &agrave; un public plus large. Gr&acirc;ce &agrave; cette plateforme, les vendeurs peuvent g&eacute;rer leurs produits, suivre les commandes et am&eacute;liorer leur visibilit&eacute; en ligne.\r\n\r\nLe syst&egrave;me int&egrave;gre plusieurs fonctionnalit&eacute;s importantes telles que la gestion des comptes utilisateurs, la recherche de produits, la gestion des commandes, ainsi que la s&eacute;curisation des transactions. L&rsquo;objectif est d&rsquo;offrir une exp&eacute;rience d&rsquo;achat fluide, rapide et s&eacute;curis&eacute;e pour tous les utilisateurs.\r\n\r\nEn r&eacute;sum&eacute;, Hirondelle Market repr&eacute;sente une solution moderne de commerce &eacute;lectronique qui rapproche les vendeurs et les acheteurs tout en simplifiant le processus d&rsquo;achat en ligne.', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'termine', 'valide', '2026-03-16 18:17:59', '2026-03-27 11:44:16'),
+(4, 8, 3, 'dd', 'ryte', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'termine', 'valide', '2026-03-17 09:31:09', '2026-03-27 11:44:16'),
+(5, 8, 1, 'Atelico', '<p>ss</p>', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'termine', 'valide', '2026-03-17 09:59:12', '2026-03-27 11:44:16'),
+(6, 8, 2, 'list', 'la vie', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'termine', 'valide', '2026-03-17 10:19:00', '2026-03-27 11:44:16'),
+(7, 8, 2, 'fqj', 'sfq', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'termine', 'valide', '2026-03-17 10:19:41', '2026-03-27 11:44:16'),
+(8, 8, 4, 'fsqjf', 'sfqfs', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'termine', 'valide', '2026-03-17 10:20:23', '2026-03-27 12:36:48'),
+(9, 9, 2, 'OumouKon&amp;amp;eacute; Beauty Manager (OKBM)', '<p>OumouKoné Beauty Manager (OKBM) est une application web et/ou mobile dédiée à la gestion intelligente des salons de coiffure.\r\n\r\nElle permet aux propriétaires de salons de :\r\n\r\ngérer leurs clients\r\norganiser les rendez-vous\r\nsuivre leurs revenus\r\ngérer les coiffeuses\r\naméliorer leur visibilité\r\n\r\n👉 Le projet vise à digitaliser les salons de coiffure au Mali et en Afrique, où beaucoup fonctionnent encore de manière manuelle.</p>', 'PHP,JAVA ', 'https://pin.it/6Dt3b7lQV', 'termine', 'valide', '2026-03-25 16:13:01', '2026-03-27 12:36:42'),
+(10, 10, 8, 'jonkolk', 'bhhiuhu8bhbuhjbnjk', 'SQL PYTHON', 'youtube.com', 'termine', 'valide', '2026-03-27 11:07:29', '2026-03-27 11:50:18');
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `project_files`
+-- Table structure for table `project_files`
 --
 
 CREATE TABLE `project_files` (
@@ -196,7 +215,7 @@ CREATE TABLE `project_files` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `project_files`
+-- Dumping data for table `project_files`
 --
 
 INSERT INTO `project_files` (`id`, `project_id`, `fichier`) VALUES
@@ -211,7 +230,7 @@ INSERT INTO `project_files` (`id`, `project_id`, `fichier`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `project_images`
+-- Table structure for table `project_images`
 --
 
 CREATE TABLE `project_images` (
@@ -221,7 +240,7 @@ CREATE TABLE `project_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `project_images`
+-- Dumping data for table `project_images`
 --
 
 INSERT INTO `project_images` (`id`, `project_id`, `image`) VALUES
@@ -250,12 +269,13 @@ INSERT INTO `project_images` (`id`, `project_id`, `image`) VALUES
 (26, 8, 'img_69b92ae73e1c1.png'),
 (27, 8, 'img_69b92ae741c87.png'),
 (28, 8, 'img_69b92ae745911.png'),
-(29, 9, 'img_69c4098d51185.jpg');
+(29, 9, 'img_69c4098d51185.jpg'),
+(30, 10, 'img_69c664f110b17.png');
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `project_likes`
+-- Table structure for table `project_likes`
 --
 
 CREATE TABLE `project_likes` (
@@ -266,7 +286,7 @@ CREATE TABLE `project_likes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `project_likes`
+-- Dumping data for table `project_likes`
 --
 
 INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
@@ -277,7 +297,7 @@ INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `project_messages`
+-- Table structure for table `project_messages`
 --
 
 CREATE TABLE `project_messages` (
@@ -291,7 +311,7 @@ CREATE TABLE `project_messages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `project_messages`
+-- Dumping data for table `project_messages`
 --
 
 INSERT INTO `project_messages` (`id`, `project_id`, `sender_id`, `receiver_id`, `message`, `is_read`, `created_at`) VALUES
@@ -300,7 +320,7 @@ INSERT INTO `project_messages` (`id`, `project_id`, `sender_id`, `receiver_id`, 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `project_reviews`
+-- Table structure for table `project_reviews`
 --
 
 CREATE TABLE `project_reviews` (
@@ -311,10 +331,10 @@ CREATE TABLE `project_reviews` (
   `review` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `project_reviews`
+-- Dumping data for table `project_reviews`
 --
 
 INSERT INTO `project_reviews` (`id`, `project_id`, `user_id`, `rating`, `review`, `created_at`, `updated_at`) VALUES
@@ -324,7 +344,7 @@ INSERT INTO `project_reviews` (`id`, `project_id`, `user_id`, `rating`, `review`
 -- --------------------------------------------------------
 
 --
--- Structure de la table `universites`
+-- Table structure for table `universites`
 --
 
 CREATE TABLE `universites` (
@@ -336,7 +356,7 @@ CREATE TABLE `universites` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `universites`
+-- Dumping data for table `universites`
 --
 
 INSERT INTO `universites` (`id_universite`, `nom_universite`, `type_etablissement`, `actif`, `created_at`) VALUES
@@ -360,7 +380,7 @@ INSERT INTO `universites` (`id_universite`, `nom_universite`, `type_etablissemen
 -- --------------------------------------------------------
 
 --
--- Structure de la table `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -386,7 +406,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_id`, `nom`, `prenom`, `email`, `contact`, `universite`, `faculte`, `filiere`, `password`, `image`, `github`, `linkedin`, `role`, `statut_compte`, `created_at`, `universite_id`, `faculte_id`, `autre_etablissement`, `autre_departement`) VALUES
@@ -398,48 +418,60 @@ INSERT INTO `users` (`user_id`, `nom`, `prenom`, `email`, `contact`, `universite
 (6, 'KONE', 'Abdoulaye', 'kkabdoulaye514@gmail.com', '91234567', 'Université de Ségou', 'Institut Universitaire de Formation Professionnelle (IUFP)', NULL, '$2y$10$aQVf5EzBgpt966aXX6QxHOC3I65QBQThYORSko721p7NGXLTlJjZC', NULL, NULL, NULL, 'admin', 'actif', '2026-03-08 21:20:41', 5, 16, NULL, NULL),
 (7, 'SIDIBE', 'Kabine', 'sidibe@gmail.com', NULL, 'Université de Ségou', 'Institut Universitaire de Formation Professionnelle (IUFP)', 'GI', '$2y$10$8aILW.W/d5uxSVLURBeQA.yNITpfTW57wNgksuP3rvqmQ40knm4KG', NULL, NULL, NULL, 'etudiant', 'actif', '2026-03-08 21:42:11', 5, 16, NULL, NULL),
 (8, 'KATA', 'KOULOU', 'issa@gmail.con', NULL, 'Université de Ségou', 'Faculté des Sciences Sociales', 'Informqtique', '$2y$10$dH1G7uSfI4LeN.Jbi96LtO0O.zq/nlGM4eTTeOaU.XEbjdQc5f3eG', NULL, NULL, NULL, 'etudiant', 'actif', '2026-03-16 11:03:17', 5, 13, NULL, NULL),
-(9, 'Dirra', 'Oumou', 'oumou@gmail.com', NULL, 'Université de Ségou', 'Institut Universitaire de Formation Professionnelle (IUFP)', 'Genie Informatique', '$2y$10$Ta6cJJBBRNUtH/wOSX2GKuHbHbbcLB.syhXN1cNu2ackL8Xtm.LE.', NULL, NULL, NULL, 'etudiant', 'actif', '2026-03-25 16:04:36', 5, 16, NULL, NULL);
+(9, 'Dirra', 'Oumou', 'oumou@gmail.com', NULL, 'Université de Ségou', 'Institut Universitaire de Formation Professionnelle (IUFP)', 'Genie Informatique', '$2y$10$Ta6cJJBBRNUtH/wOSX2GKuHbHbbcLB.syhXN1cNu2ackL8Xtm.LE.', NULL, NULL, NULL, 'etudiant', 'actif', '2026-03-25 16:04:36', 5, 16, NULL, NULL),
+(10, 'Traore', 'Fati', 'fatim@gmail.com', NULL, 'Université de Ségou', 'Faculté des Sciences Sociales', 'DROIT', '$2y$10$lVELmKWb9xUxb.zJtyudTO/E3k0mvzOLLiNTHFizrvKqR/YXYV5xm', NULL, NULL, NULL, 'etudiant', 'actif', '2026-03-27 11:05:43', 5, 13, NULL, NULL),
+(11, 'ABDOULA', 'KONE', 'awaigalo@gmail.com', '75659842', 'Segou', 'IUFP', NULL, '1234', NULL, NULL, NULL, 'der', 'actif', '2026-03-27 14:09:41', NULL, NULL, NULL, NULL),
+(12, 'KONE', 'Mariam', 'mariam@gmail.com', '75659842', 'Université de Ségou', 'Faculté des Sciences Sociales', NULL, '$2y$10$4cpaCsO8dqHa9nBnc6vqn.7rtIusaF0XCJ9cvcjrv9SxksXQEElAK', NULL, NULL, NULL, 'der', 'actif', '2026-03-27 14:31:19', 5, 13, NULL, NULL);
 
 --
--- Index pour les tables déchargées
+-- Indexes for dumped tables
 --
 
 --
--- Index pour la table `categories`
+-- Indexes for table `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `department_posts`
+-- Indexes for table `department_posts`
 --
 ALTER TABLE `department_posts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_department_posts_user` (`user_id`);
 
 --
--- Index pour la table `department_post_files`
+-- Indexes for table `department_post_files`
 --
 ALTER TABLE `department_post_files`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_department_post_files_post` (`post_id`);
 
 --
--- Index pour la table `facultes`
+-- Indexes for table `department_post_likes`
+--
+ALTER TABLE `department_post_likes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_department_post_like` (`post_id`,`user_id`),
+  ADD KEY `fk_department_post_likes_post` (`post_id`),
+  ADD KEY `fk_department_post_likes_user` (`user_id`);
+
+--
+-- Indexes for table `facultes`
 --
 ALTER TABLE `facultes`
   ADD PRIMARY KEY (`id_faculte`),
   ADD UNIQUE KEY `uq_faculte_par_universite` (`universite_id`,`nom_faculte`);
 
 --
--- Index pour la table `messages`
+-- Indexes for table `messages`
 --
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`),
   ADD KEY `project_id` (`project_id`);
 
 --
--- Index pour la table `projects`
+-- Indexes for table `projects`
 --
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`id`),
@@ -448,21 +480,21 @@ ALTER TABLE `projects`
   ADD KEY `idx_projects_admin_status` (`admin_status`);
 
 --
--- Index pour la table `project_files`
+-- Indexes for table `project_files`
 --
 ALTER TABLE `project_files`
   ADD PRIMARY KEY (`id`),
   ADD KEY `project_id` (`project_id`);
 
 --
--- Index pour la table `project_images`
+-- Indexes for table `project_images`
 --
 ALTER TABLE `project_images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `project_id` (`project_id`);
 
 --
--- Index pour la table `project_likes`
+-- Indexes for table `project_likes`
 --
 ALTER TABLE `project_likes`
   ADD PRIMARY KEY (`id`),
@@ -470,7 +502,7 @@ ALTER TABLE `project_likes`
   ADD KEY `fk_project_likes_user` (`user_id`);
 
 --
--- Index pour la table `project_messages`
+-- Indexes for table `project_messages`
 --
 ALTER TABLE `project_messages`
   ADD PRIMARY KEY (`id`),
@@ -479,7 +511,7 @@ ALTER TABLE `project_messages`
   ADD KEY `fk_project_messages_receiver` (`receiver_id`);
 
 --
--- Index pour la table `project_reviews`
+-- Indexes for table `project_reviews`
 --
 ALTER TABLE `project_reviews`
   ADD PRIMARY KEY (`id`),
@@ -487,14 +519,14 @@ ALTER TABLE `project_reviews`
   ADD KEY `fk_project_reviews_user` (`user_id`);
 
 --
--- Index pour la table `universites`
+-- Indexes for table `universites`
 --
 ALTER TABLE `universites`
   ADD PRIMARY KEY (`id_universite`),
   ADD UNIQUE KEY `nom_universite` (`nom_universite`);
 
 --
--- Index pour la table `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
@@ -503,143 +535,156 @@ ALTER TABLE `users`
   ADD KEY `fk_users_faculte` (`faculte_id`);
 
 --
--- AUTO_INCREMENT pour les tables déchargées
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT pour la table `categories`
+-- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT pour la table `department_posts`
+-- AUTO_INCREMENT for table `department_posts`
 --
 ALTER TABLE `department_posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT pour la table `department_post_files`
+-- AUTO_INCREMENT for table `department_post_files`
 --
 ALTER TABLE `department_post_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT pour la table `facultes`
+-- AUTO_INCREMENT for table `department_post_likes`
+--
+ALTER TABLE `department_post_likes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `facultes`
 --
 ALTER TABLE `facultes`
   MODIFY `id_faculte` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
--- AUTO_INCREMENT pour la table `messages`
+-- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `projects`
+-- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT pour la table `project_files`
+-- AUTO_INCREMENT for table `project_files`
 --
 ALTER TABLE `project_files`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- AUTO_INCREMENT pour la table `project_images`
+-- AUTO_INCREMENT for table `project_images`
 --
 ALTER TABLE `project_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- AUTO_INCREMENT pour la table `project_likes`
+-- AUTO_INCREMENT for table `project_likes`
 --
 ALTER TABLE `project_likes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT pour la table `project_messages`
+-- AUTO_INCREMENT for table `project_messages`
 --
 ALTER TABLE `project_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT pour la table `project_reviews`
+-- AUTO_INCREMENT for table `project_reviews`
 --
 ALTER TABLE `project_reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT pour la table `universites`
+-- AUTO_INCREMENT for table `universites`
 --
 ALTER TABLE `universites`
   MODIFY `id_universite` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
--- AUTO_INCREMENT pour la table `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- Contraintes pour les tables déchargées
+-- Constraints for dumped tables
 --
 
 --
--- Contraintes pour la table `department_posts`
+-- Constraints for table `department_posts`
 --
 ALTER TABLE `department_posts`
   ADD CONSTRAINT `fk_department_posts_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `department_post_files`
+-- Constraints for table `department_post_files`
 --
 ALTER TABLE `department_post_files`
   ADD CONSTRAINT `fk_department_post_files_post` FOREIGN KEY (`post_id`) REFERENCES `department_posts` (`id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `facultes`
+-- Constraints for table `department_post_likes`
+--
+ALTER TABLE `department_post_likes`
+  ADD CONSTRAINT `fk_department_post_likes_post` FOREIGN KEY (`post_id`) REFERENCES `department_posts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_department_post_likes_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `facultes`
 --
 ALTER TABLE `facultes`
   ADD CONSTRAINT `fk_facultes_universites` FOREIGN KEY (`universite_id`) REFERENCES `universites` (`id_universite`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `messages`
+-- Constraints for table `messages`
 --
 ALTER TABLE `messages`
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `projects`
+-- Constraints for table `projects`
 --
 ALTER TABLE `projects`
   ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `projects_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `project_files`
+-- Constraints for table `project_files`
 --
 ALTER TABLE `project_files`
   ADD CONSTRAINT `project_files_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `project_images`
+-- Constraints for table `project_images`
 --
 ALTER TABLE `project_images`
   ADD CONSTRAINT `project_images_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `project_likes`
+-- Constraints for table `project_likes`
 --
 ALTER TABLE `project_likes`
   ADD CONSTRAINT `fk_project_likes_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_project_likes_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `project_messages`
+-- Constraints for table `project_messages`
 --
 ALTER TABLE `project_messages`
   ADD CONSTRAINT `fk_project_messages_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
@@ -647,14 +692,14 @@ ALTER TABLE `project_messages`
   ADD CONSTRAINT `fk_project_messages_sender` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `project_reviews`
+-- Constraints for table `project_reviews`
 --
 ALTER TABLE `project_reviews`
   ADD CONSTRAINT `fk_project_reviews_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_project_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Contraintes pour la table `users`
+-- Constraints for table `users`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `fk_users_faculte` FOREIGN KEY (`faculte_id`) REFERENCES `facultes` (`id_faculte`) ON DELETE SET NULL,
