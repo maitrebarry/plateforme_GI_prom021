@@ -111,6 +111,16 @@
                     <span class="text">Messages / Contact</span>
                 </a>
             </li>
+            <li class="sidebar-list__item">
+                <a href="<?= ROOT ?>/Admins/statistics" class="sidebar-list__link">
+                    <span class="sidebar-list__icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon1.svg" alt="" class="icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active1.svg" alt=""
+                            class="icon icon-active">
+                    </span>
+                    <span class="text">Statistiques</span>
+                </a>
+            </li>
             <?php else: ?>
             <li class="sidebar-list__item">
                 <a href="<?= ROOT ?>/Homes/der_espace" class="sidebar-list__link">
@@ -120,6 +130,16 @@
                             class="icon icon-active">
                     </span>
                     <span class="text">Gestion publications DER</span>
+                </a>
+            </li>
+            <li class="sidebar-list__item">
+                <a href="<?= ROOT ?>/Homes/der_corbeille" class="sidebar-list__link">
+                    <span class="sidebar-list__icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon13.svg" alt="" class="icon">
+                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active13.svg" alt=""
+                            class="icon icon-active">
+                    </span>
+                    <span class="text">Corbeille DER</span>
                 </a>
             </li>
             <?php endif; ?>

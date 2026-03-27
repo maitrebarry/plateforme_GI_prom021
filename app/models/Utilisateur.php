@@ -136,4 +136,45 @@ class Utilisateur extends Model
         $sql = "DELETE FROM users WHERE user_id = :id";
         return (bool) $this->insertion_update_simples($sql, [':id' => $userId]);
     }
+
+    public function updateManyAccountStatus(array $userIds, string $status): int
+    {
+        $allowed = ['actif', 'bloque'];
+        if (!in_array($status, $allowed, true)) {
+            return 0;
+        }
+
+        $userIds = array_values(array_unique(array_filter(array_map('intval', $userIds), static fn(int $id): bool => $id > 0)));
+        if (empty($userIds)) {
+            return 0;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+        $params = array_merge([$status], $userIds);
+        $query = $this->insertion_update_simples(
+            "UPDATE users
+             SET statut_compte = ?
+             WHERE role = 'etudiant' AND user_id IN ({$placeholders})",
+            $params
+        );
+
+        return (int) $query->rowCount();
+    }
+
+    public function deleteManyById(array $userIds): int
+    {
+        $userIds = array_values(array_unique(array_filter(array_map('intval', $userIds), static fn(int $id): bool => $id > 0)));
+        if (empty($userIds)) {
+            return 0;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+        $query = $this->insertion_update_simples(
+            "DELETE FROM users
+             WHERE role = 'etudiant' AND user_id IN ({$placeholders})",
+            $userIds
+        );
+
+        return (int) $query->rowCount();
+    }
 }

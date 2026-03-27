@@ -5,6 +5,73 @@ class Homes extends Controller
     private const DER_ALLOWED_UPLOAD_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png'];
     private const DER_MAX_FILE_SIZE = 5242880;
 
+    private function guardDer(): void
+    {
+        $role = strtolower((string)($_SESSION['role'] ?? ''));
+        if ($role !== 'der') {
+            $_SESSION['notification'] = [
+                'type' => 'warning',
+                'message' => 'Acces reserve au responsable DER.',
+            ];
+            $this->redirect('Homes/dashboard');
+        }
+    }
+
+    private function paginationParams(int $defaultPerPage = 10): array
+    {
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = (int) ($_GET['per_page'] ?? $defaultPerPage);
+        $allowedPerPage = [5, 10, 20, 50];
+        $perPage = in_array($perPage, $allowedPerPage, true) ? $perPage : $defaultPerPage;
+
+        return [
+            'page' => $page,
+            'perPage' => $perPage,
+        ];
+    }
+
+    private function derFilters(): array
+    {
+        $postModel = new DepartmentPost();
+        $allowedTypes = array_merge(['all'], $postModel->getAllowedTypes());
+        $type = trim((string) ($_GET['type'] ?? 'all'));
+        $sortBy = trim((string) ($_GET['sort_by'] ?? 'date'));
+        $sortDir = trim((string) ($_GET['sort_dir'] ?? 'desc'));
+        $visibility = trim((string) ($_GET['visibility'] ?? 'active'));
+
+        return [
+            'visibility' => in_array($visibility, ['active', 'archived', 'all'], true) ? $visibility : 'active',
+            'type' => in_array($type, $allowedTypes, true) ? $type : 'all',
+            'search' => trim((string) ($_GET['search'] ?? '')),
+            'dateFrom' => trim((string) ($_GET['date_from'] ?? '')),
+            'dateTo' => trim((string) ($_GET['date_to'] ?? '')),
+            'sortBy' => in_array($sortBy, ['date', 'title', 'type', 'author', 'created'], true) ? $sortBy : 'date',
+            'sortDir' => in_array(strtolower($sortDir), ['asc', 'desc'], true) ? strtolower($sortDir) : 'desc',
+        ];
+    }
+
+    private function derQueryStringWithoutPage(array $extra = []): string
+    {
+        $params = array_merge($_GET, $extra);
+        unset($params['page']);
+
+        return http_build_query(array_filter($params, static function ($value) {
+            return $value !== null && $value !== '';
+        }));
+    }
+
+    private function redirectDerSpace(): void
+    {
+        $route = 'Homes/der_espace';
+        $query = trim((string) ($_POST['return_query'] ?? ''));
+
+        if ($query !== '') {
+            $route .= '?' . ltrim($query, '?');
+        }
+
+        $this->redirect($route);
+    }
+
     public function index(): void
     {
         $data = $this->baseViewData();
@@ -149,14 +216,9 @@ class Homes extends Controller
 
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Dashboard DER';
-        $data['derStats'] = [
-            'annonces' => $postModel->countByType('annonce'),
-            'informations' => $postModel->countByType('information'),
-            'evenements' => $postModel->countByType('evenement'),
-            'resultats' => $postModel->countByType('resultat'),
-            'opportunites' => $postModel->countByType('opportunite'),
-        ];
-        $data['latestPublications'] = array_slice($this->getDepartmentPostsByType('annonce', 10), 0, 5);
+        $data['derStats'] = $postModel->getDashboardStats();
+        $latestPage = $postModel->getPostsPaginated('active', 'all', '', '', '', 'date', 'desc', 1, 5);
+        $data['latestPublications'] = $latestPage['items'];
 
         $this->view('der_dashboard', $data);
     }
@@ -260,6 +322,8 @@ class Homes extends Controller
         }
 
         $postModel = new DepartmentPost();
+        $filters = $this->derFilters();
+        $pagination = $this->paginationParams();
 
         if (isset($_POST['save_der_post'])) {
             $title = trim((string)($_POST['titre'] ?? ''));
@@ -310,15 +374,300 @@ class Homes extends Controller
             $this->redirect('Homes/der_espace');
         }
 
+        if (isset($_POST['update_der_post'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            $title = trim((string)($_POST['titre'] ?? ''));
+            $content = trim((string)($_POST['contenu'] ?? ''));
+            $type = trim((string)($_POST['type'] ?? 'information'));
+            $publicationDate = trim((string)($_POST['date_publication'] ?? date('Y-m-d')));
+
+            if ($postId <= 0 || $title === '' || $content === '' || !$this->isValidPublicationDate($publicationDate)) {
+                $_SESSION['notification'] = [
+                    'type' => 'danger',
+                    'message' => 'Impossible de modifier cette publication. Verifiez les champs.',
+                ];
+            } elseif ($postModel->updatePost($postId, $title, $content, $type, $publicationDate)) {
+                $_SESSION['notification'] = [
+                    'type' => 'success',
+                    'message' => 'Publication DER mise a jour avec succes.',
+                ];
+            } else {
+                $_SESSION['notification'] = [
+                    'type' => 'warning',
+                    'message' => 'Aucune modification enregistree sur cette publication.',
+                ];
+            }
+
+            $this->redirectDerSpace();
+        }
+
+        if (isset($_POST['delete_der_post'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            $deleted = $postModel->deletePost($postId);
+
+            if ($deleted) {
+                $_SESSION['notification'] = [
+                    'type' => 'success',
+                    'message' => 'Publication DER archivee avec succes.',
+                ];
+            } else {
+                $_SESSION['notification'] = [
+                    'type' => 'danger',
+                    'message' => 'Impossible d archiver cette publication.',
+                ];
+            }
+
+            $this->redirectDerSpace();
+        }
+
+        if (isset($_POST['restore_der_post'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            $restored = $postModel->restorePost($postId);
+
+            $_SESSION['notification'] = [
+                'type' => $restored ? 'success' : 'danger',
+                'message' => $restored
+                    ? 'Publication DER restauree avec succes.'
+                    : 'Impossible de restaurer cette publication.',
+            ];
+
+            $this->redirectDerSpace();
+        }
+
+        if (isset($_POST['delete_der_file'])) {
+            $fileId = (int) ($_POST['file_id'] ?? 0);
+            $file = $postModel->getFileById($fileId);
+            $deleted = $postModel->deleteFile($fileId);
+
+            if ($deleted && $file) {
+                $fullPath = dirname(__DIR__, 2) . '/public/' . ltrim((string) ($file->file_path ?? ''), '/');
+                if (is_file($fullPath)) {
+                    @unlink($fullPath);
+                }
+
+                $_SESSION['notification'] = [
+                    'type' => 'success',
+                    'message' => 'Fichier DER supprime avec succes.',
+                ];
+            } else {
+                $_SESSION['notification'] = [
+                    'type' => 'danger',
+                    'message' => 'Impossible de supprimer ce fichier.',
+                ];
+            }
+
+            $this->redirectDerSpace();
+        }
+
+        if (isset($_POST['attach_der_files'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            [$uploadedFiles, $uploadErrors] = $this->handleDepartmentPostUploads($_FILES['fichiers'] ?? []);
+
+            if ($postId <= 0) {
+                $_SESSION['notification'] = [
+                    'type' => 'danger',
+                    'message' => 'Publication DER introuvable.',
+                ];
+            } elseif (!empty($uploadErrors)) {
+                $_SESSION['notification'] = [
+                    'type' => 'danger',
+                    'message' => implode(' ', $uploadErrors),
+                ];
+            } elseif (!empty($uploadedFiles)) {
+                $postModel->attachFiles($postId, $uploadedFiles);
+                $_SESSION['notification'] = [
+                    'type' => 'success',
+                    'message' => 'Nouveaux fichiers ajoutes a la publication.',
+                ];
+            } else {
+                $_SESSION['notification'] = [
+                    'type' => 'warning',
+                    'message' => 'Aucun fichier a ajouter.',
+                ];
+            }
+
+            $this->redirectDerSpace();
+        }
+
+        $postsPage = $postModel->getPostsPaginated(
+            $filters['visibility'],
+            $filters['type'],
+            $filters['search'],
+            $filters['dateFrom'],
+            $filters['dateTo'],
+            $filters['sortBy'],
+            $filters['sortDir'],
+            $pagination['page'],
+            $pagination['perPage']
+        );
+
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Espace DER - Gestion des publications';
-        $data['annonces'] = $this->getDepartmentPostsByType('annonce', 20);
-        $data['informations'] = $this->getDepartmentPostsByType('information', 20);
-        $data['events'] = $this->getDepartmentPostsByType('evenement', 20);
-        $data['results'] = $this->getDepartmentPostsByType('resultat', 20);
-        $data['opportunities'] = $this->getDepartmentPostsByType('opportunite', 20);
+        $data['derStats'] = $postModel->getDashboardStats();
+        $data['derPosts'] = $postsPage['items'];
+        $data['derAllowedTypes'] = $postModel->getAllowedTypes();
+        $data['derVisibilityFilter'] = $filters['visibility'];
+        $data['derTypeFilter'] = $filters['type'];
+        $data['derSearch'] = $filters['search'];
+        $data['derDateFrom'] = $filters['dateFrom'];
+        $data['derDateTo'] = $filters['dateTo'];
+        $data['derSortBy'] = $filters['sortBy'];
+        $data['derSortDir'] = $filters['sortDir'];
+        $data['currentPage'] = $postsPage['page'];
+        $data['perPage'] = $postsPage['perPage'];
+        $data['totalPages'] = $postsPage['totalPages'];
+        $data['totalItems'] = $postsPage['total'];
+        $data['paginationQuery'] = $this->derQueryStringWithoutPage(['per_page' => $pagination['perPage']]);
+        $data['activeEditPostId'] = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
+
+        if ($this->isAjaxRequest()) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'ok' => true,
+                'html' => $this->renderViewToString('Partials/der-posts-list', $data),
+                'totalItems' => (int) ($data['totalItems'] ?? 0),
+                'currentPage' => (int) ($data['currentPage'] ?? 1),
+                'totalPages' => (int) ($data['totalPages'] ?? 1),
+            ]);
+            return;
+        }
 
         $this->view('der_annonces', $data);
+    }
+
+    public function der_publication_detail($id): void
+    {
+        $this->guardDer();
+
+        $postId = (int) $id;
+        $postModel = new DepartmentPost();
+        $post = $postModel->getPostById($postId);
+        $returnQuery = trim((string) ($_GET['return'] ?? ''));
+
+        if (!$post) {
+            $_SESSION['notification'] = [
+                'type' => 'danger',
+                'message' => 'Publication DER introuvable.',
+            ];
+            $this->redirect('Homes/der_espace');
+        }
+
+        $data = $this->baseViewData();
+        $data['pageTitle'] = 'Detail publication DER';
+        $data['post'] = $post;
+        if ($returnQuery !== '' && str_contains($returnQuery, 'Homes/')) {
+            $data['returnUrl'] = ROOT . '/' . ltrim($returnQuery, '/');
+        } else {
+            $data['returnUrl'] = ROOT . '/Homes/der_espace' . ($returnQuery !== '' ? '?' . ltrim($returnQuery, '?') : '');
+        }
+
+        $this->view('der_publication_detail', $data);
+    }
+
+    public function der_corbeille(): void
+    {
+        $this->guardDer();
+
+        $postModel = new DepartmentPost();
+        $filters = $this->derFilters();
+        $pagination = $this->paginationParams();
+        $filters['visibility'] = 'archived';
+
+        if (isset($_POST['restore_der_post'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            $restored = $postModel->restorePost($postId);
+
+            $_SESSION['notification'] = [
+                'type' => $restored ? 'success' : 'danger',
+                'message' => $restored
+                    ? 'Publication DER restauree avec succes.'
+                    : 'Impossible de restaurer cette publication.',
+            ];
+
+            $this->redirect('Homes/der_corbeille');
+        }
+
+        if (isset($_POST['purge_der_post'])) {
+            $postId = (int) ($_POST['post_id'] ?? 0);
+            $post = $postModel->getPostById($postId);
+            $deleted = $postModel->permanentlyDeletePost($postId);
+
+            if ($deleted && $post) {
+                foreach ($post->files ?? [] as $file) {
+                    $fullPath = dirname(__DIR__, 2) . '/public/' . ltrim((string) ($file->file_path ?? ''), '/');
+                    if (is_file($fullPath)) {
+                        @unlink($fullPath);
+                    }
+                }
+            }
+
+            $_SESSION['notification'] = [
+                'type' => $deleted ? 'success' : 'danger',
+                'message' => $deleted
+                    ? 'Publication DER supprimee definitivement.'
+                    : 'Impossible de supprimer definitivement cette publication.',
+            ];
+
+            $this->redirect('Homes/der_corbeille');
+        }
+
+        $postsPage = $postModel->getPostsPaginated(
+            'archived',
+            $filters['type'],
+            $filters['search'],
+            $filters['dateFrom'],
+            $filters['dateTo'],
+            $filters['sortBy'],
+            $filters['sortDir'],
+            $pagination['page'],
+            $pagination['perPage']
+        );
+
+        $data = $this->baseViewData();
+        $data['pageTitle'] = 'Corbeille DER';
+        $data['derStats'] = $postModel->getDashboardStats();
+        $data['derPosts'] = $postsPage['items'];
+        $data['derAllowedTypes'] = $postModel->getAllowedTypes();
+        $data['derVisibilityFilter'] = 'archived';
+        $data['derTypeFilter'] = $filters['type'];
+        $data['derSearch'] = $filters['search'];
+        $data['derDateFrom'] = $filters['dateFrom'];
+        $data['derDateTo'] = $filters['dateTo'];
+        $data['derSortBy'] = $filters['sortBy'];
+        $data['derSortDir'] = $filters['sortDir'];
+        $data['currentPage'] = $postsPage['page'];
+        $data['perPage'] = $postsPage['perPage'];
+        $data['totalPages'] = $postsPage['totalPages'];
+        $data['totalItems'] = $postsPage['total'];
+        $data['paginationQuery'] = $this->derQueryStringWithoutPage([
+            'per_page' => $pagination['perPage'],
+            'visibility' => 'archived',
+        ]);
+        $data['activeEditPostId'] = 0;
+
+        $this->view('der_trash', $data);
+    }
+
+    public function department_publication_detail($id): void
+    {
+        $postId = (int) $id;
+        $postModel = new DepartmentPost();
+        $post = $postModel->getPostById($postId);
+        $returnQuery = trim((string) ($_GET['return'] ?? ''));
+
+        if (!$post) {
+            $_SESSION['notification'] = [
+                'type' => 'danger',
+                'message' => 'Publication du departement introuvable.',
+            ];
+            $this->redirect('Homes/departement');
+        }
+
+        $data = $this->baseViewData();
+        $data['pageTitle'] = 'Publication du departement';
+        $data['post'] = $post;
+        $data['returnUrl'] = ROOT . '/Homes/departement' . ($returnQuery !== '' ? '?' . ltrim($returnQuery, '?') : '');
+        $this->view('department_publication_detail', $data);
     }
 
     public function login(): void
@@ -533,11 +882,20 @@ class Homes extends Controller
     {
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Espace Département';
+        $postModel = new DepartmentPost();
+        $allowedTypes = $postModel->getAllowedTypes();
+        $typeFilter = trim((string) ($_GET['type'] ?? 'all'));
+        $typeFilter = $typeFilter === 'all' || in_array($typeFilter, $allowedTypes, true) ? $typeFilter : 'all';
+        $search = trim((string) ($_GET['search'] ?? ''));
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 6;
+        $perPage = in_array($perPage, [6, 12, 24], true) ? $perPage : 6;
         $announcements = $this->getDepartmentPostsByType('annonce');
         $informations = $this->getDepartmentPostsByType('information');
         $events = $this->getDepartmentPostsByType('evenement');
         $results = $this->getDepartmentPostsByType('resultat');
         $opportunities = $this->getDepartmentPostsByType('opportunite');
+        $postsPage = $postModel->getPostsPaginated('active', $typeFilter, $search, '', '', 'date', 'desc', $page, $perPage);
 
         $latestDepartmentPosts = array_merge(
             array_slice($informations, 0, 10),
@@ -562,6 +920,20 @@ class Homes extends Controller
         $data['departmentResults'] = $results;
         $data['departmentOpportunities'] = $opportunities;
         $data['latestDepartmentPosts'] = array_slice($latestDepartmentPosts, 0, 6);
+        $data['departmentPosts'] = $postsPage['items'];
+        $data['departmentAllowedTypes'] = $allowedTypes;
+        $data['departmentTypeFilter'] = $typeFilter;
+        $data['departmentSearch'] = $search;
+        $data['currentPage'] = $postsPage['page'];
+        $data['perPage'] = $postsPage['perPage'];
+        $data['totalPages'] = $postsPage['totalPages'];
+        $data['totalItems'] = $postsPage['total'];
+        $query = [
+            'type' => $typeFilter,
+            'search' => $search,
+            'per_page' => $perPage,
+        ];
+        $data['paginationQuery'] = http_build_query(array_filter($query, static fn($value) => $value !== '' && $value !== null));
         $data['departmentStats'] = [
             'annonces' => count($announcements),
             'informations' => count($informations),
@@ -569,6 +941,18 @@ class Homes extends Controller
             'resultats' => count($results),
             'opportunites' => count($opportunities),
         ];
+
+        if ($this->isAjaxRequest()) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'ok' => true,
+                'html' => $this->renderViewToString('Partials/department-posts-list', $data),
+                'totalItems' => (int) ($data['totalItems'] ?? 0),
+                'currentPage' => (int) ($data['currentPage'] ?? 1),
+                'totalPages' => (int) ($data['totalPages'] ?? 1),
+            ]);
+            return;
+        }
 
         $this->view('departement', $data);
     }

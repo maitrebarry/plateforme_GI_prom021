@@ -17,7 +17,13 @@
         $profileUniversite = htmlspecialchars($profileUser->universite ?? ($_SESSION['universite'] ?? ''), ENT_QUOTES, 'UTF-8');
         $profileFaculte = htmlspecialchars($profileUser->faculte ?? ($_SESSION['faculte'] ?? ''), ENT_QUOTES, 'UTF-8');
         $profileFiliere = htmlspecialchars($profileUser->filiere ?? ($_SESSION['filiere'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $profileImage = htmlspecialchars($_SESSION['image'] ?? ($profileUser->image ?? 'default.png'), ENT_QUOTES, 'UTF-8');
+        $profileImage = htmlspecialchars(basename((string) ($_SESSION['image'] ?? ($profileUser->image ?? 'default.png'))), ENT_QUOTES, 'UTF-8');
+        $sessionFullName = htmlspecialchars(trim((string) (($_SESSION['nom'] ?? '') . ' ' . ($_SESSION['prenom'] ?? ''))), ENT_QUOTES, 'UTF-8');
+        $sessionRole = htmlspecialchars((string) ($_SESSION['role'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+        $sessionNom = htmlspecialchars((string) ($_SESSION['nom'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+        $sessionEmail = htmlspecialchars((string) ($_SESSION['email'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+        $sessionContact = htmlspecialchars((string) ($_SESSION['contact'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
+        $sessionUniversite = htmlspecialchars((string) ($_SESSION['universite'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
     ?>
 
     <main class="change-gradient">
@@ -64,8 +70,8 @@
                                     <small class="d-block mt-2 text-muted" id="avatarHelperText">Formats acceptés: JPG, PNG, GIF, WEBP (max 5 Mo)</small>
                                 </div>
 </form>
-                                <h5 class="profile-info__name mb-1"><?= $_SESSION['nom'] . ' ' . $_SESSION['prenom']; ?></h5>
-                                <span class="profile-info__designation font-14"><?= $_SESSION['role']; ?></span>
+                                <h5 class="profile-info__name mb-1"><?= $sessionFullName !== '' ? $sessionFullName : 'N/A'; ?></h5>
+                                <span class="profile-info__designation font-14"><?= $sessionRole; ?></span>
                             </div>
 
                             <ul class="profile-info-list">
@@ -74,28 +80,28 @@
                                         <img src="assets/images/icons/profile-info-icon1.svg" alt="" class="icon">
                                         <span class="text text-heading fw-500">Username</span>
                                     </span>
-                                    <span class="profile-info-list__info"><?= $_SESSION['nom'] ?? 'N/A' ?></span>
+                                    <span class="profile-info-list__info"><?= $sessionNom ?></span>
                                 </li>
                                 <li class="profile-info-list__item">
                                     <span class="profile-info-list__content flx-align flex-nowrap gap-2">
                                         <img src="assets/images/icons/profile-info-icon2.svg" alt="" class="icon">
                                         <span class="text text-heading fw-500">Email</span>
                                     </span>
-                                    <span class="profile-info-list__info"><?= $_SESSION['email'] ?? 'N/A' ?></span>
+                                    <span class="profile-info-list__info"><?= $sessionEmail ?></span>
                                 </li>
                                 <li class="profile-info-list__item">
                                     <span class="profile-info-list__content flx-align flex-nowrap gap-2">
                                         <img src="assets/images/icons/profile-info-icon3.svg" alt="" class="icon">
                                         <span class="text text-heading fw-500">Phone</span>
                                     </span>
-                                    <span class="profile-info-list__info"><?= $_SESSION['contact'] ?? 'N/A' ?></span>
+                                    <span class="profile-info-list__info"><?= $sessionContact ?></span>
                                 </li>
                                 <li class="profile-info-list__item">
                                     <span class="profile-info-list__content flx-align flex-nowrap gap-2">
                                         <img src="assets/images/icons/profile-info-icon4.svg" alt="" class="icon">
                                         <span class="text text-heading fw-500">Universite</span>
                                     </span>
-                                    <span class="profile-info-list__info"><?= $_SESSION['universite'] ?? 'N/A' ?></span>
+                                    <span class="profile-info-list__info"><?= $sessionUniversite ?></span>
                                 </li>
                             </ul>
 

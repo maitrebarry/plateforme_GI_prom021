@@ -391,7 +391,7 @@ $userHasLiked = !empty($userHasLiked);
                                 <span class="pd-pill"><i class='bx bx-star'></i><?= number_format($avgRating, 1) ?>/5
                                     sur <?= $totalReviews ?> avis</span>
                             </div>
-                            <div class="pd-desc"><?= $project->description ?? '' ?></div>
+                            <div class="pd-desc"><?= nl2br(htmlspecialchars((string) ($project->description ?? ''), ENT_QUOTES, 'UTF-8')) ?></div>
 
                             <?php if (!empty($images)): ?>
                             <div class="pd-gallery">

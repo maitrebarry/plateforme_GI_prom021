@@ -163,6 +163,7 @@ CREATE TABLE `projects` (
   `technologies` text DEFAULT NULL,
   `video` varchar(255) DEFAULT NULL,
   `status` enum('en cours','termine') DEFAULT 'en cours',
+  `admin_status` enum('en_attente','valide','rejete') NOT NULL DEFAULT 'en_attente',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -171,16 +172,16 @@ CREATE TABLE `projects` (
 -- Déchargement des données de la table `projects`
 --
 
-INSERT INTO `projects` (`id`, `user_id`, `category_id`, `title`, `description`, `technologies`, `video`, `status`, `created_at`, `updated_at`) VALUES
-(1, 8, 3, 'Atelico', '&amp;lt;p&amp;gt;une application de gestion des attelier de couture &amp;lt;/p&amp;gt;', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', '', '2026-03-16 17:20:17', '2026-03-25 16:45:29'),
-(2, 8, 2, 'GED', 'Une application de gestion electronique des documents pour les grandes entreprises', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', '', '2026-03-16 17:58:44', '2026-03-25 16:45:29'),
-(3, 8, 1, 'Hirondelle Market', 'Hirondelle Market est une plateforme de vente en ligne con&ccedil;ue pour faciliter l&rsquo;achat et la vente de produits via Internet. L&rsquo;objectif principal du site est de permettre aux utilisateurs de d&eacute;couvrir une large gamme de produits, de comparer les prix et de commander facilement depuis leur domicile ou leur smartphone.\r\n\r\nLe site propose une interface simple, moderne et intuitive qui permet aux visiteurs de naviguer facilement entre les diff&eacute;rentes cat&eacute;gories de produits. Les utilisateurs peuvent consulter les d&eacute;tails des articles, voir les images des produits, v&eacute;rifier leur disponibilit&eacute; et effectuer leurs achats en quelques clics.\r\n\r\nHirondelle Market vise &eacute;galement &agrave; soutenir les commer&ccedil;ants et entrepreneurs en leur offrant un espace num&eacute;rique pour pr&eacute;senter et vendre leurs produits &agrave; un public plus large. Gr&acirc;ce &agrave; cette plateforme, les vendeurs peuvent g&eacute;rer leurs produits, suivre les commandes et am&eacute;liorer leur visibilit&eacute; en ligne.\r\n\r\nLe syst&egrave;me int&egrave;gre plusieurs fonctionnalit&eacute;s importantes telles que la gestion des comptes utilisateurs, la recherche de produits, la gestion des commandes, ainsi que la s&eacute;curisation des transactions. L&rsquo;objectif est d&rsquo;offrir une exp&eacute;rience d&rsquo;achat fluide, rapide et s&eacute;curis&eacute;e pour tous les utilisateurs.\r\n\r\nEn r&eacute;sum&eacute;, Hirondelle Market repr&eacute;sente une solution moderne de commerce &eacute;lectronique qui rapproche les vendeurs et les acheteurs tout en simplifiant le processus d&rsquo;achat en ligne.', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', '', '2026-03-16 18:17:59', '2026-03-25 16:45:29'),
-(4, 8, 3, 'dd', 'ryte', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', '', '2026-03-17 09:31:09', '2026-03-25 16:45:29'),
-(5, 8, 1, 'Atelico', '<p>ss</p>', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', '', '2026-03-17 09:59:12', '2026-03-25 16:45:29'),
-(6, 8, 2, 'list', 'la vie', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', '', '2026-03-17 10:19:00', '2026-03-25 16:45:29'),
-(7, 8, 2, 'fqj', 'sfq', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', '', '2026-03-17 10:19:41', '2026-03-25 16:45:29'),
-(8, 8, 4, 'fsqjf', 'sfqfs', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', '', '2026-03-17 10:20:23', '2026-03-25 16:45:29'),
-(9, 9, 2, 'OumouKon&amp;amp;eacute; Beauty Manager (OKBM)', '<p>OumouKoné Beauty Manager (OKBM) est une application web et/ou mobile dédiée à la gestion intelligente des salons de coiffure.\r\n\r\nElle permet aux propriétaires de salons de :\r\n\r\ngérer leurs clients\r\norganiser les rendez-vous\r\nsuivre leurs revenus\r\ngérer les coiffeuses\r\naméliorer leur visibilité\r\n\r\n👉 Le projet vise à digitaliser les salons de coiffure au Mali et en Afrique, où beaucoup fonctionnent encore de manière manuelle.</p>', 'PHP,JAVA ', 'https://pin.it/6Dt3b7lQV', '', '2026-03-25 16:13:01', '2026-03-25 16:45:29');
+INSERT INTO `projects` (`id`, `user_id`, `category_id`, `title`, `description`, `technologies`, `video`, `status`, `admin_status`, `created_at`, `updated_at`) VALUES
+(1, 8, 3, 'Atelico', '&amp;lt;p&amp;gt;une application de gestion des attelier de couture &amp;lt;/p&amp;gt;', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'en cours', 'en_attente', '2026-03-16 17:20:17', '2026-03-25 16:45:29'),
+(2, 8, 2, 'GED', 'Une application de gestion electronique des documents pour les grandes entreprises', NULL, 'https://youtu.be/hCrtcVDgCGw?si=HtJ1kmqnuhR4499I', 'en cours', 'en_attente', '2026-03-16 17:58:44', '2026-03-25 16:45:29'),
+(3, 8, 1, 'Hirondelle Market', 'Hirondelle Market est une plateforme de vente en ligne con&ccedil;ue pour faciliter l&rsquo;achat et la vente de produits via Internet. L&rsquo;objectif principal du site est de permettre aux utilisateurs de d&eacute;couvrir une large gamme de produits, de comparer les prix et de commander facilement depuis leur domicile ou leur smartphone.\r\n\r\nLe site propose une interface simple, moderne et intuitive qui permet aux visiteurs de naviguer facilement entre les diff&eacute;rentes cat&eacute;gories de produits. Les utilisateurs peuvent consulter les d&eacute;tails des articles, voir les images des produits, v&eacute;rifier leur disponibilit&eacute; et effectuer leurs achats en quelques clics.\r\n\r\nHirondelle Market vise &eacute;galement &agrave; soutenir les commer&ccedil;ants et entrepreneurs en leur offrant un espace num&eacute;rique pour pr&eacute;senter et vendre leurs produits &agrave; un public plus large. Gr&acirc;ce &agrave; cette plateforme, les vendeurs peuvent g&eacute;rer leurs produits, suivre les commandes et am&eacute;liorer leur visibilit&eacute; en ligne.\r\n\r\nLe syst&egrave;me int&egrave;gre plusieurs fonctionnalit&eacute;s importantes telles que la gestion des comptes utilisateurs, la recherche de produits, la gestion des commandes, ainsi que la s&eacute;curisation des transactions. L&rsquo;objectif est d&rsquo;offrir une exp&eacute;rience d&rsquo;achat fluide, rapide et s&eacute;curis&eacute;e pour tous les utilisateurs.\r\n\r\nEn r&eacute;sum&eacute;, Hirondelle Market repr&eacute;sente une solution moderne de commerce &eacute;lectronique qui rapproche les vendeurs et les acheteurs tout en simplifiant le processus d&rsquo;achat en ligne.', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-16 18:17:59', '2026-03-25 16:45:29'),
+(4, 8, 3, 'dd', 'ryte', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 09:31:09', '2026-03-25 16:45:29'),
+(5, 8, 1, 'Atelico', '<p>ss</p>', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-17 09:59:12', '2026-03-25 16:45:29'),
+(6, 8, 2, 'list', 'la vie', 'JAVA, REACT APP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 10:19:00', '2026-03-25 16:45:29'),
+(7, 8, 2, 'fqj', 'sfq', 'PHP, MYSQL ', 'https://youtu.be/hCrtcVDgCGw?si=Bp-ZDsa4Z4u99AXM', 'en cours', 'en_attente', '2026-03-17 10:19:41', '2026-03-25 16:45:29'),
+(8, 8, 4, 'fsqjf', 'sfqfs', 'PHP, MYSQL ', 'https://youtu.be/u2ah9tWTkmk?si=I8boZXnGy6Lm6ItS', 'en cours', 'en_attente', '2026-03-17 10:20:23', '2026-03-25 16:45:29'),
+(9, 9, 2, 'OumouKon&amp;amp;eacute; Beauty Manager (OKBM)', '<p>OumouKoné Beauty Manager (OKBM) est une application web et/ou mobile dédiée à la gestion intelligente des salons de coiffure.\r\n\r\nElle permet aux propriétaires de salons de :\r\n\r\ngérer leurs clients\r\norganiser les rendez-vous\r\nsuivre leurs revenus\r\ngérer les coiffeuses\r\naméliorer leur visibilité\r\n\r\n👉 Le projet vise à digitaliser les salons de coiffure au Mali et en Afrique, où beaucoup fonctionnent encore de manière manuelle.</p>', 'PHP,JAVA ', 'https://pin.it/6Dt3b7lQV', 'en cours', 'en_attente', '2026-03-25 16:13:01', '2026-03-25 16:45:29');
 
 -- --------------------------------------------------------
 
@@ -443,7 +444,8 @@ ALTER TABLE `messages`
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `idx_projects_admin_status` (`admin_status`);
 
 --
 -- Index pour la table `project_files`

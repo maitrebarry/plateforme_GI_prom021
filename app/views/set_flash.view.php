@@ -1,9 +1,16 @@
 <?php if (isset($_SESSION['notification']['message'])):
+$type = (string) ($_SESSION['notification']['type'] ?? 'info');
+$allowedTypes = ['info', 'warning', 'danger', 'success'];
+if (!in_array($type, $allowedTypes, true)) {
+    $type = 'info';
+}
+
+$message = nl2br(htmlspecialchars((string) $_SESSION['notification']['message'], ENT_QUOTES, 'UTF-8'));
 
 $icon_class = '';
 $border_class = '';
 $text_color_class = ''; 
-switch ($_SESSION['notification']['type']) {
+switch ($type) {
     case 'info':
     
         $icon_class = 'fa-solid fa-circle-info align-middle';
@@ -34,13 +41,13 @@ switch ($_SESSION['notification']['type']) {
 }
 ?>
 <div class="container">
-    <div class="alert alert-<?= $_SESSION['notification']['type'] ?> <?= $border_class ?> border-start border-4 alert-dismissible fade show py-2" role="alert">
+    <div class="alert alert-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?> <?= $border_class ?> border-start border-4 alert-dismissible fade show py-2" role="alert">
         <div class="d-flex align-items-center">
             <div class="fs-3 <?= $text_color_class ?>">
                 <i class="<?= $icon_class ?>"></i>
             </div>
             <div class="ms-3 <?= $text_color_class ?>">
-                <?= $_SESSION['notification']['message'] ?>
+                <?= $message ?>
             </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

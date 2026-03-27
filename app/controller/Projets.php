@@ -2,9 +2,31 @@
 
 class Projets extends Controller
  {
+    private function requireAuthUserId(Model $model): int
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            $model->set_flash('Veuillez vous connecter pour continuer.', 'warning');
+            $this->redirect('Homes/login');
+        }
+
+        return $userId;
+    }
+
+    private function canManageProject(Projet $model, int $projectId, int $userId): bool
+    {
+        if (!$model->userOwnsProject($projectId, $userId)) {
+            $model->set_flash('Action non autorisee sur ce projet.', 'danger');
+            $this->redirect('Projets/mes_projets');
+            return false;
+        }
+
+        return true;
+    }
 
     public function publier_projet() {
         $model = new Model();
+        $this->requireAuthUserId($model);
 
         $data[ 'categories' ] = $model->SelectAllData( '*', 'categories' );
 
@@ -18,6 +40,7 @@ class Projets extends Controller
         }
 
         $model = new Model();
+        $user_id = $this->requireAuthUserId($model);
 
         /* verification champs */
 
@@ -41,8 +64,6 @@ class Projets extends Controller
         $video = $model->e( $_POST[ 'video' ] );
         /* utilisateur */
 
-        $user_id = $_SESSION[ 'user_id' ] ?? 1;
-
         $projectModel = new Projet();
 
         /* insertion projet */
@@ -54,7 +75,7 @@ class Projets extends Controller
             'description'=>$description,
             'technologies'=>$technologies,
             'video'=>$video,
-            'status'=>'En Attente'
+            'status'=>'en cours'
         ] );
 
         $project_id = $project[ 'lastInsertId' ];
@@ -65,11 +86,11 @@ class Projets extends Controller
         $fileDir = 'uploads/projects/files/';
 
         if ( !file_exists( $imageDir ) ) {
-            mkdir( $imageDir, 0777, true );
+            mkdir( $imageDir, 0755, true );
         }
 
         if ( !file_exists( $fileDir ) ) {
-            mkdir( $fileDir, 0777, true );
+            mkdir( $fileDir, 0755, true );
         }
 
         /* ===  ===  ===  ===  ===  == */
@@ -138,8 +159,7 @@ class Projets extends Controller
     public function mes_projets() {
 
         $projectModel = new Projet();
-
-        $user_id = $_SESSION[ 'user_id' ];
+        $user_id = $this->requireAuthUserId($projectModel);
 
         $data[ 'projects' ] = $projectModel->getProjectsByUser( $user_id );
 
@@ -152,12 +172,18 @@ class Projets extends Controller
     public function modifier( $id ) {
 
         $model = new Projet();
+        $userId = $this->requireAuthUserId($model);
+        $projectId = (int) $id;
 
-        $data[ 'project' ] = $model->getProjectById( $id );
+        if ($projectId <= 0 || !$this->canManageProject($model, $projectId, $userId)) {
+            return;
+        }
 
-        $data[ 'images' ] = $model->getProjectImages( $id );
+        $data[ 'project' ] = $model->getProjectById( $projectId );
 
-        $data[ 'files' ] = $model->getProjectFiles( $id );
+        $data[ 'images' ] = $model->getProjectImages( $projectId );
+
+        $data[ 'files' ] = $model->getProjectFiles( $projectId );
 
         $data[ 'categories' ] = $model->SelectAllData( '*', 'categories' );
 
@@ -170,6 +196,16 @@ class Projets extends Controller
     public function update( $id ) {
 
         $model = new Projet();
+        $userId = $this->requireAuthUserId($model);
+        $projectId = (int) $id;
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('Projets/mes_projets');
+        }
+
+        if ($projectId <= 0 || !$this->canManageProject($model, $projectId, $userId)) {
+            return;
+        }
 
         /* nettoyage */
 
@@ -183,7 +219,7 @@ class Projets extends Controller
 
         ];
 
-        $model->updateProject( $data, $id );
+        $model->updateProject( $data, $projectId );
 
         /* upload nouvelles images */
 
@@ -204,7 +240,7 @@ class Projets extends Controller
                 $newName = uniqid().'.'.$ext;
 
                 if ( move_uploaded_file( $tmp, 'uploads/projects/images/'.$newName ) ) {
-                    $model->addImage( $id, $newName );
+                    $model->addImage( $projectId, $newName );
                 }
 
             }
@@ -233,7 +269,7 @@ class Projets extends Controller
                 $newName = uniqid().'.'.$ext;
 
                 if ( move_uploaded_file( $tmp, 'uploads/projects/files/'.$newName ) ) {
-                    $model->addFile( $id, $newName );
+                    $model->addFile( $projectId, $newName );
                 }
 
             }
@@ -251,47 +287,69 @@ class Projets extends Controller
     public function delete_image( $id, $projetId ) {
 
         $model = new Projet();
+        $userId = $this->requireAuthUserId($model);
+        $imageId = (int) $id;
+        $projectId = (int) $projetId;
 
-        $image = $model->SelectOne( '*', 'project_images', 'id=?', [ $id ] );
+        if (
+            $projectId <= 0
+            || !$this->canManageProject($model, $projectId, $userId)
+            || !$model->imageBelongsToProject($imageId, $projectId)
+        ) {
+            return;
+        }
+
+        $image = $model->SelectOne( '*', 'project_images', 'id=?', [ $imageId ] );
 
         if ( $image ) {
 
-            $path = 'uploads/projects/images/'.$image->image;
+            $path = 'uploads/projects/images/' . basename((string) $image->image);
 
             if ( file_exists( $path ) ) {
                 unlink( $path );
             }
 
-            $model->deleteImage( $id );
+            $model->deleteImage( $imageId );
 
         }
 
         $model->set_flash( 'Image supprimée', 'success' );
 
-        $model->redirect( '/Projets/modifier/'. $projetId );
+        $model->redirect( 'Projets/modifier/'. $projectId );
 
     }
 
     public function delete_file( $id, $projetId ) {
         $model = new Projet();
+        $userId = $this->requireAuthUserId($model);
+        $fileId = (int) $id;
+        $projectId = (int) $projetId;
 
-        $file = $model->SelectOne( '*', 'project_files', 'id=?', [ $id ] );
+        if (
+            $projectId <= 0
+            || !$this->canManageProject($model, $projectId, $userId)
+            || !$model->fileBelongsToProject($fileId, $projectId)
+        ) {
+            return;
+        }
+
+        $file = $model->SelectOne( '*', 'project_files', 'id=?', [ $fileId ] );
 
         if ( $file ) {
 
-            $path = 'uploads/projects/files/'.$file->fichier;
+            $path = 'uploads/projects/files/' . basename((string) $file->fichier);
 
             if ( file_exists( $path ) ) {
                 unlink( $path );
             }
 
-            $model->deleteFile( $id );
+            $model->deleteFile( $fileId );
 
         }
 
         $model->set_flash( 'Fichier supprimé', 'success' );
 
-        $model->redirect( '/Projets/modifier/'. $projetId );
+        $model->redirect( 'Projets/modifier/'. $projectId );
     }
 
     public function detail( $id ) {
@@ -299,6 +357,7 @@ class Projets extends Controller
         $model = new Projet();
         $projectId = (int) $id;
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $currentUserRole = (string) ($_SESSION['role'] ?? '');
 
         if ($projectId <= 0) {
             $model->set_flash('Projet introuvable.', 'danger');
@@ -312,6 +371,14 @@ class Projets extends Controller
         }
 
         $ownerId = (int) ($project->owner_id ?? $project->user_id ?? 0);
+        $isAdmin = $currentUserRole === 'admin';
+        $isOwner = $currentUserId > 0 && $currentUserId === $ownerId;
+        $isPubliclyVisible = $model->isProjectPubliclyVisible($projectId);
+
+        if (!$isPubliclyVisible && !$isAdmin && !$isOwner) {
+            $model->set_flash('Ce projet est en attente de validation et n est pas encore visible.', 'warning');
+            $this->redirect('Homes/index');
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
@@ -396,6 +463,17 @@ class Projets extends Controller
         $project = $model->getProjectDetailEnhanced($projectId);
         if (!$project) {
             echo json_encode(['ok' => false, 'message' => 'Projet introuvable.']);
+            return;
+        }
+
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $currentUserRole = (string) ($_SESSION['role'] ?? '');
+        $ownerId = (int) ($project->owner_id ?? $project->user_id ?? 0);
+        $isAdmin = $currentUserRole === 'admin';
+        $isOwner = $currentUserId > 0 && $currentUserId === $ownerId;
+
+        if (!$model->isProjectPubliclyVisible($projectId) && !$isAdmin && !$isOwner) {
+            echo json_encode(['ok' => false, 'message' => 'Ce projet n est pas encore accessible.']);
             return;
         }
 

@@ -4,6 +4,7 @@ class Projet extends Model
  {
     protected $table = 'projects';
     private array $tableExistsCache = [];
+    private array $columnExistsCache = [];
 
     private function excerpt(string $text, int $limit = 180): string
     {
@@ -38,6 +39,55 @@ class Projet extends Model
         } catch (Throwable $e) {
             return $this->tableExistsCache[$table] = false;
         }
+    }
+
+    private function columnExists(string $table, string $column): bool
+    {
+        $cacheKey = $table . '.' . $column;
+
+        if (array_key_exists($cacheKey, $this->columnExistsCache)) {
+            return $this->columnExistsCache[$cacheKey];
+        }
+
+        try {
+            $row = $this->FetchSelectWhere(
+                'COUNT(*) AS total',
+                'information_schema.columns',
+                'table_schema = DATABASE() AND table_name = ? AND column_name = ?',
+                [$table, $column]
+            );
+
+            return $this->columnExistsCache[$cacheKey] = (!empty($row) && (int) ($row->total ?? 0) > 0);
+        } catch (Throwable $e) {
+            return $this->columnExistsCache[$cacheKey] = false;
+        }
+    }
+
+    private function publicVisibilityCondition(string $alias = 'p'): string
+    {
+        if ($this->columnExists('projects', 'admin_status')) {
+            return "COALESCE({$alias}.admin_status, 'en_attente') = 'valide'";
+        }
+
+        return "LOWER(TRIM(COALESCE({$alias}.status, ''))) = 'termine'";
+    }
+
+    public function isProjectPubliclyVisible(int $projectId): bool
+    {
+        if ($projectId <= 0 || !$this->tableExists('projects')) {
+            return false;
+        }
+
+        $rows = $this->select_data_table_join_where(
+            "SELECT p.id
+             FROM projects p
+             WHERE p.id = ?
+               AND " . $this->publicVisibilityCondition('p') . "
+             LIMIT 1",
+            [$projectId]
+        );
+
+        return !empty($rows);
     }
 
     private function attachImagesToProjects(array $rows): array
@@ -90,7 +140,7 @@ class Projet extends Model
             $sql .= " LEFT JOIN users u ON u.user_id = p.user_id";
         }
 
-        $sql .= " WHERE 1 = 1";
+        $sql .= " WHERE " . $this->publicVisibilityCondition('p');
         $params = [];
 
         if ($categoryId !== null && $categoryId > 0) {
@@ -198,6 +248,7 @@ class Projet extends Model
             "SELECT c.id, c.nom, c.description, COUNT(p.id) AS total_projects
              FROM categories c
              LEFT JOIN projects p ON p.category_id = c.id
+                AND " . $this->publicVisibilityCondition('p') . "
              GROUP BY c.id, c.nom, c.description
              ORDER BY c.nom ASC"
         );
@@ -704,6 +755,36 @@ class Projet extends Model
 
     }
 
+    public function userOwnsProject(int $projectId, int $userId): bool
+    {
+        if ($projectId <= 0 || $userId <= 0) {
+            return false;
+        }
+
+        $row = $this->FetchSelectWhere('id', 'projects', 'id = ? AND user_id = ?', [$projectId, $userId]);
+        return !empty($row);
+    }
+
+    public function imageBelongsToProject(int $imageId, int $projectId): bool
+    {
+        if ($imageId <= 0 || $projectId <= 0) {
+            return false;
+        }
+
+        $row = $this->FetchSelectWhere('id', 'project_images', 'id = ? AND project_id = ?', [$imageId, $projectId]);
+        return !empty($row);
+    }
+
+    public function fileBelongsToProject(int $fileId, int $projectId): bool
+    {
+        if ($fileId <= 0 || $projectId <= 0) {
+            return false;
+        }
+
+        $row = $this->FetchSelectWhere('id', 'project_files', 'id = ? AND project_id = ?', [$fileId, $projectId]);
+        return !empty($row);
+    }
+
     /* récupérer images projet */
 
     public function getProjectImages( $project_id ) {
@@ -784,7 +865,7 @@ class Projet extends Model
 
     }
 
-    public function getProjectDetailEnhanced(int $id)
+    public function getProjectDetailEnhanced(int $id, bool $publicOnly = false)
     {
         if (!$this->tableExists('projects')) {
             return null;
@@ -808,6 +889,7 @@ class Projet extends Model
                 LEFT JOIN categories c ON c.id = p.category_id
                 LEFT JOIN users u ON u.user_id = p.user_id
                 WHERE p.id = ?
+                " . ($publicOnly ? "AND " . $this->publicVisibilityCondition('p') : "") . "
                 LIMIT 1";
 
         return $this->select_data_table_join_where($sql, [$id])[0] ?? null;
@@ -974,6 +1056,7 @@ class Projet extends Model
              " . ($hasUsers ? "LEFT JOIN users u ON u.user_id = p.user_id" : "") . "
              " . ($hasLikes ? "LEFT JOIN project_likes pl ON pl.project_id = p.id" : "") . "
              " . ($hasReviews ? "LEFT JOIN project_reviews pr ON pr.project_id = p.id" : "") . "
+             WHERE " . $this->publicVisibilityCondition('p') . "
              GROUP BY " . implode(', ', $groupBy) . "
              ORDER BY likes_count DESC, average_rating DESC, p.created_at DESC
              LIMIT {$limit}"
