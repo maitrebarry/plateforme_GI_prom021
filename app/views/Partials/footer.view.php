@@ -5,7 +5,7 @@
             <div class="col-xl-4 col-sm-6">
                 <div class="footer-item">
                     <div class="footer-item__logo">
-                        <a href="<?= ROOT ?>/Homes/index"><img src="<?= ROOT ?>/assets/images/logo/white-logo.png" alt=""></a>
+                        <a href="<?= ROOT ?>/Homes/index"><img src="<?= ROOT ?>/assets/images/logo/white-n'kakodon.png" alt=""></a>
                     </div>
                     <p class="footer-item__desc">Plateforme GI Promo 21 - structure découpée à partir de dpmarkethtml-10.</p>
                 </div>

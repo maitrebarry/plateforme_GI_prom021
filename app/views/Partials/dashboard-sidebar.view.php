@@ -1,8 +1,7 @@
 <div class="dashboard-sidebar">
     <button type="button" class="dashboard-sidebar__close d-lg-none d-flex"><i class="las la-times"></i></button>
     <div class="dashboard-sidebar__inner">
-        <a href="<?= ROOT ?>/Homes/index" class="logo mb-48"><img src="<?= ROOT ?>/assets/images/logo/logo.png"
-                alt=""></a>
+       
 
         <?php
         $role = strtolower((string)($_SESSION['role'] ?? 'etudiant'));
