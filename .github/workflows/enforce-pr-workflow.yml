@@ -1,0 +1,69 @@
+name: 🚫 Enforce PR Workflow
+
+# Ce workflow échoue volontairement si quelqu'un pousse directement sur
+# la branche main sans passer par une pull request.
+# Il sert de dernier filet de sécurité en plus des règles de protection
+# de branche configurées dans setup-branch-protection.yml.
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # Lecture seule sur les pull requests et le contenu du dépôt.
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-direct-push:
+    name: Vérifier que le push vient d'une PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Détecter un push direct sur main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ github.sha }}"
+          REPO="${{ github.repository }}"
+
+          # Stratégie 1 : vérifier si le commit est associé à une PR fusionnée.
+          # L'API GitHub peut avoir un léger délai après la fusion ; on réessaie
+          # jusqu'à 3 fois avec une courte pause.
+          PR_COUNT=0
+          for attempt in 1 2 3; do
+            PR_COUNT=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/${REPO}/commits/${SHA}/pulls" \
+              --jq 'length' 2>/dev/null || echo "0")
+            [ "$PR_COUNT" -gt 0 ] && break
+            sleep 5
+          done
+
+          if [ "$PR_COUNT" -gt 0 ]; then
+            echo "✅ Ce commit provient d'une PR fusionnée. Tout est en ordre."
+            exit 0
+          fi
+
+          # Stratégie 2 : repli sur le message du commit de fusion.
+          # GitHub génère automatiquement "Merge pull request #N" lors d'une
+          # fusion standard via l'interface web ou la CLI.
+          COMMIT_MSG=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${REPO}/commits/${SHA}" \
+            --jq '.commit.message // ""')
+
+          if echo "$COMMIT_MSG" | grep -qE "^Merge (pull request|branch )"; then
+            echo "✅ Commit de fusion détecté via le message. Tout est en ordre."
+            exit 0
+          fi
+
+          # Aucun indicateur de PR trouvé → push direct.
+          echo "❌ Push direct détecté sur la branche main !"
+          echo "   Commit : ${SHA}"
+          echo "   Auteur : ${{ github.actor }}"
+          echo ""
+          echo "Tous les changements doivent passer par une pull request."
+          echo "Veuillez créer une branche, ouvrir une PR et la faire approuver."
+          exit 1
