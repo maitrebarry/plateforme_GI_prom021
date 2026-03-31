@@ -15,100 +15,119 @@ $paginationQuery = (string) ($paginationQuery ?? '');
 $categoryStats = $categoryStats ?? ['total' => 0, 'used' => 0, 'unused' => 0];
 ?>
 <style>
-.admin-category-card,
-.admin-category-card .card-body,
-.admin-category-card h5,
-.admin-category-card p,
-.admin-category-card label {
-    color: #0f172a;
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #94a3b8;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --bg-light: #f1f5f9;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.admin-category-card .table {
-    color: #0f172a;
-    --bs-table-bg: #ffffff;
-    --bs-table-striped-bg: #f8fafc;
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.admin-category-card .table thead th {
-    background: #e2e8f0;
-    color: #0f172a;
-    font-weight: 800;
-}
-
-.admin-category-card .table tbody td {
+.common-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
     background: #ffffff;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.header-back-btn {
+    width: 45px;
+    height: 45px;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.header-back-btn:hover {
+    transform: translateX(-5px);
+    background: #f8fafc;
+}
+
+.stat-pill {
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    background: white;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    border-top: 4px solid var(--primary-color);
+}
+
+.table thead th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1.25rem 1rem !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.table tbody td {
+    padding: 1rem !important;
+    font-weight: 600;
     color: #1e293b;
     vertical-align: middle;
 }
 
-.admin-category-card .btn {
+.table tbody tr {
+    transition: all 0.2s;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.btn {
     font-weight: 700;
-}
-
-.admin-category-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.admin-category-stat {
-    padding: 16px 18px;
-    border-radius: 20px;
-    background: #f8fafc;
-    border: 1px solid #dbe4ee;
-}
-
-.admin-category-stat strong {
-    display: block;
-    font-size: 1.7rem;
-    line-height: 1.1;
-    margin-top: 8px;
-}
-
-.admin-pagination-wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.admin-pagination-summary {
-    color: #475569;
-    font-weight: 600;
-}
-
-.admin-pagination {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.page-link-nav {
-    min-width: 40px;
-    height: 40px;
-    padding: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 12px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #0f172a;
-    text-decoration: none;
-    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.3s;
 }
 
-.page-link-nav.is-active {
-    background: #0d6efd;
-    border-color: #0d6efd;
-    color: #ffffff;
+.btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; }
+.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; }
+.btn-danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: none; }
+
+.filter-shelf {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
 }
 
-.page-link-nav.is-disabled {
-    pointer-events: none;
-    opacity: 0.45;
+.category-input {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.category-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
 }
 </style>
 <section class="dashboard">
@@ -119,19 +138,36 @@ $categoryStats = $categoryStats ?? ['total' => 0, 'used' => 0, 'unused' => 0];
             <div class="dashboard-body__content p-4">
                 <?php $this->view('set_flash'); ?>
 
-                <div class="card common-card mb-4 admin-category-card">
-                    <div class="card-body">
-                        <h5 class="mb-3">Ajouter une categorie</h5>
+                <div class="card common-card mb-4 border-0" style="background: transparent; box-shadow: none;">
+                    <div class="card-body p-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <a href="<?= ROOT ?>/Admins/dashboard" class="header-back-btn">
+                                ⬅️
+                            </a>
+                            <div>
+                                <h3 class="mb-0 fw-800 text-primary">Gestion des Catégories</h3>
+                                <p class="text-muted small mb-0">Organisation thématique des projets de la plateforme</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card common-card mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4 fw-800 border-bottom pb-2">➕ Ajouter une catégorie</h5>
+
                         <form method="POST" action="<?= ROOT ?>/Admins/categories" class="row gy-3">
                             <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
-                            <div class="col-md-4">
-                                <input type="text" name="nom" class="common-input common-input--bg" placeholder="Nom" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" name="description" class="common-input common-input--bg" placeholder="Description">
-                            </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-primary w-100" type="submit" name="add_category">Ajouter</button>
+                            <div class="row align-items-center gy-3">
+                                <div class="col-md-4">
+                                    <input type="text" name="nom" class="form-control rounded-3 border px-3 py-2" placeholder="Nom de la catégorie (ex: Intelligence Artificielle)" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="description" class="form-control rounded-3 border px-3 py-2" placeholder="Brève description de l'usage...">
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100 shadow-sm" type="submit" name="add_category">Ajouter</button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -141,48 +177,59 @@ $categoryStats = $categoryStats ?? ['total' => 0, 'used' => 0, 'unused' => 0];
                     <div class="card-body">
                         <h5 class="mb-3">Liste des categories</h5>
 
-                        <div class="admin-category-stats">
-                            <div class="admin-category-stat"><span>Total categories</span><strong><?= (int) ($categoryStats['total'] ?? 0) ?></strong></div>
-                            <div class="admin-category-stat"><span>Avec projets</span><strong><?= (int) ($categoryStats['used'] ?? 0) ?></strong></div>
-                            <div class="admin-category-stat"><span>Sans projets</span><strong><?= (int) ($categoryStats['unused'] ?? 0) ?></strong></div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="stat-pill border-primary">
+                                    <span class="small text-muted fw-bold">TOTAL CATÉGORIES</span>
+                                    <strong class="h3 mb-0"><?= (int) ($categoryStats['total'] ?? 0) ?></strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-pill border-success">
+                                    <span class="small text-muted fw-bold">AVEC PROJETS</span>
+                                    <strong class="h3 mb-0"><?= (int) ($categoryStats['used'] ?? 0) ?></strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-pill border-secondary">
+                                    <span class="small text-muted fw-bold">SANS PROJETS</span>
+                                    <strong class="h3 mb-0"><?= (int) ($categoryStats['unused'] ?? 0) ?></strong>
+                                </div>
+                            </div>
                         </div>
 
-                        <form method="GET" action="<?= ROOT ?>/Admins/categories" class="row gy-3 mb-4" id="category-filter-form">
-                            <div class="col-md-4">
-                                <input type="text" name="search" value="<?= htmlspecialchars($categorySearch) ?>" class="common-input common-input--bg" placeholder="Rechercher une categorie">
-                            </div>
-                            <div class="col-md-2">
-                                <select name="usage" class="common-input common-input--bg auto-submit-filter">
-                                    <option value="all" <?= $categoryUsageFilter === 'all' ? 'selected' : '' ?>>Toutes</option>
-                                    <option value="used" <?= $categoryUsageFilter === 'used' ? 'selected' : '' ?>>Avec projets</option>
-                                    <option value="unused" <?= $categoryUsageFilter === 'unused' ? 'selected' : '' ?>>Sans projets</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select name="sort_by" class="common-input common-input--bg auto-submit-filter">
-                                    <option value="name" <?= $categorySortBy === 'name' ? 'selected' : '' ?>>Nom</option>
-                                    <option value="projects" <?= $categorySortBy === 'projects' ? 'selected' : '' ?>>Nb projets</option>
-                                    <option value="description" <?= $categorySortBy === 'description' ? 'selected' : '' ?>>Description</option>
-                                    <option value="id" <?= $categorySortBy === 'id' ? 'selected' : '' ?>>ID</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select name="sort_dir" class="common-input common-input--bg auto-submit-filter">
-                                    <option value="asc" <?= $categorySortDir === 'asc' ? 'selected' : '' ?>>Asc</option>
-                                    <option value="desc" <?= $categorySortDir === 'desc' ? 'selected' : '' ?>>Desc</option>
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <select name="per_page" class="common-input common-input--bg auto-submit-filter">
-                                    <option value="10" <?= $perPage === 10 ? 'selected' : '' ?>>10</option>
-                                    <option value="20" <?= $perPage === 20 ? 'selected' : '' ?>>20</option>
-                                    <option value="50" <?= $perPage === 50 ? 'selected' : '' ?>>50</option>
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <button class="btn btn-primary w-100" type="submit">OK</button>
-                            </div>
-                        </form>
+                        <div class="filter-shelf">
+                            <form method="GET" action="<?= ROOT ?>/Admins/categories" class="row gy-3" id="category-filter-form">
+                                <div class="col-md-4">
+                                    <label class="small fw-bold text-muted mb-2">Recherche</label>
+                                    <input type="text" name="search" value="<?= htmlspecialchars($categorySearch) ?>" class="form-control rounded-3 border-0 bg-white" placeholder="Nom de catégorie...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted mb-2">Utilisation</label>
+                                    <select name="usage" class="form-select rounded-3 border-0 bg-white auto-submit-filter">
+                                        <option value="all" <?= $categoryUsageFilter === 'all' ? 'selected' : '' ?>>Tout afficher</option>
+                                        <option value="used" <?= $categoryUsageFilter === 'used' ? 'selected' : '' ?>>Utilisées uniquement</option>
+                                        <option value="unused" <?= $categoryUsageFilter === 'unused' ? 'selected' : '' ?>>Non utilisées</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted mb-2">Tri par</label>
+                                    <div class="input-group">
+                                        <select name="sort_by" class="form-select rounded-start-3 border-0 bg-white auto-submit-filter">
+                                            <option value="name" <?= $categorySortBy === 'name' ? 'selected' : '' ?>>Nom</option>
+                                            <option value="projects" <?= $categorySortBy === 'projects' ? 'selected' : '' ?>>Usage</option>
+                                        </select>
+                                        <select name="sort_dir" class="form-select rounded-end-3 border-0 bg-white auto-submit-filter">
+                                            <option value="asc" <?= $categorySortDir === 'asc' ? 'selected' : '' ?>>ASC</option>
+                                            <option value="desc" <?= $categorySortDir === 'desc' ? 'selected' : '' ?>>DESC</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100 shadow-sm" type="submit">🔍 OK</button>
+                                </div>
+                            </form>
+                        </div>
 
                         <div class="table-responsive">
                             <table class="table">
@@ -204,17 +251,17 @@ $categoryStats = $categoryStats ?? ['total' => 0, 'used' => 0, 'unused' => 0];
                                                     <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
                                                     <input type="hidden" name="id" value="<?= (int) ($category->id ?? 0) ?>">
                                                 </form>
-                                                <td><?= (int) ($category->id ?? 0) ?></td>
+                                                <td class="small fw-bold text-muted">#<?= (int) ($category->id ?? 0) ?></td>
                                                 <td>
-                                                    <input type="text" name="nom" value="<?= htmlspecialchars((string) ($category->nom ?? '')) ?>" class="common-input common-input--bg" form="<?= $formId ?>">
+                                                    <input type="text" name="nom" value="<?= htmlspecialchars((string) ($category->nom ?? '')) ?>" class="category-input fw-bold" form="<?= $formId ?>">
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="description" value="<?= htmlspecialchars((string) ($category->description ?? '')) ?>" class="common-input common-input--bg" form="<?= $formId ?>">
+                                                    <input type="text" name="description" value="<?= htmlspecialchars((string) ($category->description ?? '')) ?>" class="category-input small" form="<?= $formId ?>">
                                                 </td>
-                                                <td><span class="badge bg-primary-subtle text-primary"><?= (int) ($category->total_projects ?? 0) ?></span></td>
-                                                <td class="d-flex gap-2 flex-wrap">
-                                                    <button class="btn btn-success btn-sm" name="update_category" type="submit" form="<?= $formId ?>">Modifier</button>
-                                                    <button class="btn btn-danger btn-sm" name="delete_category" type="submit" form="<?= $formId ?>" onclick="return confirm('Supprimer cette categorie ?')">Supprimer</button>
+                                                <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3"><?= (int) ($category->total_projects ?? 0) ?> projets</span></td>
+                                                <td class="d-flex gap-2">
+                                                    <button class="btn btn-success btn-sm p-2 d-flex align-items-center justify-content-center" name="update_category" type="submit" form="<?= $formId ?>" title="Enregistrer">💾</button>
+                                                    <button class="btn btn-danger btn-sm p-2 d-flex align-items-center justify-content-center" name="delete_category" type="submit" form="<?= $formId ?>" onclick="return confirm('Supprimer cette categorie ?')" title="Supprimer">🗑️</button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
