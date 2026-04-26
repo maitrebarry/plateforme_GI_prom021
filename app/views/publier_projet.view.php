@@ -1,906 +1,495 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Publier un projet']) ?>
-
-<style>
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #4a6cf7;
-    background: #eef2ff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-back .arrow {
-    font-size: 16px;
-    transition: transform 0.25s ease;
-}
-
-.btn-back:hover {
-    background: #4a6cf7;
-    color: white;
-}
-
-.btn-back:hover .arrow {
-    transform: translateX(-4px);
-}
-
-.page-title {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: #2b2b2b;
-}
-
-.page-subtitle {
-    color: #6c757d;
-    font-size: 15px;
-    margin-bottom: 25px;
-}
-
-/* CARD */
-.card {
-    border-radius: 15px;
-}
-
-/* SELECTION CATEGORIE */
-/* wrapper */
-
-.select-wrapper {
-    position: relative;
-}
-
-/* select */
-
-.custom-select {
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    width: 100%;
-    padding: 10px 40px 10px 12px;
-
-    border-radius: 10px;
-    border: 1px solid #dcdcdc;
-
-    background-color: #fff;
-
-    font-size: 14px;
-
-    cursor: pointer;
-
-    transition: all .25s ease;
-
-}
-
-/* icone fleche */
-
-.select-wrapper::after {
-
-    content: "▾";
-
-    position: absolute;
-
-    right: 14px;
-    top: 50%;
-
-    transform: translateY(-50%);
-
-    font-size: 14px;
-
-    color: #4a6cf7;
-
-    pointer-events: none;
-
-}
-
-/* hover */
-
-.custom-select:hover {
-
-    border-color: #4a6cf7;
-    background: #fafbff;
-
-}
-
-/* focus */
-
-.custom-select:focus {
-
-    outline: none;
-
-    border-color: #4a6cf7;
-
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-
-}
-
-/* option */
-
-.custom-select option {
-
-    padding: 10px;
-
-}
-
-
-/* Technologie */
-.tech-container {
-
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 6px;
-
-    border: 1px solid #dcdcdc;
-
-    padding: 8px;
-
-    border-radius: 10px;
-
-    min-height: 42px;
-
-    cursor: text;
-
-    transition: 0.2s;
-
-}
-
-.tech-container:focus-within {
-
-    border-color: #4a6cf7;
-
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-
-}
-
-.tech-container input {
-
-    border: none;
-
-    outline: none;
-
-    flex: 1;
-
-    min-width: 120px;
-
-    font-size: 14px;
-
-}
-
-/* TAG */
-
-.tech-tag {
-
-    background: #eef2ff;
-
-    color: #4a6cf7;
-
-    padding: 4px 10px;
-
-    border-radius: 20px;
-
-    font-size: 13px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 6px;
-
-}
-
-/* bouton supprimer */
-
-.tech-remove {
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-}
-
-/* DROP ZONE */
-
-.upload-box {
-    border: 2px dashed #cfd3d7;
-    border-radius: 12px;
-    padding: 35px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.3s;
-    background: #fafafa;
-}
-
-.upload-box:hover {
-    border-color: #4a6cf7;
-    background: #f5f7ff;
-}
-
-/* PREVIEW */
-
-.preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.preview-item {
-    position: relative;
-}
-
-.preview-item img {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-.remove-btn {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-/* FILE LIST */
-
-.file-list {
-    margin-top: 10px;
-}
-
-.file-item {
-    background: #f5f5f5;
-    padding: 6px 10px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* BUTTON */
-
-.btn-primary {
-    border-radius: 8px;
-    background: #4a6cf7;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #3d5bd6;
-}
-
-.btn-publish {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #4a6cf7, #6a85ff);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
-}
-
-/* hover */
-
-.btn-publish:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(74, 108, 247, 0.35);
-    background: linear-gradient(135deg, #3c5be0, #5f7bff);
-}
-
-/* click */
-
-.btn-publish:active {
-    transform: scale(0.96);
-    box-shadow: 0 3px 8px rgba(74, 108, 247, 0.2);
-}
-
-/* icone */
-
-.btn-publish .icon {
-    font-size: 16px;
-}
-
-/* CONTENEUR */
-
-.description-container {
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 12px;
-
-    padding: 12px;
-
-    background: #fafafa;
-
-    transition: all .25s ease;
-
-}
-
-/* effet focus */
-
-.description-container:focus-within {
-
-    border-color: #4a6cf7;
-
-    background: #ffffff;
-
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-
-}
-
-/* textarea */
-
-.description-textarea {
-
-    width: 100%;
-
-    min-height: 160px;
-
-    border: none;
-
-    resize: none;
-
-    outline: none;
-
-    font-size: 14px;
-
-    line-height: 1.7;
-
-    background: transparent;
-
-    color: #333;
-
-}
-
-/* footer */
-
-.description-footer {
-
-    display: flex;
-
-    justify-content: flex-end;
-
-    margin-top: 6px;
-
-}
-
-/* compteur */
-
-.char-count {
-
-    font-size: 12px;
-
-    color: #999;
-
-}
-</style>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Publier un projet']); ?>
 
 <body>
+<?php $this->view('Partials/global-shell'); ?>
+<?php $this->view('Partials/mobile-menu'); ?>
 
-    <?php $this->view('Partials/global-shell') ?>
-    <?php $this->view('Partials/mobile-menu') ?>
-    <?php $this->view('Partials/header') ?>
+<section class="dashboard">
+    <div class="dashboard__inner d-flex">
+        <?php $this->view('Partials/dashboard-sidebar'); ?>
+        
+        <div class="dashboard-body">
+            <?php $this->view('Partials/dashboard-nav'); ?>
+            
+            <div class="dashboard-body__content p-4">
+                <style>
+                :root {
+                    --primary-color: #6366f1;
+                    --primary-hover: #4f46e5;
+                    --secondary-color: #94a3b8;
+                    --success-color: #10b981;
+                    --warning-color: #f59e0b;
+                    --danger-color: #ef4444;
+                    --bg-light: #f1f5f9;
+                    --text-main: #0f172a;
+                    --text-muted: #64748b;
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                }
 
-    <main class='change-gradient'>
+                .dashboard-body__content {
+                    animation: fadeIn 0.5s ease-out;
+                    background-color: var(--bg-light);
+                }
 
-        <section class='all-product'>
-            <div class='container container-two'>
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
 
-                <div class='row justify-content-center'>
-                    <div class="col-12">
-                        <?php $this->view('set_flash'); ?>
+                /* Hero Section */
+                .student-hero {
+                    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    color: white;
+                    margin-bottom: 2.5rem;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: var(--card-shadow);
+                }
+
+                .student-hero h1 { font-weight: 800; font-size: 2.4rem; margin-bottom: 0.75rem; }
+                .student-hero p { font-size: 1.1rem; opacity: 0.9; max-width: 800px; margin-bottom: 0; }
+
+                .common-card {
+                    border: none;
+                    border-radius: 20px;
+                    box-shadow: var(--card-shadow);
+                    background: #ffffff;
+                    padding: 2.5rem;
+                    margin-bottom: 3rem;
+                }
+
+                .form-label {
+                    font-weight: 700;
+                    color: var(--text-main);
+                    margin-bottom: 0.6rem;
+                    font-size: 0.95rem;
+                }
+
+                .form-control, .form-select {
+                    border-radius: 12px;
+                    border: 1.5px solid #e2e8f0;
+                    padding: 0.8rem 1.1rem;
+                    font-size: 0.95rem;
+                    transition: all 0.3s;
+                }
+
+                .form-control:focus, .form-select:focus {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                    outline: none;
+                }
+
+                .description-container {
+                    border: 1.5px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 1rem;
+                    background: #f8fafc;
+                    transition: all 0.3s;
+                }
+
+                .description-container:focus-within {
+                    border-color: var(--primary-color);
+                    background: #ffffff;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                }
+
+                .description-textarea {
+                    width: 100%;
+                    border: none;
+                    outline: none;
+                    background: transparent;
+                    resize: vertical;
+                    min-height: 200px;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                }
+
+                .tech-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    border: 1.5px solid #e2e8f0;
+                    padding: 0.6rem;
+                    border-radius: 12px;
+                    background: #f8fafc;
+                    min-height: 52px;
+                    transition: all 0.3s;
+                }
+
+                .tech-container:focus-within {
+                    border-color: var(--primary-color);
+                    background: #ffffff;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                }
+
+                .tech-tag {
+                    background: rgba(99, 102, 241, 0.1);
+                    color: var(--primary-color);
+                    padding: 5px 12px;
+                    border-radius: 8px;
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                .tech-tag i { cursor: pointer; opacity: 0.7; transition: 0.2s; }
+                .tech-tag i:hover { opacity: 1; transform: scale(1.1); }
+
+                #techInput {
+                    border: none;
+                    outline: none;
+                    background: transparent;
+                    flex: 1;
+                    min-width: 150px;
+                }
+
+                .upload-box {
+                    border: 2px dashed #cbd5e1;
+                    border-radius: 16px;
+                    padding: 3rem 2rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    background: #f8fafc;
+                    color: var(--text-muted);
+                }
+
+                .upload-box:hover {
+                    border-color: var(--primary-color);
+                    background: rgba(99, 102, 241, 0.03);
+                    color: var(--primary-color);
+                }
+
+                .upload-box i { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+
+                .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1rem; }
+                .preview-item {
+                    position: relative;
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                }
+                .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+                .preview-item .remove-btn {
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    background: var(--danger-color);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 22px;
+                    height: 22px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    font-size: 12px;
+                }
+
+                .file-item {
+                    background: white;
+                    border: 1px solid #e2e8f0;
+                    padding: 0.75rem 1rem;
+                    border-radius: 10px;
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 0.9rem;
+                }
+
+                .btn-publish {
+                    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                    color: white !important;
+                    padding: 1rem 2.5rem;
+                    border-radius: 14px;
+                    font-weight: 800;
+                    border: none;
+                    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+                    transition: all 0.3s;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                }
+
+                .btn-publish:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+                }
+
+                [data-reveal] {
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+                }
+
+                [data-reveal].is-visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                </style>
+
+                <div class="publish-project-container">
+                    <div class="student-hero" data-reveal>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <a href="<?= ROOT ?>/Projets/mes_projets" class="btn btn-sm btn-primary" style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                                <i class='bx bx-arrow-back'></i> Retour
+                            </a>
+                            <span class="badge bg-primary bg-opacity-25 text-white">Nouveau Projet</span>
+                        </div>
+                        <h1 class="text-white">Publier une nouvelle réalisation</h1>
+                        <p>Présentez votre travail à la communauté. Partagez vos détails techniques, vos fichiers et vos captures d'écran pour inspirer les autres.</p>
                     </div>
-                    <div class='col-lg-8'>
-                        <div>
-                            <button type="button" class="btn-back" onclick="history.back()">
-                                <span class="arrow">←</span> Retour
-                            </button>
-                        </div>
-                        <div class='card shadow-sm border-0'>
 
-                            <div class='card-body p-5'>
-
-                                <h2 class="page-title">Publier un nouveau projet</h2>
-                                <p class="page-subtitle">
-                                    Présentez votre réalisation, partagez vos compétences et inspirez d'autres
-                                    étudiants.
-                                </p>
-
-                                <form method='POST' action='<?= ROOT ?>/Projets/store' enctype='multipart/form-data'
-                                    id="projectForm">
-
-                                    <!-- TITRE -->
-
-                                    <div class='mb-4'>
-                                        <label class='form-label fw-bold'>Titre du projet</label>
-                                        <input type='text' name='title' class='form-control' required>
-                                    </div>
-
-                                    <!-- CATEGORIE -->
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Catégorie du projet</label>
-
-                                        <div class="select-wrapper">
-
-                                            <select name='category_id' class='form-control custom-select' required>
-
-                                                <option value=''>Choisir une catégorie</option>
-
-                                                <?php if(!empty($categories)): ?>
-                                                <?php foreach($categories as $category): ?>
-
-                                                <option value="<?= $category->id ?>">
-                                                    <?= $category->nom ?>
-                                                </option>
-
-                                                <?php endforeach ?>
-                                                <?php endif ?>
-
-                                            </select>
-
-                                        </div>
-
-                                        <small class="text-muted">
-                                            Sélectionnez la catégorie qui correspond le mieux à votre projet.
-                                        </small>
-
-                                    </div>
-
-
-                                    <!-- DESCRIPTION -->
-                                    <div class="mb-4">
-
-                                        <label class="form-label fw-bold">Description du projet</label>
-
-                                        <div class="description-container">
-
-                                            <textarea name="description" id="projectDescription" default=""
-                                                class="description-textarea" placeholder="Décrivez votre projet...
-
-                                                    Plan conseillé :
-
-                                                    1. Contexte du projet
-                                                    2. Objectifs
-                                                    3. Fonctionnalités principales
-                                                    4. Technologies utilisées
-                                                    5. Résultats obtenus
-                                                    6. Difficultés rencontrées"></textarea>
-
-                                            <div class="description-footer">
-
-                                                <span class="char-count">
-                                                    0 / 2000 caractères
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <!-- TECHNO -->
-
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Technologies utilisées</label>
-
-                                        <div class="tech-container">
-
-                                            <input type="text" id="techInput" name="technologies"
-                                                placeholder="Tapez une technologie puis appuyez sur Entrée">
-
-                                        </div>
-
-                                        <small class="text-muted">
-                                            Exemple : PHP, Laravel, MySQL, React, Python...
-                                        </small>
-
-                                    </div>
-
-                                    <!-- VIDEO -->
-
-                                    <div class='mb-4'>
-                                        <label cslass='form-label fw-bold'>Lien vidéo</label>
-                                        <input type='text' name='video' class='form-control'>
-                                    </div>
-
-                                    <!-- IMAGES -->
-
-                                    <div class="mb-4">
-
-                                        <label class='form-label fw-bold'>Images du projet</label>
-
-                                        <div class="upload-box" id="imageDrop">
-
-                                            📷 Glisser vos images ici ou cliquer pour sélectionner
-
-                                            <input type="file" id="images" name="images[]" multiple accept="image/*"
-                                                hidden>
-
-                                        </div>
-
-                                        <div class="preview-container" id="imagePreview"></div>
-
-                                    </div>
-
-                                    <!-- FILES -->
-
-                                    <div class="mb-4">
-
-                                        <label class='form-label fw-bold'>Fichiers du projet</label>
-
-                                        <div class="upload-box" id="fileDrop">
-
-                                            📁 Glisser vos fichiers ici ou cliquer pour sélectionner
-
-                                            <input type="file" id="files" name="files[]" multiple hidden>
-
-                                        </div>
-
-                                        <div class="file-list" id="fileList"></div>
-
-                                    </div>
-
-                                    <div class='text-center mt-4'>
-                                        <button type="submit" class="btn-publish">
-                                            <span class="icon">🚀</span>
-                                            Publier le projet
-                                        </button>
-                                    </div>
-
-                                </form>
-
+                    <div class="row justify-content-center">
+                        <div class="col-lg-11">
+                            <div class="mb-4">
+                                <?php $this->view('set_flash'); ?>
                             </div>
-                        </div>
 
+                            <form method="POST" action="<?= ROOT ?>/Projets/store" enctype="multipart/form-data" id="projectForm" class="common-card" data-reveal>
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <label class="form-label">Titre du projet <span class="text-danger">*</span></label>
+                                        <input type="text" name="title" class="form-control" placeholder="Donnez un nom percutant à votre projet" required>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="form-label">Catégorie <span class="text-danger">*</span></label>
+                                        <select name="category_id" class="form-select" required>
+                                            <option value="">Choisir une catégorie...</option>
+                                            <?php if(!empty($categories)): ?>
+                                                <?php foreach($categories as $category): ?>
+                                                    <option value="<?= $category->id ?>"><?= $category->nom ?></option>
+                                                <?php endforeach ?>
+                                            <?php endif ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Technologies utilisées</label>
+                                        <div class="tech-container" id="techContainer">
+                                            <input type="text" id="techInput" placeholder="Tapez une tech (ex: React) + Entrée">
+                                            <input type="hidden" name="technologies" id="techHiddenInput">
+                                        </div>
+                                        <div class="form-text small text-muted">Exemple: PHP, Laravel, MySQL, React...</div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description détaillée <span class="text-danger">*</span></label>
+                                        <div class="description-container">
+                                            <textarea name="description" id="projectDescription" class="description-textarea" placeholder="Expliquez le contexte, vos objectifs et vos résultats..."></textarea>
+                                            <div class="text-end pt-2">
+                                                <span class="char-count small text-muted">0 / 2000 caractères</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Lien vidéo de démonstration</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0"><i class='bx bxl-youtube text-danger'></i></span>
+                                            <input type="text" name="video" class="form-control border-start-0" placeholder="https://youtube.com/watch?v=...">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Images & Captures d'écran</label>
+                                        <div class="upload-box" id="imageDrop">
+                                            <i class='bx bx-images'></i>
+                                            <div class="fw-bold text-main">Cliquez ou glissez vos images</div>
+                                            <div class="small opacity-75">PNG, JPG ou WEBP (max 5MB)</div>
+                                            <input type="file" id="images" name="images[]" multiple accept="image/*" hidden>
+                                        </div>
+                                        <div class="preview-container" id="imagePreview"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fichiers du projet (Source, Docs)</label>
+                                        <div class="upload-box" id="fileDrop">
+                                            <i class='bx bx-file'></i>
+                                            <div class="fw-bold text-main">Cliquez ou glissez vos fichiers</div>
+                                            <div class="small opacity-75">ZIP, PDF ou tout autre format (max 100MB)</div>
+                                            <input type="file" id="files" name="files[]" multiple hidden>
+                                        </div>
+                                        <div class="file-list mt-3" id="fileList"></div>
+                                    </div>
+
+                                    <div class="col-12 text-center mt-5 border-top pt-4">
+                                        <button type="submit" class="btn-publish">
+                                            <i class='bx bx-rocket'></i> Publier maintenant
+                                        </button>
+                                        <p class="small text-muted mt-3">Votre projet sera soumis à validation avant d'être visualisé publiquement.</p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-
             </div>
-        </section>
 
-        <?php $this->view('Partials/footer') ?>
+            <?php $this->view('Partials/dashboard-footer'); ?>
+        </div>
+    </div>
+</section>
 
-    </main>
-
-    <?php $this->view('Partials/scripts') ?>
-
-    <script>
-    /* ============================= */
-    /*  IMAGES MULTIPLES + PREVIEW   */
-    /* ============================= */
-
-
-
-    const imageInput = document.getElementById("images");
-    const imageDrop = document.getElementById("imageDrop");
-    const preview = document.getElementById("imagePreview");
-
-    let imageFiles = new DataTransfer();
-
-    /* empêcher le navigateur d'ouvrir les fichiers */
-
-    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-
-        document.addEventListener(eventName, function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-    });
-
-    /* ouvrir le select */
-
-    imageDrop.addEventListener("click", () => {
-        imageInput.click();
-    });
-
-    /* sélection via input */
-
-    imageInput.addEventListener("change", function() {
-
-        Array.from(this.files).forEach(file => {
-
-            if (!file.type.startsWith("image/")) {
-                alert("Seulement les images sont autorisées");
-                return;
+<?php $this->view('Partials/scripts'); ?>
+<script>
+(function() {
+    /* Reveal Animation */
+    const items = document.querySelectorAll('[data-reveal]');
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
             }
+        });
+    }, observerOptions);
+    items.forEach((item, index) => {
+        item.style.transitionDelay = (index * 100) + 'ms';
+        observer.observe(item);
+    });
 
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Image trop lourde (max 5MB)");
-                return;
+    /* TECHNOLOGY TAGS SYSTEM */
+    const techContainer = document.getElementById("techContainer");
+    const techInput = document.getElementById("techInput");
+    const techHiddenInput = document.getElementById("techHiddenInput");
+    let tags = [];
+
+    techInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val && !tags.includes(val)) {
+                tags.push(val);
+                addTagUI(val);
+                this.value = "";
+                updateHiddenInput();
             }
-
-            imageFiles.items.add(file);
-
-        });
-
-        imageInput.files = imageFiles.files;
-
-        displayImages();
-
-    });
-
-    /* afficher preview */
-
-    function displayImages() {
-
-        preview.innerHTML = "";
-
-        Array.from(imageFiles.files).forEach((file, index) => {
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-
-                const div = document.createElement("div");
-                div.className = "preview-item";
-
-                const img = document.createElement("img");
-                img.src = e.target.result;
-
-                const btn = document.createElement("button");
-                btn.className = "remove-btn";
-                btn.innerText = "x";
-
-                btn.onclick = function() {
-
-                    const dt = new DataTransfer();
-
-                    Array.from(imageFiles.files)
-                        .filter((_, i) => i !== index)
-                        .forEach(f => dt.items.add(f));
-
-                    imageFiles = dt;
-                    imageInput.files = dt.files;
-
-                    displayImages();
-
-                };
-
-                div.appendChild(img);
-                div.appendChild(btn);
-
-                preview.appendChild(div);
-
-            };
-
-            reader.readAsDataURL(file);
-
-        });
-
-    }
-
-    /* ============================= */
-    /*        FICHIERS PROJET        */
-    /* ============================= */
-
-    const fileInput = document.getElementById("files");
-    const fileDrop = document.getElementById("fileDrop");
-    const fileList = document.getElementById("fileList");
-
-    let projectFiles = new DataTransfer();
-
-    /* clic */
-
-    fileDrop.addEventListener("click", () => {
-        fileInput.click();
-    });
-
-    /* sélection */
-
-    fileInput.addEventListener("change", function() {
-
-        Array.from(this.files).forEach(file => {
-
-            if (file.size > 100 * 1024 * 1024) {
-                alert("Fichier trop lourd (max 100MB)");
-                return;
-            }
-
-            projectFiles.items.add(file);
-
-        });
-
-        fileInput.files = projectFiles.files;
-
-        displayFiles();
-
-    });
-
-    /* afficher fichiers */
-
-    function displayFiles() {
-
-        fileList.innerHTML = "";
-
-        Array.from(projectFiles.files).forEach((file, index) => {
-
-            const div = document.createElement("div");
-            div.className = "file-item";
-
-            const span = document.createElement("span");
-            span.innerText = file.name;
-
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.innerText = "x";
-
-            btn.onclick = function() {
-
-                const dt = new DataTransfer();
-
-                Array.from(projectFiles.files)
-                    .filter((_, i) => i !== index)
-                    .forEach(f => dt.items.add(f));
-
-                projectFiles = dt;
-                fileInput.files = dt.files;
-
-                displayFiles();
-
-            };
-
-            div.appendChild(span);
-            div.appendChild(btn);
-
-            fileList.appendChild(div);
-
-        });
-
-    }
-
-    /* ============================= */
-    /*         DRAG & DROP           */
-    /* ============================= */
-    ["dragenter", "dragover"].forEach(event => {
-
-        imageDrop.addEventListener(event, e => {
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            imageDrop.style.borderColor = "#4a6cf7";
-
-        });
-
-    });
-
-    ["dragleave", "drop"].forEach(event => {
-
-        imageDrop.addEventListener(event, e => {
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            imageDrop.style.borderColor = "#cfd3d7";
-
-        });
-
-    });
-
-    imageDrop.addEventListener("drop", function(e) {
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        Array.from(e.dataTransfer.files).forEach(file => {
-
-            imageFiles.items.add(file);
-
-        });
-
-        imageInput.files = imageFiles.files;
-
-        displayImages();
-
-    });
-
-    ["dragenter", "dragover"].forEach(event => {
-
-        fileDrop.addEventListener(event, e => {
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            fileDrop.style.borderColor = "#4a6cf7";
-
-        });
-
-    });
-
-    ["dragleave", "drop"].forEach(event => {
-
-        fileDrop.addEventListener(event, e => {
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            fileDrop.style.borderColor = "#cfd3d7";
-
-        });
-
-    });
-
-    fileDrop.addEventListener("drop", function(e) {
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        Array.from(e.dataTransfer.files).forEach(file => {
-
-            projectFiles.items.add(file);
-
-        });
-
-        fileInput.files = projectFiles.files;
-
-        displayFiles();
-
-    });
-
-
-
-    // LA DESCRIPTION
-    const textarea = document.getElementById("projectDescription");
-
-    const counter = document.querySelector(".char-count");
-
-    const maxLength = 2000;
-
-    /* auto resize */
-
-    textarea.addEventListener("input", function() {
-
-        this.style.height = "auto";
-
-        this.style.height = this.scrollHeight + "px";
-
-        /* compteur */
-
-        let length = this.value.length;
-
-        counter.textContent = length + " / " + maxLength + " caractères";
-
-        /* limite */
-
-        if (length > maxLength) {
-
-            counter.style.color = "red";
-
-        } else {
-
-            counter.style.color = "#999";
-
         }
-
     });
-    </script>
 
+    function addTagUI(text) {
+        const tag = document.createElement("div");
+        tag.className = "tech-tag";
+        tag.innerHTML = `${text} <i class='bx bx-x' style='cursor:pointer'></i>`;
+        tag.querySelector('i').onclick = function() {
+            tags = tags.filter(t => t !== text);
+            tag.remove();
+            updateHiddenInput();
+        };
+        techContainer.insertBefore(tag, techInput);
+    }
+
+    function updateHiddenInput() {
+        techHiddenInput.value = tags.join(",");
+    }
+
+    /* IMAGES UPLOAD & PREVIEW */
+    const imageInput = document.getElementById("images");
+    const imagePreview = document.getElementById("imagePreview");
+    let imageFilesList = new DataTransfer();
+
+    document.getElementById("imageDrop").onclick = () => imageInput.click();
+    imageInput.onchange = e => handleFiles(e.target.files);
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith("image/") && file.size <= 5*1024*1024) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const div = document.createElement("div");
+                    div.className = "preview-item";
+                    div.innerHTML = `<img src="${ev.target.result}"><button type="button" class="remove-btn">×</button>`;
+                    
+                    const currentIndex = imageFilesList.items.length;
+                    imageFilesList.items.add(file);
+                    imageInput.files = imageFilesList.files;
+
+                    div.querySelector('.remove-btn').onclick = () => {
+                        const dt = new DataTransfer();
+                        Array.from(imageFilesList.files).forEach((f, i) => {
+                            if (f.name !== file.name || f.size !== file.size) dt.items.add(f);
+                        });
+                        imageFilesList = dt;
+                        imageInput.files = imageFilesList.files;
+                        div.remove();
+                    };
+                    imagePreview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    /* FILE UPLOAD LIST */
+    const fileInput = document.getElementById("files");
+    const fileList = document.getElementById("fileList");
+    let pFiles = new DataTransfer();
+
+    document.getElementById("fileDrop").onclick = () => fileInput.click();
+    fileInput.onchange = e => {
+        Array.from(e.target.files).forEach(f => {
+            if (f.size <= 100*1024*1024) {
+                pFiles.items.add(f);
+                const div = document.createElement("div");
+                div.className = "file-item";
+                div.innerHTML = `<span><i class='bx bx-file me-2'></i>${f.name}</span><button type="button" class="btn btn-sm text-danger">×</button>`;
+                div.querySelector('button').onclick = () => {
+                   const dt = new DataTransfer();
+                   Array.from(pFiles.files).forEach(p => {
+                       if (p.name !== f.name || p.size !== f.size) dt.items.add(p);
+                   });
+                   pFiles = dt;
+                   fileInput.files = pFiles.files;
+                   div.remove();
+                };
+                fileList.appendChild(div);
+            }
+        });
+        fileInput.files = pFiles.files;
+    };
+
+    /* DRAG & DROP Styling */
+    ['imageDrop', 'fileDrop'].forEach(boxId => {
+        const box = document.getElementById(boxId);
+        ['dragenter', 'dragover'].forEach(e => {
+            box.addEventListener(e, ev => {
+                ev.preventDefault();
+                box.style.borderColor = "var(--primary-color)";
+                box.style.background = "rgba(99, 102, 241, 0.05)";
+            });
+        });
+        ['dragleave', 'drop'].forEach(e => {
+            box.addEventListener(e, ev => {
+                ev.preventDefault();
+                box.style.borderColor = "#cbd5e1";
+                box.style.background = "#f8fafc";
+            });
+        });
+    });
+
+    /* CHAR COUNTER */
+    const desc = document.getElementById("projectDescription");
+    const counter = document.querySelector(".char-count");
+    desc.oninput = function() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+        counter.textContent = `${this.value.length} / 2000 caractères`;
+        counter.style.color = this.value.length > 2000 ? "var(--danger-color)" : "var(--text-muted)";
+    };
+})();
+</script>
 </body>
-
 </html>

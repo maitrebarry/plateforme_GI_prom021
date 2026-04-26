@@ -21,307 +21,147 @@ $messageFilterStatus = $messageFilterStatus ?? 'all';
                 <?php $this->view('set_flash'); ?>
 
                 <style>
-                .student-inbox {
-                    --si-pri: #0f766e;
-                    --si-ink: #0f172a;
-                    --si-muted: #475569;
-                    --si-line: #dbe4ee;
+                :root {
+                    --primary-color: #6366f1;
+                    --primary-hover: #4f46e5;
+                    --secondary-color: #94a3b8;
+                    --success-color: #10b981;
+                    --warning-color: #f59e0b;
+                    --danger-color: #ef4444;
+                    --info-color: #0ea5e9;
+                    --bg-light: #f1f5f9;
+                    --text-main: #0f172a;
+                    --text-muted: #64748b;
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                    --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 }
 
-                .student-inbox-card,
-                .student-inbox-thread,
-                .student-inbox-review {
+                .dashboard-body__content {
+                    animation: fadeIn 0.5s ease-out;
+                    background-color: var(--bg-light);
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                .common-card {
+                    border: none;
+                    border-radius: 16px;
+                    box-shadow: var(--card-shadow);
+                    background: #ffffff;
+                    overflow: hidden;
+                    position: relative;
+                    margin-bottom: 2rem;
+                }
+
+                .common-card .card-body { padding: 1.5rem; }
+
+                /* Hero Section */
+                .student-hero {
+                    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    color: white;
+                    margin-bottom: 2rem;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: var(--card-shadow);
+                }
+
+                .student-hero h1 { font-weight: 800; font-size: 2.2rem; margin-bottom: 0.75rem; }
+                .student-hero p { font-size: 1.1rem; opacity: 0.9; max-width: 800px; }
+
+                /* Filters */
+                .filter-bar {
                     background: #fff;
-                    border: 1px solid var(--si-line);
-                    border-radius: 28px;
-                    box-shadow: 0 24px 60px -42px rgba(15, 23, 42, .28);
+                    padding: 1.25rem;
+                    border-radius: 12px;
+                    box-shadow: var(--card-shadow);
+                    margin-bottom: 2rem;
                 }
 
-                .student-inbox-card,
-                .student-inbox-thread,
-                .student-inbox-review {
-                    transition: transform .32s ease, box-shadow .32s ease, opacity .55s ease, filter .55s ease;
+                .form-control, .form-select {
+                    border-radius: 10px;
+                    border: 1px solid #e2e8f0;
+                    padding: 0.6rem 1rem;
                 }
+
+                /* Thread Card */
+                .thread-card {
+                    border-left: 4px solid var(--secondary-color);
+                    transition: all 0.3s;
+                }
+
+                .thread-card.unread { border-left-color: var(--danger-color); }
+                .thread-card:hover { transform: translateX(5px); }
+
+                .message-bubble {
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    border: 1px solid #f1f5f9;
+                }
+
+                .message-bubble.sent {
+                    background: #eff6ff;
+                    border-color: #dbeafe;
+                }
+
+                /* Buttons */
+                .btn {
+                    padding: 0.6rem 1.25rem;
+                    font-weight: 700;
+                    border-radius: 10px;
+                    transition: all 0.3s;
+                    border: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; }
+                .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+                .btn-info { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; }
+                .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+                /* Badges */
+                .badge { padding: 0.5rem 0.75rem; border-radius: 6px; font-weight: 700; }
 
                 [data-reveal] {
                     opacity: 0;
-                    transform: translateY(24px) scale(.985);
-                    filter: blur(3px);
+                    transform: translateY(20px);
+                    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
                 }
 
                 [data-reveal].is-visible {
                     opacity: 1;
-                    transform: translateY(0) scale(1);
-                    filter: blur(0);
-                }
-
-                .student-inbox-card {
-                    padding: 24px;
-                }
-
-                .student-inbox-hero {
-                    padding: 28px;
-                    background:
-                        radial-gradient(circle at top right, rgba(20, 184, 166, .16), transparent 28%),
-                        linear-gradient(145deg, #ffffff 0%, #f4fffd 100%);
-                }
-
-                .student-inbox-kicker,
-                .student-inbox-pill,
-                .student-contact-btn,
-                .student-thread-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    border-radius: 999px;
-                }
-
-                .student-inbox-kicker {
-                    padding: 9px 16px;
-                    background: #ecfeff;
-                    color: #115e59;
-                    font-weight: 900;
-                    letter-spacing: .05em;
-                    text-transform: uppercase;
-                    font-size: .78rem;
-                }
-
-                .student-inbox-title {
-                    font-size: clamp(2rem, 4vw, 3rem);
-                    line-height: 1.03;
-                    font-weight: 900;
-                    color: var(--si-ink);
-                    margin: 18px 0 12px;
-                }
-
-                .student-inbox-copy,
-                .student-inbox-muted {
-                    color: var(--si-muted);
-                }
-
-                .student-inbox-grid {
-                    display: grid;
-                    grid-template-columns: 1.08fr .92fr;
-                    gap: 18px;
-                    margin-top: 22px;
-                }
-
-                .student-inbox-head {
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 16px;
-                    flex-wrap: wrap;
-                    margin-bottom: 18px;
-                }
-
-                .student-inbox-head h3 {
-                    margin: 0;
-                    color: var(--si-ink);
-                    font-size: 1.28rem;
-                    font-weight: 850;
-                }
-
-                .student-inbox-pill {
-                    padding: 10px 14px;
-                    background: #f0fdfa;
-                    color: #115e59;
-                    font-weight: 800;
-                    text-decoration: none;
-                }
-
-                .student-inbox-list {
-                    display: grid;
-                    gap: 14px;
-                }
-
-                .student-inbox-filters {
-                    display: grid;
-                    grid-template-columns: 1.1fr .9fr .7fr auto;
-                    gap: 12px;
-                    margin-bottom: 18px;
-                }
-
-                .student-filter-input,
-                .student-filter-select {
-                    width: 100%;
-                    min-height: 50px;
-                    border: 1px solid var(--si-line);
-                    border-radius: 18px;
-                    padding: 12px 14px;
-                    background: #f8fafc;
-                }
-
-                .student-filter-btn {
-                    min-height: 50px;
-                    border: none;
-                    border-radius: 18px;
-                    padding: 0 16px;
-                    font-weight: 800;
-                    color: #fff;
-                    background: linear-gradient(135deg, #0f766e, #14b8a6);
-                }
-
-                .student-inbox-thread,
-                .student-inbox-review {
-                    padding: 18px;
-                }
-
-                .student-thread-top,
-                .student-thread-meta,
-                .student-contact-actions,
-                .student-thread-preview-row,
-                .student-review-meta {
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                }
-
-                .student-thread-top {
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 10px;
-                }
-
-                .student-thread-tag {
-                    padding: 7px 12px;
-                    background: #f8fafc;
-                    border: 1px solid var(--si-line);
-                    font-weight: 800;
-                    color: #334155;
-                    font-size: .84rem;
-                }
-
-                .student-thread-tag--received {
-                    background: #ecfdf5;
-                    border-color: #bbf7d0;
-                    color: #166534;
-                }
-
-                .student-thread-tag--sent {
-                    background: #eff6ff;
-                    border-color: #bfdbfe;
-                    color: #1d4ed8;
-                }
-
-                .student-thread-tag--unread {
-                    background: #fef2f2;
-                    border-color: #fecaca;
-                    color: #b91c1c;
-                }
-
-                .student-thread-preview {
-                    padding: 12px 14px;
-                    border-radius: 18px;
-                    background: #f8fafc;
-                    border: 1px solid var(--si-line);
-                }
-
-                .student-thread-preview-row {
-                    justify-content: space-between;
-                    color: var(--si-muted);
-                    font-size: .86rem;
-                    margin-bottom: 6px;
-                }
-
-                .student-contact-actions {
-                    margin-top: 16px;
-                }
-
-                .student-reply-form {
-                    margin-top: 16px;
-                    padding-top: 16px;
-                    border-top: 1px solid var(--si-line);
-                }
-
-                .student-reply-input {
-                    width: 100%;
-                    min-height: 100px;
-                    border: 1px solid var(--si-line);
-                    border-radius: 18px;
-                    padding: 12px 14px;
-                    background: #f8fafc;
-                }
-
-                .student-reply-submit {
-                    margin-top: 12px;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    border: none;
-                    border-radius: 999px;
-                    padding: 11px 16px;
-                    font-weight: 800;
-                    color: #fff;
-                    background: linear-gradient(135deg, #0f766e, #14b8a6);
-                }
-
-                .student-contact-btn {
-                    padding: 10px 14px;
-                    text-decoration: none;
-                    font-weight: 800;
-                    border: 1px solid var(--si-line);
-                    background: #f8fafc;
-                    color: #0f172a;
-                }
-
-                .student-contact-btn--wa {
-                    background: #ecfdf5;
-                    border-color: #bbf7d0;
-                    color: #166534;
-                }
-
-                .student-contact-btn--call {
-                    background: #eff6ff;
-                    border-color: #bfdbfe;
-                    color: #1d4ed8;
-                }
-
-                .student-contact-btn--mail {
-                    background: #fff7ed;
-                    border-color: #fed7aa;
-                    color: #c2410c;
-                }
-
-                .student-empty {
-                    padding: 26px;
-                    border-radius: 22px;
-                    border: 1px dashed var(--si-line);
-                    background: #f8fafc;
-                    color: var(--si-muted);
-                    text-align: center;
-                }
-
-                @media (max-width: 1199px) {
-                    .student-inbox-grid {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .student-inbox-filters {
-                        grid-template-columns: 1fr;
-                    }
+                    transform: translateY(0);
                 }
                 </style>
 
-                <div class="student-inbox">
-                    <section class="student-inbox-card student-inbox-hero mb-4" data-reveal>
-                        <span class="student-inbox-kicker"><i class='bx bx-message-detail'></i> Messagerie visiteurs</span>
-                        <h1 class="student-inbox-title">Centralisez les conversations et les retours autour de vos projets.</h1>
-                        <p class="student-inbox-copy mb-0">Cette page vous permet de suivre les messages recus sur le site, les commentaires des visiteurs et de les recontacter rapidement via WhatsApp, appel ou email.</p>
-                    </section>
+                <div class="student-inbox-container">
+                    <!-- Hero Section -->
+                    <div class="student-hero" data-reveal>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <span class="badge bg-primary bg-opacity-25 text-white">Inbox</span>
+                        </div>
+                        <h1 class="text-white">Messagerie & Commentaires</h1>
+                        <p>Gérez les interactions avec vos visiteurs. Répondez aux messages et suivez les avis laissés sur vos projets pour améliorer votre visibilité.</p>
+                    </div>
 
-                    <section class="student-inbox-grid">
-                        <div class="student-inbox-card" data-reveal>
-                            <div class="student-inbox-head">
-                                <div>
-                                    <h3>Conversations du site</h3>
-                                    <p class="student-inbox-copy mb-0">Messages envoyes depuis les pages detail projet.</p>
-                                </div>
-                                <span class="student-inbox-pill"><i class='bx bx-chat'></i> <?= count($studentMessageThreads) ?> conversation(s)</span>
+                    <!-- Filters Section -->
+                    <div class="filter-bar" data-reveal>
+                        <form method="get" class="row g-3">
+                            <div class="col-lg-4">
+                                <label class="small fw-bold text-muted mb-1">Rechercher</label>
+                                <input type="text" name="search" class="form-control" value="<?= htmlspecialchars((string) $messageFilterSearch) ?>" placeholder="Visiteur, projet...">
                             </div>
-
-                            <form method="get" class="student-inbox-filters">
-                                <input type="text" name="search" class="student-filter-input" value="<?= htmlspecialchars((string) $messageFilterSearch) ?>" placeholder="Rechercher un visiteur, un projet ou un message...">
-                                <select name="project_id" class="student-filter-select">
+                            <div class="col-lg-3">
+                                <label class="small fw-bold text-muted mb-1">Projet</label>
+                                <select name="project_id" class="form-select">
                                     <option value="">Tous les projets</option>
                                     <?php foreach ($studentProjectsForFilter as $projectOption): ?>
                                     <option value="<?= (int) ($projectOption['id'] ?? 0) ?>" <?= ((int) ($messageFilterProjectId ?? 0) === (int) ($projectOption['id'] ?? 0)) ? 'selected' : '' ?>>
@@ -329,130 +169,133 @@ $messageFilterStatus = $messageFilterStatus ?? 'all';
                                     </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <select name="status" class="student-filter-select">
-                                    <option value="all" <?= $messageFilterStatus === 'all' ? 'selected' : '' ?>>Tous</option>
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="small fw-bold text-muted mb-1">Statut</label>
+                                <select name="status" class="form-select">
+                                    <option value="all" <?= $messageFilterStatus === 'all' ? 'selected' : '' ?>>Tout afficher</option>
                                     <option value="unread" <?= $messageFilterStatus === 'unread' ? 'selected' : '' ?>>Non lus</option>
-                                    <option value="read" <?= $messageFilterStatus === 'read' ? 'selected' : '' ?>>Lus</option>
+                                    <option value="read" <?= $messageFilterStatus === 'read' ? 'selected' : '' ?>>Lus uniquement</option>
                                 </select>
-                                <button type="submit" class="student-filter-btn"><i class='bx bx-filter-alt'></i> Filtrer</button>
-                            </form>
+                            </div>
+                            <div class="col-lg-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100 justify-content-center">Filtrer</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <!-- Conversations List -->
+                        <div class="col-lg-8">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold m-0"><i class='bx bx-chat'></i> Conversations récentes</h4>
+                                <span class="badge bg-info text-white"><?= count($studentMessageThreads) ?> threads</span>
+                            </div>
 
                             <?php if (!empty($studentMessageThreads)): ?>
-                            <div class="student-inbox-list">
                                 <?php foreach ($studentMessageThreads as $thread): ?>
-                                <article class="student-inbox-thread" data-reveal>
-                                    <div class="student-thread-top">
-                                        <div>
-                                            <h4 style="margin:0 0 6px;color:#0f172a;font-size:1.08rem;font-weight:850"><?= htmlspecialchars((string) ($thread['visitor_name'] ?? 'Visiteur')) ?></h4>
-                                            <div class="student-inbox-muted small">A propos du projet <a href="<?= ROOT ?>/Projets/detail/<?= (int) ($thread['project_id'] ?? 0) ?>" style="color:#0f766e;text-decoration:none"><?= htmlspecialchars((string) ($thread['project_title'] ?? 'Projet')) ?></a></div>
+                                    <div class="common-card thread-card <?= !empty($thread['is_unread']) ? 'unread' : '' ?>" data-reveal>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div>
+                                                    <h5 class="fw-bold m-0 text-primary"><?= htmlspecialchars((string) ($thread['visitor_name'] ?? 'Visiteur')) ?></h5>
+                                                    <p class="small text-muted mb-0">Sur le projet : <span class="fw-bold"><?= htmlspecialchars((string) ($thread['project_title'] ?? 'Projet')) ?></span></p>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="small text-muted d-block mb-1"><?= htmlspecialchars((string) ($thread['last_date'] ?? '')) ?></span>
+                                                    <?php if (!empty($thread['is_unread'])): ?>
+                                                        <span class="badge bg-danger">Nouveau</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+
+                                            <div class="messages-preview mb-3">
+                                                <?php foreach (($thread['messages_preview'] ?? []) as $preview): ?>
+                                                    <div class="message-bubble <?= ($preview['direction'] ?? '') === 'sent' ? 'sent' : '' ?>">
+                                                        <div class="d-flex justify-content-between mb-1 small opacity-75">
+                                                            <span><?= ($preview['direction'] ?? '') === 'sent' ? 'Moi' : 'Visiteur' ?></span>
+                                                            <span><?= htmlspecialchars((string) ($preview['date'] ?? '')) ?></span>
+                                                        </div>
+                                                        <?= nl2br(htmlspecialchars((string) ($preview['message'] ?? ''))) ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                                <?php if (!empty($thread['whatsapp_url'])): ?>
+                                                    <a href="<?= htmlspecialchars((string) $thread['whatsapp_url']) ?>" target="_blank" class="btn btn-sm btn-success"><i class='bx bxl-whatsapp'></i> WhatsApp</a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($thread['tel_url'])): ?>
+                                                    <a href="<?= htmlspecialchars((string) $thread['tel_url']) ?>" class="btn btn-sm btn-info"><i class='bx bx-phone-call'></i> Appeler</a>
+                                                <?php endif; ?>
+                                                <a href="<?= ROOT ?>/Projets/detail/<?= (int) ($thread['project_id'] ?? 0) ?>" class="btn btn-sm btn-primary"><i class='bx bx-link-external'></i> Page projet</a>
+                                            </div>
+
+                                            <!-- Quick Reply -->
+                                            <form method="post" class="border-top pt-3">
+                                                <input type="hidden" name="action" value="send_thread_reply">
+                                                <input type="hidden" name="project_id" value="<?= (int) ($thread['project_id'] ?? 0) ?>">
+                                                <input type="hidden" name="receiver_id" value="<?= (int) ($thread['visitor_id'] ?? 0) ?>">
+                                                <div class="input-group">
+                                                    <textarea name="message" class="form-control" placeholder="Répondre ici..." rows="2" required></textarea>
+                                                    <button type="submit" class="btn btn-primary"><i class='bx bx-send'></i></button>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <span class="student-thread-tag <?= ($thread['last_direction'] ?? '') === 'sent' ? 'student-thread-tag--sent' : 'student-thread-tag--received' ?>">
-                                            <i class='bx <?= ($thread['last_direction'] ?? '') === 'sent' ? 'bx-reply' : 'bx-message-rounded-dots' ?>'></i>
-                                            <?= ($thread['last_direction'] ?? '') === 'sent' ? 'Derniere reponse envoyee' : 'Dernier message recu' ?>
-                                        </span>
-                                        <?php if (!empty($thread['is_unread'])): ?>
-                                        <span class="student-thread-tag student-thread-tag--unread">
-                                            <i class='bx bx-bell'></i> <?= (int) ($thread['unread_count'] ?? 0) ?> non lu(s)
-                                        </span>
-                                        <?php endif; ?>
                                     </div>
-
-                                    <div class="student-thread-meta student-inbox-muted small" style="margin-bottom:12px">
-                                        <span><i class='bx bx-time-five'></i> <?= htmlspecialchars((string) ($thread['last_date'] ?? '')) ?></span>
-                                        <span><i class='bx bx-layer'></i> <?= (int) ($thread['messages_count'] ?? 0) ?> message(s)</span>
-                                        <?php if (!empty($thread['email'])): ?><span><i class='bx bx-envelope'></i> <?= htmlspecialchars((string) $thread['email']) ?></span><?php endif; ?>
-                                        <?php if (!empty($thread['contact'])): ?><span><i class='bx bx-phone'></i> <?= htmlspecialchars((string) $thread['contact']) ?></span><?php endif; ?>
-                                    </div>
-
-                                    <?php foreach (($thread['messages_preview'] ?? []) as $preview): ?>
-                                    <div class="student-thread-preview" style="margin-bottom:10px">
-                                        <div class="student-thread-preview-row">
-                                            <span><?= ($preview['direction'] ?? '') === 'sent' ? 'Vous' : 'Visiteur' ?></span>
-                                            <span><?= htmlspecialchars((string) ($preview['date'] ?? '')) ?></span>
-                                        </div>
-                                        <div><?= nl2br(htmlspecialchars((string) ($preview['message'] ?? ''))) ?></div>
-                                    </div>
-                                    <?php endforeach; ?>
-
-                                    <div class="student-contact-actions">
-                                        <a class="student-contact-btn" href="<?= ROOT ?>/Projets/detail/<?= (int) ($thread['project_id'] ?? 0) ?>"><i class='bx bx-link-external'></i> Ouvrir la discussion</a>
-                                        <?php if (!empty($thread['whatsapp_url'])): ?><a class="student-contact-btn student-contact-btn--wa" href="<?= htmlspecialchars((string) $thread['whatsapp_url']) ?>" target="_blank" rel="noopener"><i class='bx bxl-whatsapp'></i> WhatsApp</a><?php endif; ?>
-                                        <?php if (!empty($thread['tel_url'])): ?><a class="student-contact-btn student-contact-btn--call" href="<?= htmlspecialchars((string) $thread['tel_url']) ?>"><i class='bx bx-phone-call'></i> Appeler</a><?php endif; ?>
-                                        <?php if (!empty($thread['mailto_url'])): ?><a class="student-contact-btn student-contact-btn--mail" href="<?= htmlspecialchars((string) $thread['mailto_url']) ?>"><i class='bx bx-envelope-open'></i> Email</a><?php endif; ?>
-                                        <?php if (!empty($thread['is_unread'])): ?>
-                                        <form method="post" style="display:inline-flex">
-                                            <input type="hidden" name="action" value="mark_thread_read">
-                                            <input type="hidden" name="project_id" value="<?= (int) ($thread['project_id'] ?? 0) ?>">
-                                            <input type="hidden" name="visitor_id" value="<?= (int) ($thread['visitor_id'] ?? 0) ?>">
-                                            <button type="submit" class="student-contact-btn"><i class='bx bx-check-double'></i> Marquer comme lu</button>
-                                        </form>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <form method="post" class="student-reply-form">
-                                        <input type="hidden" name="action" value="send_thread_reply">
-                                        <input type="hidden" name="project_id" value="<?= (int) ($thread['project_id'] ?? 0) ?>">
-                                        <input type="hidden" name="receiver_id" value="<?= (int) ($thread['visitor_id'] ?? 0) ?>">
-                                        <label class="form-label fw-semibold" style="color:#0f172a">Repondre depuis cette boite de reception</label>
-                                        <textarea name="message" class="student-reply-input" placeholder="Ecrivez votre reponse au visiteur..." required></textarea>
-                                        <button type="submit" class="student-reply-submit"><i class='bx bx-send'></i> Envoyer la reponse</button>
-                                    </form>
-                                </article>
                                 <?php endforeach; ?>
-                            </div>
                             <?php else: ?>
-                            <div class="student-empty">
-                                <i class='bx bx-message-rounded' style="font-size:2rem;color:#0f766e"></i>
-                                <p class="mb-0 mt-2">Aucune conversation visiteur pour le moment.</p>
-                            </div>
+                                <div class="common-card text-center py-5">
+                                    <div class="mb-3" style="font-size: 3rem; opacity: 0.2;">✉️</div>
+                                    <p class="text-muted">Aucune conversation trouvée.</p>
+                                </div>
                             <?php endif; ?>
                         </div>
 
-                        <div class="student-inbox-card" data-reveal>
-                            <div class="student-inbox-head">
-                                <div>
-                                    <h3>Commentaires visiteurs</h3>
-                                    <p class="student-inbox-copy mb-0">Avis laisses par les visiteurs sur vos projets.</p>
-                                </div>
-                                <span class="student-inbox-pill"><i class='bx bxs-star'></i> <?= count($studentVisitorReviews) ?> avis</span>
-                            </div>
+                        <!-- Side Column: Reviews -->
+                        <div class="col-lg-4">
+                            <h4 class="fw-bold mb-4"><i class='bx bxs-star'></i> Avis reçus</h4>
 
                             <?php if (!empty($studentVisitorReviews)): ?>
-                            <div class="student-inbox-list">
                                 <?php foreach ($studentVisitorReviews as $feedback): ?>
-                                <article class="student-inbox-review" data-reveal>
-                                    <div class="student-thread-top">
-                                        <div>
-                                            <h4 style="margin:0 0 6px;color:#0f172a;font-size:1.04rem;font-weight:850"><?= htmlspecialchars((string) ($feedback['visitor_name'] ?? 'Visiteur')) ?></h4>
-                                            <div class="student-inbox-muted small">Projet : <a href="<?= ROOT ?>/Projets/detail/<?= (int) ($feedback['project_id'] ?? 0) ?>" style="color:#0f766e;text-decoration:none"><?= htmlspecialchars((string) ($feedback['project_title'] ?? 'Projet')) ?></a></div>
+                                    <div class="common-card" data-reveal>
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    <?= htmlspecialchars(strtoupper(substr((string) ($feedback['visitor_name'] ?? 'V'), 0, 1))) ?>
+                                                </div>
+                                                <div>
+                                                    <h6 class="fw-bold m-0"><?= htmlspecialchars((string) ($feedback['visitor_name'] ?? 'Visiteur')) ?></h6>
+                                                    <span class="small text-muted"><?= htmlspecialchars((string) ($feedback['date'] ?? '')) ?></span>
+                                                </div>
+                                            </div>
+                                            <div class="text-warning mb-2" style="font-size: 0.9rem;">
+                                                <?php for($i=1; $i<=5; $i++): ?>
+                                                    <i class='bx <?= $i <= (int)($feedback['rating'] ?? 0) ? 'bxs-star' : 'bx-star' ?>'></i>
+                                                <?php endfor; ?>
+                                            </div>
+                                            <p class="small mb-3">"<?= htmlspecialchars((string) ($feedback['review'] ?? '')) ?>"</p>
+                                            <p class="small text-muted mb-3 border-top pt-2">Sur : <span class="fw-bold"><?= htmlspecialchars((string) ($feedback['project_title'] ?? '')) ?></span></p>
+                                            
+                                            <div class="d-flex gap-2">
+                                                <?php if (!empty($feedback['whatsapp_url'])): ?>
+                                                    <a href="<?= htmlspecialchars((string) $feedback['whatsapp_url']) ?>" target="_blank" class="btn btn-sm btn-success p-1 rounded-circle" title="WhatsApp"><i class='bx bxl-whatsapp'></i></a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($feedback['tel_url'])): ?>
+                                                    <a href="<?= htmlspecialchars((string) $feedback['tel_url']) ?>" class="btn btn-sm btn-info p-1 rounded-circle" title="Appeler"><i class='bx bx-phone-call'></i></a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($feedback['mailto_url'])): ?>
+                                                    <a href="<?= htmlspecialchars((string) $feedback['mailto_url']) ?>" class="btn btn-sm btn-warning p-1 rounded-circle" title="Email"><i class='bx bx-envelope'></i></a>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
-                                        <span class="student-thread-tag"><i class='bx bxs-star'></i> <?= (int) ($feedback['rating'] ?? 0) ?>/5</span>
                                     </div>
-
-                                    <div class="student-review-meta student-inbox-muted small" style="margin-bottom:12px">
-                                        <span><i class='bx bx-calendar'></i> <?= htmlspecialchars((string) ($feedback['date'] ?? '')) ?></span>
-                                        <?php if (!empty($feedback['email'])): ?><span><i class='bx bx-envelope'></i> <?= htmlspecialchars((string) $feedback['email']) ?></span><?php endif; ?>
-                                        <?php if (!empty($feedback['contact'])): ?><span><i class='bx bx-phone'></i> <?= htmlspecialchars((string) $feedback['contact']) ?></span><?php endif; ?>
-                                    </div>
-
-                                    <p class="student-inbox-copy mb-0"><?= nl2br(htmlspecialchars((string) ($feedback['review'] ?? 'Aucun commentaire detaille.'))) ?></p>
-
-                                    <div class="student-contact-actions">
-                                        <?php if (!empty($feedback['whatsapp_url'])): ?><a class="student-contact-btn student-contact-btn--wa" href="<?= htmlspecialchars((string) $feedback['whatsapp_url']) ?>" target="_blank" rel="noopener"><i class='bx bxl-whatsapp'></i> WhatsApp</a><?php endif; ?>
-                                        <?php if (!empty($feedback['tel_url'])): ?><a class="student-contact-btn student-contact-btn--call" href="<?= htmlspecialchars((string) $feedback['tel_url']) ?>"><i class='bx bx-phone-call'></i> Appeler</a><?php endif; ?>
-                                        <?php if (!empty($feedback['mailto_url'])): ?><a class="student-contact-btn student-contact-btn--mail" href="<?= htmlspecialchars((string) $feedback['mailto_url']) ?>"><i class='bx bx-envelope-open'></i> Email</a><?php endif; ?>
-                                    </div>
-                                </article>
                                 <?php endforeach; ?>
-                            </div>
                             <?php else: ?>
-                            <div class="student-empty">
-                                <i class='bx bx-star' style="font-size:2rem;color:#0f766e"></i>
-                                <p class="mb-0 mt-2">Aucun commentaire visiteur pour le moment.</p>
-                            </div>
+                                <p class="text-muted small text-center">Aucun avis pour le moment.</p>
                             <?php endif; ?>
                         </div>
-                    </section>
+                    </div>
                 </div>
             </div>
 
@@ -486,3 +329,4 @@ $messageFilterStatus = $messageFilterStatus ?? 'all';
 </script>
 </body>
 </html>
+

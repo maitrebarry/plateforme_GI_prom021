@@ -3,8 +3,6 @@
 <body>
     <?php $this->view('Partials/global-shell'); ?>
     <?php $this->view('Partials/mobile-menu'); ?>
-    <?php $this->view('Partials/header'); ?>
-    <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
 
     <?php
         $profileUser = $user ?? null;
@@ -26,224 +24,311 @@
         $sessionUniversite = htmlspecialchars((string) ($_SESSION['universite'] ?? 'N/A'), ENT_QUOTES, 'UTF-8');
     ?>
 
-    <main class="change-gradient">
+    <section class="dashboard">
+        <div class="dashboard__inner d-flex">
+            <?php $this->view('Partials/dashboard-sidebar'); ?>
+            
+            <div class="dashboard-body">
+                <?php $this->view('Partials/dashboard-nav'); ?>
+                
+                <div class="dashboard-body__content p-4">
+                    <style>
+                    :root {
+                        --primary-color: #6366f1;
+                        --primary-hover: #4f46e5;
+                        --bg-light: #f1f5f9;
+                        --text-main: #0f172a;
+                        --text-muted: #64748b;
+                        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                    }
 
-        <div class="cover-photo position-relative z-index-1 overflow-hidden">
-            <div class="avatar-upload">
-                <div class="avatar-edit">
-                    <input type='file' id="imageUploadTwo" accept=".png, .jpg, .jpeg">
-                    <label for="imageUploadTwo">
-                        <span class="icon"> <img src="assets/images/icons/camera-two.svg" alt=""> </span>
-                        <span class="text">Change Cover</span>
-                    </label>
-                </div>
-                <div class="avatar-preview">
-                    <div id="imagePreviewTwo">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Cover Photo End -->
+                    .dashboard-body__content {
+                        background-color: var(--bg-light);
+                    }
 
+                    .profile-header {
+                        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                        border-radius: 24px;
+                        padding: 3rem 2rem;
+                        color: white;
+                        margin-bottom: 2rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
 
-        <div class="dashboard-body__content profile-content-wrapper z-index-1 position-relative mt--100">
-            <!-- Profile Content Start -->
-            <div class="profile">
-                <div class="row gy-4">
-                    <div class="col-xxl-3 col-xl-4">
-                        <div class="profile-info">
-                            <div class="profile-info__inner mb-40 text-center">
-<form action="<?= ROOT ?>/Profiles/modifier_image" method="post" enctype="multipart/form-data" id="avatarForm" class="text-center">
-                                <div class="avatar-upload mb-24">
-                                    <div class="avatar-preview mb-3">
-                                        <img src="<?= ROOT ?>/image_profile/<?= $profileImage ?>" class="rounded-circle" width="140" height="140" alt="Photo de profil" id="profileImage">
-                                    </div>
-                                    <input type="file" id="fileInput" name="newAvatar" accept="image/*" class="d-none">
-                                    <button type="button" class="btn btn-outline-primary w-100 mb-2" id="triggerAvatarUpload">
-                                        <i class='bx bx-image-add me-1'></i>
-                                        Choisir une nouvelle photo
-                                    </button>
-                                    <button type="submit" class="btn btn-primary w-100" id="saveAvatarBtn" disabled>
-                                        <i class='bx bx-cloud-upload me-1'></i>
-                                        Enregistrer la modification
-                                    </button>
-                                    <small class="d-block mt-2 text-muted" id="avatarHelperText">Formats acceptés: JPG, PNG, GIF, WEBP (max 5 Mo)</small>
-                                </div>
-</form>
-                                <h5 class="profile-info__name mb-1"><?= $sessionFullName !== '' ? $sessionFullName : 'N/A'; ?></h5>
-                                <span class="profile-info__designation font-14"><?= $sessionRole; ?></span>
+                    .profile-header::after {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -10%;
+                        width: 300px;
+                        height: 300px;
+                        background: rgba(99, 102, 241, 0.1);
+                        border-radius: 50%;
+                    }
+
+                    .common-card {
+                        border: none;
+                        border-radius: 20px;
+                        box-shadow: var(--card-shadow);
+                        background: #ffffff;
+                        padding: 2rem;
+                    }
+
+                    .avatar-container {
+                        position: relative;
+                        width: 150px;
+                        height: 150px;
+                        margin: 0 auto 1.5rem;
+                    }
+
+                    .avatar-img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        border-radius: 50%;
+                        border: 5px solid white;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                    }
+
+                    .avatar-edit-btn {
+                        position: absolute;
+                        bottom: 5px;
+                        right: 5px;
+                        background: var(--primary-color);
+                        color: white;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border: 3px solid white;
+                        cursor: pointer;
+                        transition: 0.3s;
+                    }
+
+                    .avatar-edit-btn:hover { transform: scale(1.1); background: var(--primary-hover); }
+
+                    .form-label {
+                        font-weight: 700;
+                        color: var(--text-main);
+                        font-size: 0.9rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .form-control {
+                        border-radius: 12px;
+                        border: 1.5px solid #e2e8f0;
+                        padding: 0.75rem 1rem;
+                        font-size: 0.95rem;
+                        transition: all 0.3s;
+                    }
+
+                    .form-control:focus {
+                        border-color: var(--primary-color);
+                        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                        outline: none;
+                    }
+
+                    .nav-pills-custom .nav-link {
+                        color: var(--text-muted);
+                        font-weight: 700;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 12px;
+                        transition: 0.3s;
+                    }
+
+                    .nav-pills-custom .nav-link.active {
+                        background: var(--primary-color);
+                        color: white !important;
+                        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+                    }
+
+                    .btn-save {
+                        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                        color: white !important;
+                        padding: 0.75rem 2rem;
+                        border-radius: 12px;
+                        font-weight: 700;
+                        border: none;
+                        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+                        transition: 0.3s;
+                    }
+
+                    .btn-save:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+                    }
+
+                    .info-row {
+                        padding: 1rem 0;
+                        border-bottom: 1px solid #f1f5f9;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    .info-row:last-child { border-bottom: none; }
+                    .info-label { font-weight: 700; color: var(--text-muted); font-size: 0.9rem; }
+                    .info-value { font-weight: 800; color: var(--text-main); }
+                    </style>
+
+                    <div class="profile-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="text-white fw-bold mb-2">Mon Profil</h1>
+                                <p class="opacity-75 mb-0">Gérez vos informations personnelles et la sécurité de votre compte.</p>
                             </div>
-
-                            <ul class="profile-info-list">
-                                <li class="profile-info-list__item">
-                                    <span class="profile-info-list__content flx-align flex-nowrap gap-2">
-                                        <img src="assets/images/icons/profile-info-icon1.svg" alt="" class="icon">
-                                        <span class="text text-heading fw-500">Username</span>
-                                    </span>
-                                    <span class="profile-info-list__info"><?= $sessionNom ?></span>
-                                </li>
-                                <li class="profile-info-list__item">
-                                    <span class="profile-info-list__content flx-align flex-nowrap gap-2">
-                                        <img src="assets/images/icons/profile-info-icon2.svg" alt="" class="icon">
-                                        <span class="text text-heading fw-500">Email</span>
-                                    </span>
-                                    <span class="profile-info-list__info"><?= $sessionEmail ?></span>
-                                </li>
-                                <li class="profile-info-list__item">
-                                    <span class="profile-info-list__content flx-align flex-nowrap gap-2">
-                                        <img src="assets/images/icons/profile-info-icon3.svg" alt="" class="icon">
-                                        <span class="text text-heading fw-500">Phone</span>
-                                    </span>
-                                    <span class="profile-info-list__info"><?= $sessionContact ?></span>
-                                </li>
-                                <li class="profile-info-list__item">
-                                    <span class="profile-info-list__content flx-align flex-nowrap gap-2">
-                                        <img src="assets/images/icons/profile-info-icon4.svg" alt="" class="icon">
-                                        <span class="text text-heading fw-500">Universite</span>
-                                    </span>
-                                    <span class="profile-info-list__info"><?= $sessionUniversite ?></span>
-                                </li>
-                            </ul>
-
                         </div>
                     </div>
-                    <div class="col-xxl-9 col-xl-8">
-                        <div class="dashboard-card">
-                            <div class="dashboard-card__header pb-0">
-                                <ul class="nav tab-bordered nav-pills" id="pills-tab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link font-18 font-heading active" id="pills-personalInfo-tab" data-bs-toggle="pill" data-bs-target="#pills-personalInfo" type="button" role="tab" aria-controls="pills-personalInfo" aria-selected="true">Informations personnelles</button>
+
+                    <div class="row gy-4">
+                        <!-- Sidebar Info -->
+                        <div class="col-xl-4">
+                            <div class="common-card text-center">
+                                <form action="<?= ROOT ?>/Profiles/modifier_image" method="post" enctype="multipart/form-data" id="avatarForm">
+                                    <div class="avatar-container">
+                                        <img src="<?= ROOT ?>/image_profile/<?= $profileImage ?>" class="avatar-img" id="profileImage">
+                                        <label for="fileInput" class="avatar-edit-btn">
+                                            <i class='bx bx-camera'></i>
+                                        </label>
+                                        <input type="file" id="fileInput" name="newAvatar" accept="image/*" class="d-none">
+                                    </div>
+                                    <h4 class="fw-bold mb-1"><?= $sessionFullName ?></h4>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-4"><?= $sessionRole ?></span>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100 pill mb-3 d-none" id="saveAvatarBtn">
+                                        Confirmer le changement
+                                    </button>
+                                </form>
+
+                                <div class="mt-4 text-start">
+                                    <div class="info-row">
+                                        <span class="info-label">Email</span>
+                                        <span class="info-value small"><?= $sessionEmail ?></span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Contact</span>
+                                        <span class="info-value"><?= $sessionContact ?></span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Université</span>
+                                        <span class="info-value text-end small"><?= $sessionUniversite ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Tabs -->
+                        <div class="col-xl-8">
+                            <div class="common-card">
+                                <ul class="nav nav-pills nav-pills-custom mb-4" id="profileTabs">
+                                    <li class="nav-item">
+                                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#personalInfo">Informations</button>
                                     </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link font-18 font-heading" id="pills-changePassword-tab" data-bs-toggle="pill" data-bs-target="#pills-changePassword" type="button" role="tab" aria-controls="pills-changePassword" aria-selected="false">Modifier le mot de passe</button>
+                                    <li class="nav-item">
+                                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#security">Sécurité</button>
                                     </li>
                                 </ul>
-                            </div>
 
-                                <div class="tab-content" id="pills-tabContent">
-                                    <div class="tab-pane fade show active" id="pills-personalInfo" role="tabpanel" aria-labelledby="pills-personalInfo-tab" tabindex="0">
-                                        <form action="<?= ROOT ?>/Profiles/appercu" autocomplete="off" method="POST">
+                                <div class="tab-content">
+                                    <!-- Personal Info Tab -->
+                                    <div class="tab-pane fade show active" id="personalInfo">
+                                        <?php $this->view('set_flash'); ?>
+                                        <form action="<?= ROOT ?>/Profiles/appercu" method="POST" class="row g-3">
                                             <input type="hidden" name="update_profile_info" value="1">
-                                            <div class="row gy-4">
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Prénom</label>
-                                                    <input type="text" class="common-input border" name="user_firstname" value="<?= $profilePrenom ?>" required>
-                                                </div>
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Nom</label>
-                                                    <input type="text" class="common-input border" name="user_lastname" value="<?= $profileNom ?>" required>
-                                                </div>
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Email</label>
-                                                    <input type="email" class="common-input border" name="user_email" value="<?= $profileEmail ?>" required>
-                                                </div>
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Contact</label>
-                                                    <input type="text" class="common-input border" name="user_contact" value="<?= htmlspecialchars($profileContact, ENT_QUOTES, 'UTF-8') ?>" placeholder="76 56 23 17" inputmode="numeric">
-                                                    <small class="text-muted">8 chiffres (ex: 76 56 23 17)</small>
-                                                </div>
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Université</label>
-                                                    <input type="text" class="common-input border" name="user_universite" value="<?= $profileUniversite ?>">
-                                                </div>
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Faculté / Institut</label>
-                                                    <input type="text" class="common-input border" name="user_faculte" value="<?= $profileFaculte ?>">
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Filière</label>
-                                                    <input type="text" class="common-input border" name="user_filiere" value="<?= $profileFiliere ?>">
-                                                </div>
-                                                <div class="col-sm-12 text-end">
-                                                    <button class="btn btn-main btn-lg pill mt-4" type="submit">Enregistrer les modifications</button>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Prénom</label>
+                                                <input type="text" class="form-control" name="user_firstname" value="<?= $profilePrenom ?>" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Nom</label>
+                                                <input type="text" class="form-control" name="user_lastname" value="<?= $profileNom ?>" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" name="user_email" value="<?= $profileEmail ?>" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Contact</label>
+                                                <input type="text" class="form-control" name="user_contact" value="<?= $profileContact ?>">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Université</label>
+                                                <input type="text" class="form-control" name="user_universite" value="<?= $profileUniversite ?>">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Faculté / Institut</label>
+                                                <input type="text" class="form-control" name="user_faculte" value="<?= $profileFaculte ?>">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Filière</label>
+                                                <input type="text" class="form-control" name="user_filiere" value="<?= $profileFiliere ?>">
+                                            </div>
+                                            <div class="col-12 text-end mt-4">
+                                                <button type="submit" class="btn-save">Enregistrer les modifications</button>
                                             </div>
                                         </form>
                                     </div>
 
-                                    <div class="tab-pane fade" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab" tabindex="0">
-                                        <form action="<?= ROOT ?>/Profiles/appercu" autocomplete="off" method="POST">
-                                            <div class="row gy-4">
-                                                <div class="col-12">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Mot de passe actuel</label>
-                                                    <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="ancien_mot_de_passe" placeholder="************" required>
-                                                        <span class="input-icon input-icon--left"><img src="assets/images/icons/key-icon.svg" alt=""></span>
-                                                        <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#current-password"></span>
-                                                    </div>
+                                    <!-- Security Tab -->
+                                    <div class="tab-pane fade" id="security">
+                                        <form action="<?= ROOT ?>/Profiles/appercu" method="POST" class="row g-4">
+                                            <div class="col-12">
+                                                <label class="form-label">Mot de passe actuel</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0"><i class='bx bx-key'></i></span>
+                                                    <input type="password" class="form-control border-start-0" name="ancien_mot_de_passe" placeholder="Confirmez pour modifier" required>
                                                 </div>
-
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Nouveau mot de passe</label>
-                                                    <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="nouveau_mot_de_passe" placeholder="************" required>
-                                                        <span class="input-icon input-icon--left"><img src="assets/images/icons/lock-two.svg" alt=""></span>
-                                                        <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#new-password"></span>
-                                                    </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Nouveau mot de passe</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0"><i class='bx bx-lock-alt'></i></span>
+                                                    <input type="password" class="form-control border-start-0" name="nouveau_mot_de_passe" required>
                                                 </div>
-
-                                                <div class="col-sm-6 col-xs-6">
-                                                    <label class="form-label mb-2 font-18 font-heading fw-600">Confirmer le mot de passe</label>
-                                                    <div class="position-relative">
-                                                        <input type="password" class="common-input common-input--withIcon common-input--withLeftIcon" name="comfirme_mot_de_passe" placeholder="************" required>
-                                                        <span class="input-icon input-icon--left"><img src="assets/images/icons/lock-two.svg" alt=""></span>
-                                                        <span class="input-icon password-show-hide fas fa-eye la-eye-slash toggle-password-two" id="#confirm-password"></span>
-                                                    </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Confirmer nouveau mot de passe</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0"><i class='bx bx-lock-alt'></i></span>
+                                                    <input type="password" class="form-control border-start-0" name="comfirme_mot_de_passe" required>
                                                 </div>
-
-                                                <div class="col-sm-12 text-end">
-                                                    <button class="btn btn-main btn-lg" type="submit" name="modifier">Mettre à jour le mot de passe</button>
-                                                </div>
+                                            </div>
+                                            <div class="col-12 text-end mt-4">
+                                                <button type="submit" name="modifier" class="btn-save">Mettre à jour la sécurité</button>
                                             </div>
                                         </form>
                                     </div>
-                                </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
+
+                <?php $this->view('Partials/dashboard-footer'); ?>
             </div>
-            <?php $this->view('Partials/footer'); ?>
-    </main>
+        </div>
+    </section>
 
     <?php $this->view('Partials/scripts'); ?>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileInput = document.getElementById('fileInput');
-            const triggerBtn = document.getElementById('triggerAvatarUpload');
-            const saveBtn = document.getElementById('saveAvatarBtn');
-            const helperText = document.getElementById('avatarHelperText');
-            const previewImage = document.getElementById('profileImage');
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const saveBtn = document.getElementById('saveAvatarBtn');
+        const previewImage = document.getElementById('profileImage');
 
-            if (!fileInput || !triggerBtn || !saveBtn || !previewImage) {
-                return;
-            }
-
-            triggerBtn.addEventListener('click', () => fileInput.click());
-
-            fileInput.addEventListener('change', () => {
-                if (!fileInput.files || fileInput.files.length === 0) {
-                    helperText.textContent = 'Formats acceptés: JPG, PNG, GIF, WEBP (max 5 Mo)';
-                    saveBtn.disabled = true;
-                    return;
-                }
-
-                const file = fileInput.files[0];
-                helperText.textContent = `Fichier sélectionné: ${file.name}`;
-                saveBtn.disabled = false;
-
-                if (file && file.type.startsWith('image/')) {
+        if(fileInput) {
+            fileInput.onchange = () => {
+                if (fileInput.files && fileInput.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = (event) => {
-                        previewImage.src = event.target?.result || previewImage.src;
-                    };
-                    reader.readAsDataURL(file);
+                    reader.onload = e => previewImage.src = e.target.result;
+                    reader.readAsDataURL(fileInput.files[0]);
+                    saveBtn.classList.remove('d-none');
                 }
-            });
-        });
+            };
+        }
+    });
     </script>
 </body>
-
 </html>

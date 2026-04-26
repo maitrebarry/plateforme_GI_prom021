@@ -1,853 +1,456 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Publier un projet']) ?>
-
-<style>
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #4a6cf7;
-    background: #eef2ff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-back .arrow {
-    font-size: 16px;
-    transition: transform 0.25s ease;
-}
-
-.btn-back:hover {
-    background: #4a6cf7;
-    color: white;
-}
-
-.btn-back:hover .arrow {
-    transform: translateX(-4px);
-}
-
-.page-title {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: #2b2b2b;
-}
-
-.page-subtitle {
-    color: #6c757d;
-    font-size: 15px;
-    margin-bottom: 25px;
-}
-
-/* CARD */
-.card {
-    border-radius: 15px;
-}
-
-/* SELECTION CATEGORIE */
-/* wrapper */
-
-.select-wrapper {
-    position: relative;
-}
-
-/* select */
-
-.custom-select {
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    width: 100%;
-    padding: 10px 40px 10px 12px;
-
-    border-radius: 10px;
-    border: 1px solid #dcdcdc;
-
-    background-color: #fff;
-
-    font-size: 14px;
-
-    cursor: pointer;
-
-    transition: all .25s ease;
-
-}
-
-/* icone fleche */
-
-.select-wrapper::after {
-
-    content: "▾";
-
-    position: absolute;
-
-    right: 14px;
-    top: 50%;
-
-    transform: translateY(-50%);
-
-    font-size: 14px;
-
-    color: #4a6cf7;
-
-    pointer-events: none;
-
-}
-
-/* hover */
-
-.custom-select:hover {
-
-    border-color: #4a6cf7;
-    background: #fafbff;
-
-}
-
-/* focus */
-
-.custom-select:focus {
-
-    outline: none;
-
-    border-color: #4a6cf7;
-
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-
-}
-
-/* option */
-
-.custom-select option {
-
-    padding: 10px;
-
-}
-
-
-/* Technologie */
-.tech-container {
-
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 6px;
-
-    border: 1px solid #dcdcdc;
-
-    padding: 8px;
-
-    border-radius: 10px;
-
-    min-height: 42px;
-
-    cursor: text;
-
-    transition: 0.2s;
-
-}
-
-.tech-container:focus-within {
-
-    border-color: #4a6cf7;
-
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-
-}
-
-.tech-container input {
-
-    border: none;
-
-    outline: none;
-
-    flex: 1;
-
-    min-width: 120px;
-
-    font-size: 14px;
-
-}
-
-/* TAG */
-
-.tech-tag {
-
-    background: #eef2ff;
-
-    color: #4a6cf7;
-
-    padding: 4px 10px;
-
-    border-radius: 20px;
-
-    font-size: 13px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 6px;
-
-}
-
-/* bouton supprimer */
-
-.tech-remove {
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-}
-
-/* DROP ZONE */
-
-.upload-box {
-    border: 2px dashed #cfd3d7;
-    border-radius: 12px;
-    padding: 35px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.3s;
-    background: #fafafa;
-}
-
-.upload-box:hover {
-    border-color: #4a6cf7;
-    background: #f5f7ff;
-}
-
-/* PREVIEW */
-
-.preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.preview-item {
-    position: relative;
-}
-
-.preview-item img {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-.remove-btn {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-/* FILE LIST */
-
-.file-list {
-    margin-top: 10px;
-}
-
-.file-item {
-    background: #f5f5f5;
-    padding: 6px 10px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* BUTTON */
-
-.btn-primary {
-    border-radius: 8px;
-    background: #4a6cf7;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #3d5bd6;
-}
-
-.btn-publish {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #4a6cf7, #6a85ff);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
-}
-
-/* hover */
-
-.btn-publish:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(74, 108, 247, 0.35);
-    background: linear-gradient(135deg, #3c5be0, #5f7bff);
-}
-
-/* click */
-
-.btn-publish:active {
-    transform: scale(0.96);
-    box-shadow: 0 3px 8px rgba(74, 108, 247, 0.2);
-}
-
-/* icone */
-
-.btn-publish .icon {
-    font-size: 16px;
-}
-</style>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Modifier le projet']); ?>
 
 <body>
+<?php $this->view('Partials/global-shell'); ?>
+<?php $this->view('Partials/mobile-menu'); ?>
 
-    <?php $this->view('Partials/global-shell') ?>
-    <?php $this->view('Partials/mobile-menu') ?>
-    <?php $this->view('Partials/header') ?>
+<section class="dashboard">
+    <div class="dashboard__inner d-flex">
+        <?php $this->view('Partials/dashboard-sidebar'); ?>
+        
+        <div class="dashboard-body">
+            <?php $this->view('Partials/dashboard-nav'); ?>
+            
+            <div class="dashboard-body__content p-4">
+                <style>
+                :root {
+                    --primary-color: #6366f1;
+                    --primary-hover: #4f46e5;
+                    --bg-light: #f1f5f9;
+                    --text-main: #0f172a;
+                    --text-muted: #64748b;
+                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                }
 
-    <main class='change-gradient'>
+                .dashboard-body__content {
+                    animation: fadeIn 0.5s ease-out;
+                    background-color: var(--bg-light);
+                }
 
-        <section class='all-product'>
-            <div class='container container-two'>
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
 
-                <div class='row justify-content-center'>
-                    <div class="col-12">
-                        <?php $this->view('set_flash'); ?>
-                    </div>
-                    <div class='col-lg-8'>
-                        <div>
-                            <button type="button" class="btn-back" onclick="history.back()">
-                                <span class="arrow">←</span> Retour
-                            </button>
+                .student-hero {
+                    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    color: white;
+                    margin-bottom: 2.5rem;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: var(--card-shadow);
+                }
+
+                .student-hero h1 { font-weight: 800; font-size: 2.4rem; margin-bottom: 0.75rem; }
+                .student-hero p { font-size: 1.1rem; opacity: 0.9; max-width: 800px; margin-bottom: 0; }
+
+                .common-card {
+                    border: none;
+                    border-radius: 20px;
+                    box-shadow: var(--card-shadow);
+                    background: #ffffff;
+                    padding: 2.5rem;
+                    margin-bottom: 3rem;
+                }
+
+                .form-label {
+                    font-weight: 700;
+                    color: var(--text-main);
+                    margin-bottom: 0.6rem;
+                    font-size: 0.95rem;
+                }
+
+                .form-control, .form-select {
+                    border-radius: 12px;
+                    border: 1.5px solid #e2e8f0;
+                    padding: 0.8rem 1.1rem;
+                    font-size: 0.95rem;
+                    transition: all 0.3s;
+                }
+
+                .form-control:focus, .form-select:focus {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                    outline: none;
+                }
+
+                /* Editor Styling */
+                .ql-container.ql-snow {
+                    border-bottom-left-radius: 12px;
+                    border-bottom-right-radius: 12px;
+                    border: 1.5px solid #e2e8f0;
+                    font-size: 0.95rem;
+                    min-height: 250px;
+                }
+                .ql-toolbar.ql-snow {
+                    border-top-left-radius: 12px;
+                    border-top-right-radius: 12px;
+                    border: 1.5px solid #e2e8f0;
+                    border-bottom: none;
+                    background: #f8fafc;
+                }
+
+                .tech-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    border: 1.5px solid #e2e8f0;
+                    padding: 0.6rem;
+                    border-radius: 12px;
+                    background: #f8fafc;
+                    min-height: 52px;
+                    transition: all 0.3s;
+                }
+
+                .tech-container:focus-within {
+                    border-color: var(--primary-color);
+                    background: #ffffff;
+                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                }
+
+                .tech-tag {
+                    background: rgba(99, 102, 241, 0.1);
+                    color: var(--primary-color);
+                    padding: 4px 10px;
+                    border-radius: 8px;
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                .upload-box {
+                    border: 2px dashed #cbd5e1;
+                    border-radius: 16px;
+                    padding: 2.5rem 1.5rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    background: #f8fafc;
+                    color: var(--text-muted);
+                }
+
+                .upload-box:hover {
+                    border-color: var(--primary-color);
+                    background: rgba(99, 102, 241, 0.03);
+                    color: var(--primary-color);
+                }
+
+                .preview-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1rem; }
+                .preview-item {
+                    position: relative;
+                    width: 90px;
+                    height: 90px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                }
+                .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+                
+                .remove-btn-abs {
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                    cursor: pointer;
+                    text-decoration: none;
+                }
+
+                .file-item {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    padding: 0.75rem 1rem;
+                    border-radius: 10px;
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .btn-update {
+                    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                    color: white !important;
+                    padding: 1rem 2.5rem;
+                    border-radius: 14px;
+                    font-weight: 800;
+                    border: none;
+                    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+                    transition: all 0.3s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                }
+
+                .btn-update:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+                }
+
+                [data-reveal] {
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+                }
+                [data-reveal].is-visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                </style>
+
+                <div class="edit-project-container">
+                    <div class="student-hero" data-reveal>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <a href="<?= ROOT ?>/Projets/mes_projets" class="btn btn-sm" style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                                <i class='bx bx-arrow-back'></i> Annuler
+                            </a>
+                            <span class="badge bg-warning bg-opacity-25 text-white">Édition</span>
                         </div>
-                        <div class='card shadow-sm border-0'>
+                        <h1 class="text-white">Modifier "<?= htmlspecialchars($project->title) ?>"</h1>
+                        <p>Mettez à jour les informations, ajoutez de nouvelles images ou changez les fichiers de votre réalisation.</p>
+                    </div>
 
-                            <div class='card-body p-5'>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-11">
+                            <div class="mb-4">
+                                <?php $this->view('set_flash'); ?>
+                            </div>
 
-                                <h2 class="page-title">Modification du projet
-                                    <span
-                                        style="color: #3c5be0 !important;">(<?= htmlspecialchars($project->title) ?>)</span>
-                                </h2>
-
-                                <form method="POST" action="<?= ROOT ?>/Projets/update/<?= $project->id ?>"
-                                    enctype="multipart/form-data" id="projectForm">
-
-                                    <!-- TITRE -->
-
-                                    <div class='mb-4'>
-                                        <label class='form-label fw-bold'>Titre du projet</label>
-                                        <input type="text" name="title" class="form-control"
-                                            value="<?= htmlspecialchars($project->title) ?>" required>
+                            <form method="POST" action="<?= ROOT ?>/Projets/update/<?= $project->id ?>" enctype="multipart/form-data" id="projectForm" class="common-card" data-reveal>
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <label class="form-label">Titre du projet <span class="text-danger">*</span></label>
+                                        <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($project->title) ?>" required>
                                     </div>
 
-                                    <!-- CATEGORIE -->
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Catégorie du projet</label>
-
-                                        <div class="select-wrapper">
-
-                                            <select name="category_id" class="form-control custom-select">
-
-                                                <?php foreach($categories as $category): ?>
-
-                                                <option value="<?= $category->id ?>"
-                                                    <?= $project->category_id == $category->id ? "selected" : "" ?>>
-
+                                    <div class="col-md-12">
+                                        <label class="form-label">Catégorie <span class="text-danger">*</span></label>
+                                        <select name="category_id" class="form-select" required>
+                                            <?php foreach($categories as $category): ?>
+                                                <option value="<?= $category->id ?>" <?= $project->category_id == $category->id ? "selected" : "" ?>>
                                                     <?= $category->nom ?>
-
                                                 </option>
-
-                                                <?php endforeach ?>
-
-                                            </select>
-                                        </div>
-                                    </div>
-
-
-                                    <!-- DESCRIPTION -->
-
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Description du projet</label>
-
-                                        <div id="editor"></div>
-
-                                        <input type="hidden" name="description" id="description">
-
-                                    </div>
-
-                                    <!-- TECHNO -->
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Technologies utilisées</label>
-
-                                        <div class="tech-container">
-
-                                            <input type="text" id="techInput"
-                                                placeholder="Tapez une technologie puis appuyez sur Entrée"
-                                                value="<?= htmlspecialchars($project->technologies) ?>"
-                                                name="technologies">
-
-                                        </div>
-
-
-                                    </div>
-
-                                    <!-- VIDEO -->
-                                    <div class='mb-4'>
-
-                                        <label class='form-label fw-bold'>Lien vidéo du projet</label>
-
-                                        <input type='url' name='video' class='form-control'
-                                            placeholder=" https://youtube.com/..."
-                                            value="<?= htmlspecialchars($project->video) ?>">
-
-                                        <small class="text-muted">
-                                            Ajoutez un lien de démonstration (YouTube, Vimeo, etc.)
-                                        </small>
-
-                                    </div>
-
-                                    <!-- IMAGES -->
-
-                                    <div class="mb-4">
-
-                                        <div class="mb-4">
-
-                                            <label class="form-label fw-bold">Images actuelles</label>
-
-                                            <div class="preview-container">
-
-                                                <?php foreach($images as $img): ?>
-
-                                                <div class="preview-item">
-
-                                                    <img
-                                                        src="<?= ROOT_IMG ?>/uploads/projects/images/<?= $img->image ?>">
-
-                                                    <a href="<?= ROOT ?>/Projets/delete_image/<?= $img->id ?>/<?=$project->id ?>"
-                                                        class="remove-btn">
-                                                        x
-                                                    </a>
-
-                                                </div>
-
-                                                <?php endforeach ?>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="mb-4">
-
-                                        <label class="form-label fw-bold">Ajouter nouvelles images</label>
-
-                                        <div class="upload-box" id="imageDrop">
-
-                                            📷 Glisser vos images ici ou cliquer
-
-                                            <input type="file" id="images" name="images[]" multiple hidden>
-
-                                        </div>
-
-                                        <div class="preview-container" id="imagePreview"></div>
-
-                                    </div>
-
-                                    <!-- FILES -->
-
-                                    <div class="mb-4">
-
-                                        <label class="form-label fw-bold">Fichiers actuels</label>
-
-                                        <div class="file-list">
-
-                                            <?php if(!empty($files)): ?>
-
-                                            <?php foreach($files as $file): ?>
-
-                                            <div class="file-item">
-
-                                                <a href="<?= ROOT_IMG ?>/uploads/projects/files/<?= $file->fichier ?>"
-                                                    target="_blank">
-
-                                                    📄 <?= $file->fichier ?>
-
-                                                </a>
-
-                                                <a href="<?= ROOT ?>/Projets/delete_file/<?= $file->id ?>/<?=$project->id ?>"
-                                                    class="text-danger">
-
-                                                    ❌
-
-                                                </a>
-
-                                            </div>
-
                                             <?php endforeach ?>
-
-                                            <?php endif ?>
-
-                                        </div>
-
-                                    </div>
-                                    <div class="mb-4">
-
-                                        <label class="form-label fw-bold">Ajouter nouveaux fichiers</label>
-
-                                        <div class="upload-box" id="fileDrop">
-
-                                            📁 Glisser vos fichiers ici ou cliquer
-
-                                            <input type="file" id="files" name="files[]" multiple hidden>
-
-                                        </div>
-
-                                        <div class="file-list" id="fileList"></div>
-
+                                        </select>
                                     </div>
 
-                                    <div class='text-center mt-4'>
-                                        <button type="submit" class="btn-publish">
+                                    <div class="col-12">
+                                        <label class="form-label">Technologies utilisées</label>
+                                        <div class="tech-container" id="techContainer">
+                                            <input type="text" id="techInput" placeholder="Tapez pour ajouter...">
+                                            <input type="hidden" name="technologies" id="techHiddenInput" value="<?= htmlspecialchars($project->technologies) ?>">
+                                        </div>
+                                    </div>
 
-                                            Modifier le projet
+                                    <div class="col-12">
+                                        <label class="form-label">Description détaillée <span class="text-danger">*</span></label>
+                                        <div id="editor"></div>
+                                        <input type="hidden" name="description" id="description">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Lien vidéo (Optionnel)</label>
+                                        <input type="url" name="video" class="form-control" value="<?= htmlspecialchars($project->video) ?>" placeholder="https://youtube.com/...">
+                                    </div>
+
+                                    <div class="col-12 border-top pt-4">
+                                        <h5 class="fw-bold mb-4">Gestion des médias</h5>
+                                        
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label d-block">Images actuelles</label>
+                                                <div class="preview-container mb-3">
+                                                    <?php foreach($images as $img): ?>
+                                                        <div class="preview-item">
+                                                            <img src="<?= ROOT_IMG ?>/uploads/projects/images/<?= $img->image ?>">
+                                                            <a href="<?= ROOT ?>/Projets/delete_image/<?= $img->id ?>/<?=$project->id ?>" class="remove-btn-abs" title="Supprimer">×</a>
+                                                        </div>
+                                                    <?php endforeach ?>
+                                                </div>
+                                                <div class="upload-box" id="imageDrop">
+                                                    <i class='bx bx-plus-circle h3 d-block'></i>
+                                                    <span>Ajouter des images</span>
+                                                    <input type="file" id="images" name="images[]" multiple hidden>
+                                                </div>
+                                                <div class="preview-container" id="imagePreview"></div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label d-block">Fichiers actuels</label>
+                                                <div class="file-list mb-3">
+                                                    <?php if(!empty($files)): ?>
+                                                        <?php foreach($files as $file): ?>
+                                                            <div class="file-item">
+                                                                <span class="small text-truncate"><i class='bx bx-file me-2 text-primary'></i><?= $file->fichier ?></span>
+                                                                <a href="<?= ROOT ?>/Projets/delete_file/<?= $file->id ?>/<?=$project->id ?>" class="text-danger" title="Supprimer">
+                                                                    <i class='bx bx-trash'></i>
+                                                                </a>
+                                                            </div>
+                                                        <?php endforeach ?>
+                                                    <?php endif ?>
+                                                </div>
+                                                <div class="upload-box" id="fileDrop">
+                                                    <i class='bx bx-cloud-upload h3 d-block'></i>
+                                                    <span>Ajouter des fichiers</span>
+                                                    <input type="file" id="files" name="files[]" multiple hidden>
+                                                </div>
+                                                <div class="file-list mt-3" id="newFileList"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-center mt-5">
+                                        <button type="submit" class="btn-update">
+                                            <i class='bx bx-check-double'></i> Enregistrer les modifications
                                         </button>
                                     </div>
-
-                                </form>
-
-                            </div>
+                                </div>
+                            </form>
                         </div>
-
                     </div>
                 </div>
-
             </div>
-        </section>
 
-        <?php $this->view('Partials/footer') ?>
+            <?php $this->view('Partials/dashboard-footer'); ?>
+        </div>
+    </div>
+</section>
 
-    </main>
+<?php $this->view('Partials/scripts'); ?>
+<script>
+(function() {
+    /* Reveal Animation */
+    const revealItems = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    revealItems.forEach(item => observer.observe(item));
 
-    <?php $this->view('Partials/scripts') ?>
-
-    <script>
-    /* ============================= */
-    /*  DESCRIPTION  */
-    /* ============================= */
+    /* QUILL EDITOR */
     var quill = new Quill('#editor', {
-
         theme: 'snow',
-
         modules: {
             toolbar: [
-                [{
-                    header: [1, 2, 3, false]
-                }],
-                [{
-                    list: "ordered"
-                }, {
-                    list: "bullet"
-                }],
-                ["link", "code-block"],
-                ["clean"]
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{'list': 'ordered'}, {'list': 'bullet'}],
+                ['link', 'code-block'],
+                ['clean']
             ]
         }
-
     });
-
     quill.root.innerHTML = <?= json_encode($project->description) ?>;
 
-    document.getElementById("projectForm").onsubmit = function() {
+    /* TECH TAGS */
+    const techContainer = document.getElementById("techContainer");
+    const techInput = document.getElementById("techInput");
+    const techHiddenInput = document.getElementById("techHiddenInput");
+    let tags = [];
 
-        document.getElementById("description").value = quill.root.innerHTML;
-
-    };
-
-
-    /* envoyer le contenu dans le formulaire */
-
-    document.getElementById("projectForm").onsubmit = function() {
-
-        document.getElementById("description").value = quill.root.innerHTML;
-
-    };
-
-
-
-    /* ============================= */
-    /*  IMAGES MULTIPLES + PREVIEW   */
-    /* ============================= */
-
-    const imageInput = document.getElementById("images");
-    const imageDrop = document.getElementById("imageDrop");
-    const preview = document.getElementById("imagePreview");
-
-    let imageFiles = new DataTransfer();
-
-    /* ouvrir le select */
-
-    imageDrop.addEventListener("click", () => {
-        imageInput.click();
-    });
-
-    /* sélection via input */
-
-    imageInput.addEventListener("change", function() {
-
-        Array.from(this.files).forEach(file => {
-
-            if (!file.type.startsWith("image/")) {
-                alert("Seulement les images sont autorisées");
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Image trop lourde (max 5MB)");
-                return;
-            }
-
-            imageFiles.items.add(file);
-
-        });
-
-        imageInput.files = imageFiles.files;
-
-        displayImages();
-
-    });
-
-    /* afficher preview */
-
-    function displayImages() {
-
-        preview.innerHTML = "";
-
-        Array.from(imageFiles.files).forEach((file, index) => {
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-
-                const div = document.createElement("div");
-                div.className = "preview-item";
-
-                const img = document.createElement("img");
-                img.src = e.target.result;
-
-                const btn = document.createElement("button");
-                btn.className = "remove-btn";
-                btn.innerText = "x";
-
-                btn.onclick = function() {
-
-                    const dt = new DataTransfer();
-
-                    Array.from(imageFiles.files)
-                        .filter((_, i) => i !== index)
-                        .forEach(f => dt.items.add(f));
-
-                    imageFiles = dt;
-                    imageInput.files = dt.files;
-
-                    displayImages();
-
-                };
-
-                div.appendChild(img);
-                div.appendChild(btn);
-
-                preview.appendChild(div);
-
-            };
-
-            reader.readAsDataURL(file);
-
-        });
-
+    if (techHiddenInput.value) {
+        tags = techHiddenInput.value.split(',').filter(t => t.trim() !== "");
+        tags.forEach(t => addTagUI(t));
     }
 
-    /* ============================= */
-    /*        FICHIERS PROJET        */
-    /* ============================= */
-
-    const fileInput = document.getElementById("files");
-    const fileDrop = document.getElementById("fileDrop");
-    const fileList = document.getElementById("fileList");
-
-    let projectFiles = new DataTransfer();
-
-    /* clic */
-
-    fileDrop.addEventListener("click", () => {
-        fileInput.click();
-    });
-
-    /* sélection */
-
-    fileInput.addEventListener("change", function() {
-
-        Array.from(this.files).forEach(file => {
-
-            if (file.size > 100 * 1024 * 1024) {
-                alert("Fichier trop lourd (max 100MB)");
-                return;
+    techInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val && !tags.includes(val)) {
+                tags.push(val);
+                addTagUI(val);
+                this.value = "";
+                updateHiddenInput();
             }
-
-            projectFiles.items.add(file);
-
-        });
-
-        fileInput.files = projectFiles.files;
-
-        displayFiles();
-
+        }
     });
 
-    /* afficher fichiers */
+    function addTagUI(text) {
+        const tag = document.createElement("div");
+        tag.className = "tech-tag";
+        tag.innerHTML = `${text} <i class='bx bx-x' style='cursor:pointer'></i>`;
+        tag.querySelector('i').onclick = () => {
+            tags = tags.filter(t => t !== text);
+            tag.remove();
+            updateHiddenInput();
+        };
+        techContainer.insertBefore(tag, techInput);
+    }
 
-    function displayFiles() {
+    function updateHiddenInput() {
+        techHiddenInput.value = tags.join(",");
+    }
 
-        fileList.innerHTML = "";
+    /* UPLOADS */
+    const imgInput = document.getElementById("images");
+    const docInput = document.getElementById("files");
+    const imgPrev = document.getElementById("imagePreview");
+    const docPrev = document.getElementById("newFileList");
+    let imgDt = new DataTransfer();
+    let docDt = new DataTransfer();
 
-        Array.from(projectFiles.files).forEach((file, index) => {
+    document.getElementById("imageDrop").onclick = () => imgInput.click();
+    imgInput.onchange = e => {
+        Array.from(e.target.files).forEach(file => {
+            if (file.type.startsWith("image/")) {
+                imgDt.items.add(file);
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const div = document.createElement("div");
+                    div.className = "preview-item";
+                    div.innerHTML = `<img src="${ev.target.result}"><button type="button" class="remove-btn-abs">×</button>`;
+                    div.querySelector('button').onclick = () => {
+                        const newDt = new DataTransfer();
+                        Array.from(imgDt.files).forEach(f => { if(f.name !== file.name) newDt.items.add(f); });
+                        imgDt = newDt; imgInput.files = imgDt.files; div.remove();
+                    };
+                    imgPrev.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        imgInput.files = imgDt.files;
+    };
 
+    document.getElementById("fileDrop").onclick = () => docInput.click();
+    docInput.onchange = e => {
+        Array.from(e.target.files).forEach(file => {
+            docDt.items.add(file);
             const div = document.createElement("div");
             div.className = "file-item";
-
-            const span = document.createElement("span");
-            span.innerText = file.name;
-
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.innerText = "x";
-
-            btn.onclick = function() {
-
-                const dt = new DataTransfer();
-
-                Array.from(projectFiles.files)
-                    .filter((_, i) => i !== index)
-                    .forEach(f => dt.items.add(f));
-
-                projectFiles = dt;
-                fileInput.files = dt.files;
-
-                displayFiles();
-
+            div.innerHTML = `<span><i class='bx bx-file me-2 text-primary'></i>${file.name}</span><button type="button" class="btn btn-sm text-danger">×</button>`;
+            div.querySelector('button').onclick = () => {
+                const newDt = new DataTransfer();
+                Array.from(docDt.files).forEach(f => { if(f.name !== file.name) newDt.items.add(f); });
+                docDt = newDt; docInput.files = docDt.files; div.remove();
             };
-
-            div.appendChild(span);
-            div.appendChild(btn);
-
-            fileList.appendChild(div);
-
+            docPrev.appendChild(div);
         });
+        docInput.files = docDt.files;
+    };
 
-    }
-
-    /* ============================= */
-    /*         DRAG & DROP           */
-    /* ============================= */
-
-    ["dragenter", "dragover"].forEach(event => {
-        imageDrop.addEventListener(event, e => {
-            e.preventDefault();
-            imageDrop.style.borderColor = "#4a6cf7";
-        });
-    });
-
-    ["dragleave", "drop"].forEach(event => {
-        imageDrop.addEventListener(event, e => {
-            e.preventDefault();
-            imageDrop.style.borderColor = "#cfd3d7";
-        });
-    });
-
-    imageDrop.addEventListener("drop", function(e) {
-
-        e.preventDefault();
-
-        Array.from(e.dataTransfer.files).forEach(file => {
-            imageFiles.items.add(file);
-        });
-
-        imageInput.files = imageFiles.files;
-
-        displayImages();
-
-    });
-
-
-    ["dragenter", "dragover"].forEach(event => {
-        fileDrop.addEventListener(event, e => {
-            e.preventDefault();
-            fileDrop.style.borderColor = "#4a6cf7";
-        });
-    });
-
-    ["dragleave", "drop"].forEach(event => {
-        fileDrop.addEventListener(event, e => {
-            e.preventDefault();
-            fileDrop.style.borderColor = "#cfd3d7";
-        });
-    });
-
-    fileDrop.addEventListener("drop", function(e) {
-
-        e.preventDefault();
-
-        Array.from(e.dataTransfer.files).forEach(file => {
-            projectFiles.items.add(file);
-        });
-
-        fileInput.files = projectFiles.files;
-
-        displayFiles();
-
-    });
-
-    let techList = [];
-
-    const existingTech = document.getElementById("technologies").value;
-
-    if (existingTech) {
-
-        techList = existingTech.split(",");
-
-        techList.forEach(tech => createTag(tech));
-
-    }
-    </script>
-
+    /* FORM SUBMIT */
+    document.getElementById("projectForm").onsubmit = function() {
+        document.getElementById("description").value = quill.root.innerHTML;
+    };
+})();
+</script>
 </body>
-
 </html>
