@@ -102,13 +102,18 @@ if (!function_exists('home_pagination_window')) {
     <?php else: ?>
         <div class="col-12">
             <div class="empty-projects">
-                <i class='bx bx-search-alt'></i>
-                <h3 class="mb-2">Aucun projet ne correspond à votre recherche</h3>
-                <p class="text-muted mb-4">
-                    Essayez un autre mot-clé, retirez le filtre de catégorie, ou publiez un nouveau projet pour enrichir la vitrine.
-                </p>
-                <a href="<?= ROOT ?>/Homes/index" class="hero-btn-outline me-2">Réinitialiser les filtres</a>
-                <a href="<?= ROOT ?>/Projets/publier_projet" class="hero-btn">Publier un projet</a>
+                <div class="empty-projects__icon"><i class='bx bx-search-alt'></i></div>
+                <div class="empty-projects__content">
+                    <span class="empty-projects__eyebrow">Recherche sans résultat</span>
+                    <h3>Aucun projet ne correspond à votre recherche</h3>
+                    <p>
+                        Essayez un autre mot-clé, retirez le filtre de catégorie, ou publiez un nouveau projet pour enrichir la vitrine.
+                    </p>
+                    <div class="empty-projects__actions">
+                        <a href="<?= ROOT ?>/Homes/index" class="hero-btn-outline">Réinitialiser les filtres</a>
+                        <a href="<?= ROOT ?>/Projets/publier_projet" class="hero-btn">Publier un projet</a>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endif; ?>

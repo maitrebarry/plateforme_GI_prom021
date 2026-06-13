@@ -3,3 +3,5 @@
         <p class="bottom-footer__text font-14">Copyright © 2026 Plateforme GI Promo 21.</p>
     </div>
 </div>
+
+<?php $this->view('Partials/nkadon-chatbot'); ?>

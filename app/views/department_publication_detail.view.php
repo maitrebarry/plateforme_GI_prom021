@@ -1,11 +1,29 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Publication du departement']); ?>
-<body>
+<body class="public-site public-department">
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
 <?php $this->view('Partials/header'); ?>
 <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
 <?php $post = $post ?? null; ?>
 <?php $returnUrl = $returnUrl ?? (ROOT . '/Homes/departement'); ?>
+<?php
+if (!function_exists('department_post_file_is_image')) {
+    function department_post_file_is_image(object $file): bool
+    {
+        $type = strtolower((string) ($file->file_type ?? ''));
+        $path = strtolower((string) ($file->file_path ?? ''));
+        $name = strtolower((string) ($file->original_name ?? ''));
+        $extension = pathinfo($path !== '' ? $path : $name, PATHINFO_EXTENSION);
+
+        return str_starts_with($type, 'image/')
+            || in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)
+            || in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+    }
+}
+$files = $post->files ?? [];
+$imageFiles = array_values(array_filter($files, static fn($file) => department_post_file_is_image($file)));
+$documentFiles = array_values(array_filter($files, static fn($file) => !department_post_file_is_image($file)));
+?>
 
 <main class="change-gradient">
     <section class="breadcrumb mb-0 bg-main-two position-relative z-index-1 overflow-hidden">
@@ -37,11 +55,22 @@
                         <?= nl2br(htmlspecialchars((string) ($post->contenu ?? ''))) ?>
                     </div>
 
-                    <?php if (!empty($post->files ?? [])): ?>
+                    <?php if (!empty($imageFiles)): ?>
+                        <div class="department-detail-gallery mb-4">
+                            <?php foreach ($imageFiles as $file): ?>
+                                <?php $relativePath = ltrim(str_replace('\\', '/', (string) ($file->file_path ?? '')), '/'); ?>
+                                <a href="<?= ROOT . '/' . $relativePath ?>" target="_blank" rel="noopener">
+                                    <img src="<?= ROOT . '/' . $relativePath ?>" alt="<?= htmlspecialchars((string) ($file->original_name ?? 'Image publication')) ?>">
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($documentFiles)): ?>
                         <div>
                             <h5 class="mb-3">Fichiers joints</h5>
                             <div class="d-flex flex-wrap gap-2">
-                                <?php foreach (($post->files ?? []) as $file): ?>
+                                <?php foreach ($documentFiles as $file): ?>
                                     <?php $relativePath = ltrim(str_replace('\\', '/', (string) ($file->file_path ?? '')), '/'); ?>
                                     <a class="btn btn-light border" href="<?= ROOT . '/' . $relativePath ?>" target="_blank" rel="noopener">
                                         <?= htmlspecialchars((string) ($file->original_name ?? 'Fichier')) ?>

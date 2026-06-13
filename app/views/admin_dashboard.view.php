@@ -276,7 +276,6 @@ $mostFollowedProjects = $mostFollowedProjects ?? [];
                 </div>
 
                 <div class="quick-links-bar d-flex flex-wrap gap-2 mt-4">
-                    <a href="<?= ROOT ?>/Admins/pending_projects" class="btn btn-primary">Projets a valider</a>
                     <a href="<?= ROOT ?>/Admins/projects_management" class="btn btn-success">Gestion des projets</a>
                     <a href="<?= ROOT ?>/Admins/most_followed_projects" class="btn btn-info">Projets les plus suivis</a>
                     <a href="<?= ROOT ?>/Admins/statistics" class="btn btn-secondary">Statistiques</a>
@@ -302,7 +301,10 @@ $mostFollowedProjects = $mostFollowedProjects ?? [];
 
                 <div class="card common-card mt-4 admin-table-card">
                     <div class="card-body">
-                        <h5 class="mb-4">⏳ Projets en attente de validation</h5>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                            <h5 class="m-0">⏳ Projets en attente de validation</h5>
+                            <a href="<?= ROOT ?>/Admins/projects_management?status=en_attente" class="btn btn-sm btn-outline-primary">Ouvrir dans gestion des projets</a>
+                        </div>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>

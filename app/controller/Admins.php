@@ -189,52 +189,7 @@ class Admins extends Controller
     {
         $this->guardAdmin();
 
-        $adminPanel = $this->adminPanel();
-        $filters = $this->projectListFilters();
-        $pagination = $this->paginationParams();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['bulk_validate_projects']) || isset($_POST['bulk_reject_projects'])) {
-                $this->handleBulkProjectModeration($adminPanel, 'Admins/pending_projects', false);
-            }
-
-            $projectId = (int) ($_POST['project_id'] ?? ($_POST['single_validate_project'] ?? $_POST['single_reject_project'] ?? 0));
-            if (isset($_POST['single_validate_project'])) {
-                $_POST['validate_project'] = true;
-            }
-            if (isset($_POST['single_reject_project'])) {
-                $_POST['reject_project'] = true;
-            }
-            $this->handleProjectModeration($adminPanel, $projectId, 'Admins/pending_projects');
-        }
-
-        $projectPage = $adminPanel->getPendingProjectsPaginated(
-            $filters['search'],
-            $filters['categoryId'],
-            $filters['dateFrom'],
-            $filters['dateTo'],
-            $filters['sortBy'],
-            $filters['sortDir'],
-            $pagination['page'],
-            $pagination['perPage']
-        );
-
-        $this->view('admin_pending_projects', [
-            'pageTitle' => 'Projets a valider',
-            'projects' => $projectPage['items'],
-            'projectSearch' => $filters['search'],
-            'projectCategoryFilter' => $filters['categoryId'],
-            'projectDateFrom' => $filters['dateFrom'],
-            'projectDateTo' => $filters['dateTo'],
-            'projectSortBy' => $filters['sortBy'],
-            'projectSortDir' => $filters['sortDir'],
-            'categories' => $adminPanel->getCategories(),
-            'currentPage' => $projectPage['page'],
-            'perPage' => $projectPage['perPage'],
-            'totalPages' => $projectPage['totalPages'],
-            'totalItems' => $projectPage['total'],
-            'paginationQuery' => $this->queryStringWithoutPage(['per_page' => $pagination['perPage']]),
-        ]);
+        $this->redirect('Admins/projects_management?status=en_attente');
     }
 
     public function projects_management(): void
@@ -277,6 +232,7 @@ class Admins extends Controller
 
         $this->view('admin_projects_management', [
             'pageTitle' => 'Gestion des projets',
+            'dashboardStats' => $adminPanel->getDashboardStats(),
             'projects' => $projectPage['items'],
             'projectSearch' => $filters['search'],
             'projectStatusFilter' => $filters['status'],

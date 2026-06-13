@@ -12,7 +12,7 @@ $isOwner = $currentUserId === $ownerId;
 $isAuthenticated = $currentUserId > 0;
 ?>
 
-<body>
+<body class="public-site public-detail">
     <?php 
     $this->view('Partials/global-shell');
     $this->view('Partials/mobile-menu');

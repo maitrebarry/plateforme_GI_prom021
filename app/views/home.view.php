@@ -19,15 +19,53 @@ $departmentAnnouncements = $departmentAnnouncements ?? [];
 $departmentInformations = $departmentInformations ?? [];
 $departmentResults = $departmentResults ?? [];
 $departmentOpportunities = $departmentOpportunities ?? [];
+$heroVisual = $featuredProject['image'] ?? (ROOT . '/assets/images/thumbs/banner-img.png');
+$heroSlides = [];
+foreach (array_merge([$featuredProject], $topLikedProjects, $projects) as $slideProject) {
+    if (!is_array($slideProject)) {
+        continue;
+    }
+    $slideImage = $slideProject['image'] ?? (($slideProject['images'][0] ?? null));
+    if ($slideImage && !in_array($slideImage, $heroSlides, true)) {
+        $heroSlides[] = $slideImage;
+    }
+    if (count($heroSlides) >= 4) {
+        break;
+    }
+}
+if (empty($heroSlides)) {
+    $heroSlides[] = $heroVisual;
+}
+
+if (!function_exists('home_department_file_is_image')) {
+    function home_department_file_is_image(array $file): bool
+    {
+        $type = strtolower((string) ($file['type'] ?? ''));
+        $url = strtolower((string) ($file['url'] ?? ''));
+        $name = strtolower((string) ($file['name'] ?? ''));
+        $extension = pathinfo($url !== '' ? $url : $name, PATHINFO_EXTENSION);
+
+        return str_starts_with($type, 'image/')
+            || in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)
+            || in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+    }
+}
+
+$homeDepartmentSections = [
+    ['label' => 'Annonce', 'class' => 'badge-ann', 'icon' => 'bx bx-megaphone', 'items' => $departmentAnnouncements],
+    ['label' => 'Information', 'class' => 'badge-info', 'icon' => 'bx bx-info-circle', 'items' => $departmentInformations],
+    ['label' => 'Résultat', 'class' => 'badge-res', 'icon' => 'bx bx-award', 'items' => $departmentResults],
+    ['label' => 'Opportunité', 'class' => 'badge-op', 'icon' => 'bx bx-briefcase-alt-2', 'items' => $departmentOpportunities],
+];
 ?>
 
-<body>
+<body class="public-site um6p-site">
     <?php $this->view('Partials/global-shell'); ?>
     <?php $this->view('Partials/mobile-menu'); ?>
     <?php $this->view('Partials/header'); ?>
     <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
 
-    <main class="change-gradient ai-home">
+    <main class="change-gradient ai-home um6p-home">
         <style>
         .ai-home {
             --pri: #0f766e;
@@ -1094,13 +1132,804 @@ $departmentOpportunities = $departmentOpportunities ?? [];
         }
         </style>
 
+        <style>
+        .um6p-site .header {
+            background: rgba(255, 255, 255, .94);
+            border-bottom: 1px solid rgba(26, 28, 35, .08);
+            box-shadow: 0 18px 50px -42px rgba(26, 28, 35, .45);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            backdrop-filter: blur(16px)
+        }
+
+        .um6p-site .header-inner {
+            min-height: 82px
+        }
+
+        .um6p-site .logo img {
+            max-height: 54px;
+            width: auto
+        }
+
+        .um6p-site .nav-menu {
+            gap: 34px
+        }
+
+        .um6p-site .nav-menu__link {
+            color: #151515;
+            font-weight: 800;
+            letter-spacing: 0;
+            padding: 28px 0;
+            position: relative
+        }
+
+        .um6p-site .nav-menu__link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 21px;
+            height: 3px;
+            background: #c7511f;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .22s ease
+        }
+
+        .um6p-site .nav-menu__link:hover::after {
+            transform: scaleX(1)
+        }
+
+        .um6p-site .btn-primary,
+        .um6p-site .btn-main,
+        .um6p-site .hero-btn,
+        .um6p-site .ai-send {
+            background: #c7511f !important;
+            border-color: #c7511f !important;
+            color: #fff !important;
+            border-radius: 3px !important;
+            box-shadow: none
+        }
+
+        .um6p-site .hero-btn-outline {
+            border-radius: 3px !important;
+            color: #151515;
+            border: 1px solid #d8d0c7 !important;
+            background: #fff
+        }
+
+        .um6p-home {
+            --pri: #c7511f;
+            --pri2: #8f2d13;
+            --ink: #171717;
+            --muted: #5c5c5c;
+            --line: #e7dfd7;
+            background: #f8f5ef
+        }
+
+        .um6p-home .hero {
+            padding: 34px 0 20px
+        }
+
+        .um6p-home .salon-grid {
+            grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+            min-height: calc(100vh - 128px);
+            gap: 0;
+            align-items: stretch;
+            margin-top: 0;
+            background: #fff;
+            border: 1px solid rgba(26, 28, 35, .08)
+        }
+
+        .um6p-home .ai-card,
+        .um6p-home .project-card-modern,
+        .um6p-home .news-card,
+        .um6p-home .empty-projects,
+        .um6p-home .mini-card {
+            border-radius: 0;
+            box-shadow: none;
+            border-color: rgba(26, 28, 35, .1)
+        }
+
+        .um6p-home .salon-hero-card {
+            padding: clamp(32px, 5vw, 76px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #fff
+        }
+
+        .um6p-home .salon-kicker,
+        .um6p-home .section-head small,
+        .um6p-home .hero-chip {
+            background: transparent;
+            color: #c7511f;
+            padding: 0;
+            border-radius: 0;
+            letter-spacing: .14em;
+            font-size: .78rem
+        }
+
+        .um6p-home .salon-lead {
+            max-width: 820px;
+            color: #171717;
+            font-size: clamp(2.45rem, 5.7vw, 6rem);
+            line-height: .95;
+            letter-spacing: 0;
+            margin: 20px 0 22px
+        }
+
+        .um6p-home .salon-lead span {
+            color: #c7511f
+        }
+
+        .um6p-home .section-copy,
+        .um6p-home .project-text,
+        .um6p-home .hero p {
+            color: #5c5c5c;
+            font-size: 1rem
+        }
+
+        .um6p-home .hero-actions {
+            gap: 12px;
+            margin-top: 26px
+        }
+
+        .um6p-home .hero-btn,
+        .um6p-home .hero-btn-outline,
+        .um6p-home .project-link {
+            border-radius: 3px;
+            min-height: 48px;
+            padding: 13px 18px;
+            font-weight: 900
+        }
+
+        .um6p-home .salon-proof {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            border-top: 1px solid rgba(26, 28, 35, .1);
+            margin-top: 38px;
+            padding-top: 22px
+        }
+
+        .um6p-home .salon-proof__item {
+            border: 0;
+            border-left: 3px solid #c7511f;
+            border-radius: 0;
+            padding: 0 0 0 14px;
+            box-shadow: none
+        }
+
+        .um6p-home .salon-proof__item strong {
+            font-size: clamp(1.35rem, 2vw, 2rem);
+            color: #171717
+        }
+
+        .um6p-home .salon-side {
+            position: relative;
+            min-height: 620px;
+            padding: 0;
+            overflow: hidden;
+            background: #1a1a1a
+        }
+
+        .um6p-home .um6p-campus-frame,
+        .um6p-home .um6p-campus-frame img {
+            width: 100%;
+            height: 100%
+        }
+
+        .um6p-home .um6p-campus-frame img {
+            display: block;
+            object-fit: cover;
+            filter: saturate(.95) contrast(1.04)
+        }
+
+        .um6p-home .um6p-campus-caption {
+            position: absolute;
+            left: clamp(22px, 4vw, 48px);
+            right: clamp(22px, 4vw, 48px);
+            bottom: clamp(22px, 4vw, 48px);
+            background: rgba(23, 23, 23, .82);
+            color: #fff;
+            padding: 22px;
+            border-left: 5px solid #c7511f;
+            backdrop-filter: blur(10px)
+        }
+
+        .um6p-home .um6p-campus-caption h2 {
+            color: #fff;
+            margin: 8px 0;
+            font-size: clamp(1.35rem, 2.4vw, 2.25rem);
+            line-height: 1.1
+        }
+
+        .um6p-home .um6p-campus-caption p {
+            color: rgba(255, 255, 255, .78);
+            margin: 0
+        }
+
+        .um6p-home .top-liked-shell,
+        .um6p-home .ai-launcher,
+        .um6p-home .filters {
+            background: #fff;
+            border: 1px solid rgba(26, 28, 35, .1);
+            padding: clamp(24px, 4vw, 42px);
+            margin-top: 28px
+        }
+
+        .um6p-home .section-head h2 {
+            color: #171717;
+            font-size: clamp(1.75rem, 3.2vw, 3.45rem);
+            letter-spacing: 0;
+            line-height: 1
+        }
+
+        .um6p-home .top-liked-grid,
+        .um6p-home .news-grid {
+            gap: 18px
+        }
+
+        .um6p-home .mini-card {
+            background: #fbfaf7;
+            transition: transform .22s ease
+        }
+
+        .um6p-home .mini-card:hover,
+        .um6p-home .project-card-modern:hover,
+        .um6p-home .news-card:hover {
+            transform: translateY(-4px)
+        }
+
+        .um6p-home .mini-card img,
+        .um6p-home .project-slide img {
+            filter: saturate(.92)
+        }
+
+        .um6p-home .project-category,
+        .um6p-home .tech-pill,
+        .um6p-home .project-stat {
+            border-radius: 2px;
+            background: #f3eee7;
+            color: #7b351b;
+            border-color: #eaded3
+        }
+
+        .um6p-home .project-image-count {
+            border-radius: 2px;
+            background: rgba(23, 23, 23, .74)
+        }
+
+        .um6p-home .project-title,
+        .um6p-home .publication-title {
+            color: #171717;
+            letter-spacing: 0
+        }
+
+        .um6p-home .project-link {
+            color: #c7511f;
+            padding: 0;
+            min-height: auto
+        }
+
+        .um6p-home .filters .form-control,
+        .um6p-home .filters .form-select,
+        .um6p-home .ai-input {
+            border-radius: 2px;
+            border-color: #d8d0c7;
+            background-color: #fff
+        }
+
+        .um6p-home .results-chip,
+        .um6p-home .badge-pill,
+        .um6p-home .ai-chip {
+            border-radius: 2px;
+            background: #efe5dc;
+            color: #7b351b
+        }
+
+        .um6p-home .news-card {
+            min-height: 100%;
+            background: #fff
+        }
+
+        .um6p-home .footer {
+            background: #171717
+        }
+
+        @media (max-width: 1199px) {
+            .um6p-home .salon-grid {
+                grid-template-columns: 1fr;
+                min-height: auto
+            }
+
+            .um6p-home .salon-side {
+                min-height: 520px
+            }
+        }
+
+        @media (max-width: 767px) {
+            .um6p-site .header-inner {
+                min-height: 70px
+            }
+
+            .um6p-home .hero {
+                padding-top: 18px
+            }
+
+            .um6p-home .salon-hero-card {
+                padding: 26px 20px
+            }
+
+            .um6p-home .salon-lead {
+                font-size: clamp(2.25rem, 13vw, 3.8rem)
+            }
+
+            .um6p-home .salon-proof {
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+            }
+
+            .um6p-home .salon-side {
+                min-height: 420px
+            }
+
+            .um6p-home .um6p-campus-caption {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                padding: 18px
+            }
+        }
+        </style>
+
+        <style>
+        .um6p-site .header {
+            background: rgba(255, 250, 244, .97) !important;
+            border-bottom: 1px solid rgba(23, 21, 18, .08) !important;
+            box-shadow: 0 18px 50px -44px rgba(23, 21, 18, .5) !important
+        }
+
+        .um6p-site .logo img {
+            max-height: 50px !important
+        }
+
+        .um6p-site .nav-menu__link {
+            color: #171512 !important;
+            font-weight: 750 !important
+        }
+
+        .um6p-home {
+            background:
+                linear-gradient(180deg, #fffaf4 0%, #f6f1ea 44%, #fffaf4 100%) !important;
+            font-family: "Manrope", "Segoe UI", Roboto, Arial, sans-serif !important
+        }
+
+        .um6p-home .hero {
+            padding: clamp(22px, 4vw, 48px) 0 28px !important
+        }
+
+        .um6p-home .salon-grid {
+            grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr) !important;
+            gap: clamp(18px, 2.6vw, 34px) !important;
+            min-height: auto !important;
+            background: transparent !important;
+            border: 0 !important;
+            align-items: stretch !important
+        }
+
+        .um6p-home .ai-card,
+        .um6p-home .project-card-modern,
+        .um6p-home .news-card,
+        .um6p-home .empty-projects,
+        .um6p-home .mini-card {
+            border-radius: 18px !important;
+            border: 1px solid rgba(23, 21, 18, .1) !important;
+            box-shadow: 0 24px 70px -50px rgba(23, 21, 18, .48) !important;
+            background: #fff !important
+        }
+
+        .um6p-home .salon-hero-card {
+            min-height: 620px !important;
+            padding: clamp(32px, 5.5vw, 70px) !important;
+            background:
+                linear-gradient(145deg, rgba(255, 250, 244, .96), rgba(255, 255, 255, .98)),
+                #fff !important;
+            justify-content: center !important
+        }
+
+        .um6p-home .salon-kicker,
+        .um6p-home .section-head small,
+        .um6p-home .hero-chip {
+            color: #bd4a1f !important;
+            background: #f4e6dc !important;
+            border-radius: 999px !important;
+            padding: 8px 13px !important;
+            letter-spacing: .08em !important;
+            font-weight: 850 !important
+        }
+
+        .um6p-home .salon-lead {
+            color: #171512 !important;
+            font-family: "Sora", "Manrope", "Segoe UI", sans-serif !important;
+            font-size: clamp(2.15rem, 4.45vw, 4.45rem) !important;
+            line-height: 1.08 !important;
+            letter-spacing: 0 !important;
+            max-width: 850px !important;
+            margin: 22px 0 !important
+        }
+
+        .um6p-home .salon-lead .lead-line {
+            color: #171512 !important;
+            display: block !important;
+            max-width: 900px
+        }
+
+        .um6p-home .salon-lead .lead-line--accent {
+            color: #bd4a1f !important
+        }
+
+        .um6p-home .section-copy,
+        .um6p-home .project-text {
+            color: #67615a !important;
+            line-height: 1.7 !important
+        }
+
+        .um6p-home .hero-btn,
+        .um6p-home .hero-btn-outline,
+        .um6p-home .ai-send {
+            border-radius: 12px !important;
+            min-height: 52px !important;
+            padding: 14px 19px !important;
+            box-shadow: none !important
+        }
+
+        .um6p-home .hero-btn {
+            background: #bd4a1f !important;
+            border-color: #bd4a1f !important
+        }
+
+        .um6p-home .hero-btn-outline {
+            background: #fff !important;
+            border: 1px solid #e3d8cc !important;
+            color: #171512 !important
+        }
+
+        .um6p-home .salon-proof {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+            border-top: 0 !important;
+            margin-top: 34px !important;
+            padding-top: 0 !important
+        }
+
+        .um6p-home .salon-proof__item {
+            border: 1px solid #eaded3 !important;
+            border-radius: 14px !important;
+            padding: 17px !important;
+            background: #fffaf7 !important
+        }
+
+        .um6p-home .salon-proof__item strong {
+            color: #171512 !important;
+            font-size: clamp(1.25rem, 2vw, 1.85rem) !important
+        }
+
+        .um6p-home .salon-side {
+            min-height: 620px !important;
+            border-radius: 18px !important;
+            background: #123c34 !important
+        }
+
+        .um6p-home .um6p-campus-frame img {
+            border-radius: 18px !important
+        }
+
+        .um6p-home .um6p-campus-caption {
+            left: 28px !important;
+            right: 28px !important;
+            bottom: 28px !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(255, 250, 244, .16) !important;
+            border-left: 5px solid #bd4a1f !important;
+            background: rgba(18, 60, 52, .88) !important
+        }
+
+        .um6p-home .top-liked-shell,
+        .um6p-home .ai-launcher,
+        .um6p-home .filters {
+            border-radius: 18px !important;
+            background: #fff !important;
+            border: 1px solid rgba(23, 21, 18, .1) !important;
+            padding: clamp(24px, 4vw, 42px) !important;
+            box-shadow: 0 24px 70px -52px rgba(23, 21, 18, .42) !important
+        }
+
+        .um6p-home .section-head h2 {
+            color: #171512 !important;
+            line-height: 1.05 !important;
+            letter-spacing: 0 !important
+        }
+
+        .um6p-home .mini-card,
+        .um6p-home .project-card-modern {
+            overflow: hidden !important;
+            transition: transform .22s ease, box-shadow .22s ease !important
+        }
+
+        .um6p-home .mini-card:hover,
+        .um6p-home .project-card-modern:hover,
+        .um6p-home .news-card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 30px 78px -50px rgba(23, 21, 18, .55) !important
+        }
+
+        .um6p-home .project-body,
+        .um6p-home .mini-card__body,
+        .um6p-home .news-card {
+            padding: 22px !important
+        }
+
+        .um6p-home .project-title,
+        .um6p-home .publication-title {
+            color: #171512 !important;
+            font-weight: 850 !important;
+            line-height: 1.22 !important
+        }
+
+        .um6p-home .project-category,
+        .um6p-home .project-stat,
+        .um6p-home .tech-pill,
+        .um6p-home .badge-pill,
+        .um6p-home .results-chip,
+        .um6p-home .ai-chip {
+            border-radius: 999px !important;
+            background: #f4e6dc !important;
+            color: #873115 !important;
+            border: 1px solid #eaded3 !important
+        }
+
+        .um6p-home .project-link {
+            color: #bd4a1f !important;
+            font-weight: 850 !important
+        }
+
+        .um6p-home .filters .form-control,
+        .um6p-home .filters .form-select,
+        .um6p-home .ai-input {
+            border-radius: 12px !important;
+            border: 1px solid #e3d8cc !important;
+            min-height: 52px !important
+        }
+
+        .um6p-home .page-nav {
+            border-radius: 12px !important
+        }
+
+        .um6p-home .page-nav.is-active {
+            background: #bd4a1f !important
+        }
+
+        @media (max-width: 1199px) {
+            .um6p-home .salon-grid {
+                grid-template-columns: 1fr !important
+            }
+
+            .um6p-home .salon-hero-card,
+            .um6p-home .salon-side {
+                min-height: auto !important
+            }
+
+            .um6p-home .salon-side {
+                height: 520px !important
+            }
+        }
+
+        @media (max-width: 767px) {
+            .um6p-home .salon-proof {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important
+            }
+
+            .um6p-home .salon-side {
+                height: 430px !important
+            }
+
+            .um6p-home .um6p-campus-caption {
+                left: 16px !important;
+                right: 16px !important;
+                bottom: 16px !important
+            }
+        }
+
+        .um6p-home .catalogue-filter-grid {
+            display: grid !important;
+            grid-template-columns: minmax(260px, 1.2fr) minmax(210px, .85fr) minmax(150px, .55fr) minmax(170px, auto) !important;
+            gap: 16px !important;
+            align-items: end !important;
+            margin-top: 24px !important
+        }
+
+        .um6p-home .filter-actions {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 10px !important
+        }
+
+        .um6p-home .filter-actions .hero-btn,
+        .um6p-home .filter-actions .hero-btn-outline {
+            width: 100% !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            margin: 0 !important
+        }
+
+        .um6p-home .empty-projects {
+            display: grid !important;
+            grid-template-columns: auto minmax(0, 1fr) !important;
+            gap: 24px !important;
+            align-items: center !important;
+            padding: clamp(28px, 5vw, 54px) !important;
+            min-height: 280px !important;
+            background: radial-gradient(circle at 100% 0%, rgba(189, 74, 31, .12), transparent 32%), linear-gradient(135deg, #ffffff, #fffaf4) !important;
+            overflow: hidden !important
+        }
+
+        .um6p-home .empty-projects__icon {
+            width: clamp(82px, 10vw, 118px) !important;
+            height: clamp(82px, 10vw, 118px) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 28px !important;
+            background: #123c34 !important;
+            color: #fffaf4 !important;
+            animation: public-float 3.6s ease-in-out infinite !important
+        }
+
+        .um6p-home .empty-projects__icon i {
+            font-size: clamp(2.35rem, 5vw, 4rem) !important
+        }
+
+        .um6p-home .empty-projects__eyebrow {
+            display: inline-flex !important;
+            margin-bottom: 10px !important;
+            border-radius: 999px !important;
+            padding: 8px 12px !important;
+            background: #f4e6dc !important;
+            color: #873115 !important;
+            font-size: .78rem !important;
+            font-weight: 850 !important;
+            letter-spacing: .08em !important;
+            text-transform: uppercase !important
+        }
+
+        .um6p-home .empty-projects h3 {
+            margin: 0 0 10px !important;
+            font-family: "Sora", "Manrope", sans-serif !important;
+            color: #171512 !important;
+            font-size: clamp(1.55rem, 3vw, 2.55rem) !important;
+            line-height: 1.08 !important
+        }
+
+        .um6p-home .empty-projects p {
+            margin: 0 0 22px !important;
+            color: #67615a !important;
+            line-height: 1.75 !important
+        }
+
+        .um6p-home .empty-projects__actions {
+            display: flex !important;
+            gap: 12px !important;
+            flex-wrap: wrap !important
+        }
+
+        .um6p-home .empty-projects__actions .hero-btn,
+        .um6p-home .empty-projects__actions .hero-btn-outline {
+            margin: 0 !important
+        }
+
+        .um6p-home .home-department-card {
+            padding: 0 !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important
+        }
+
+        .um6p-home .home-department-card__media {
+            position: relative !important;
+            display: block !important;
+            height: 190px !important;
+            overflow: hidden !important;
+            background: #f4e6dc !important
+        }
+
+        .um6p-home .home-department-card__media img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+            transition: transform .7s cubic-bezier(.2, .8, .2, 1), filter .3s ease !important
+        }
+
+        .um6p-home .home-department-card:hover .home-department-card__media img {
+            transform: scale(1.06) !important;
+            filter: saturate(1.05) !important
+        }
+
+        .um6p-home .home-department-card__media span {
+            position: absolute !important;
+            right: 14px !important;
+            bottom: 14px !important;
+            min-width: 42px !important;
+            height: 34px !important;
+            padding: 0 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 999px !important;
+            background: rgba(18, 60, 52, .84) !important;
+            color: #fffaf4 !important;
+            font-weight: 850 !important
+        }
+
+        .um6p-home .home-department-card__body {
+            padding: 22px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex: 1 !important
+        }
+
+        .um6p-home .home-department-card .badge-pill {
+            width: fit-content !important;
+            gap: 7px !important;
+            margin-bottom: 14px !important
+        }
+
+        .um6p-home .home-department-card .project-link {
+            margin-top: auto !important
+        }
+
+        @media (max-width:1199px) {
+            .um6p-home .catalogue-filter-grid {
+                grid-template-columns: 1fr 1fr !important
+            }
+
+            .um6p-home .filter-field--search,
+            .um6p-home .filter-actions {
+                grid-column: span 2 !important
+            }
+
+            .um6p-home .filter-actions {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important
+            }
+        }
+
+        @media (max-width:767px) {
+            .um6p-home .catalogue-filter-grid {
+                grid-template-columns: 1fr !important
+            }
+
+            .um6p-home .filter-field--search,
+            .um6p-home .filter-actions {
+                grid-column: auto !important
+            }
+
+            .um6p-home .filter-actions,
+            .um6p-home .empty-projects {
+                grid-template-columns: 1fr !important
+            }
+        }
+        </style>
+
         <section class="hero">
             <div class="container">
                 <div class="salon-grid">
                     <div class="ai-card salon-hero-card">
                         <div class="salon-kicker"><i class='bx bx-badge-check'></i> Pret pour un salon numerique</div>
-                        <h1 class="salon-lead">La plateforme qui <span>valorise</span> les projets etudiants, guide les
-                            visiteurs et facilite la mise en relation.</h1>
+                        <h1 class="salon-lead">
+                            <span class="lead-line">La plateforme qui</span>
+                            <span class="lead-line lead-line--accent">valorise les projets étudiants</span>
+                            <span class="lead-line">et facilite la mise en relation.</span>
+                        </h1>
                         <p class="section-copy">Cette vitrine presente les projets du departement comme de vraies
                             solutions numeriques : visibles, comparables, mieux expliques et directement reliables a
                             leurs proprietaires.</p>
@@ -1130,31 +1959,17 @@ $departmentOpportunities = $departmentOpportunities ?? [];
                         </div>
                     </div>
                     <div class="ai-card salon-side">
-                        <div class="section-head mb-0">
-                            <small style="color:#5eead4">Demonstration</small>
-                            <h2 style="color:#fff">Pourquoi cette plateforme marque en presentation</h2>
-                            <p class="section-copy">Elle combine visibilite, tri intelligent, interaction humaine et
-                                lecture immediate de la valeur des projets.</p>
+                        <div class="um6p-campus-frame um6p-hero-carousel">
+                            <?php foreach ($heroSlides as $index => $slide): ?>
+                            <div class="um6p-hero-slide <?= $index === 0 ? 'is-active' : '' ?>">
+                                <img src="<?= htmlspecialchars($slide) ?>" alt="Projet mis en avant <?= $index + 1 ?>">
+                            </div>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="salon-checklist">
-                            <div class="salon-check"><i class='bx bx-check-circle'></i>
-                                <div><strong>Lecture immediate</strong>
-                                    <div class="section-copy mb-0">Les tops, les likes, les avis et les fiches
-                                        detaillees donnent tout de suite de la credibilite.</div>
-                                </div>
-                            </div>
-                            <div class="salon-check"><i class='bx bx-check-circle'></i>
-                                <div><strong>Orientation intelligente</strong>
-                                    <div class="section-copy mb-0">L'assistant IA guide le visiteur vers les projets les
-                                        plus utiles selon son besoin.</div>
-                                </div>
-                            </div>
-                            <div class="salon-check"><i class='bx bx-check-circle'></i>
-                                <div><strong>Mise en relation directe</strong>
-                                    <div class="section-copy mb-0">Le visiteur peut contacter le proprietaire et passer
-                                        de la curiosite a l'echange concret.</div>
-                                </div>
-                            </div>
+                        <div class="um6p-campus-caption">
+                            <small>Vitrine publique</small>
+                            <h2><?= htmlspecialchars((string) ($featuredProject['title'] ?? 'Innovation et projets etudiants')) ?></h2>
+                            <p>Une experience d'accueil plus institutionnelle, visuelle et orientee salon numerique.</p>
                         </div>
                     </div>
                 </div>
@@ -1271,12 +2086,12 @@ $departmentOpportunities = $departmentOpportunities ?? [];
                 </div>
                 <form method="get" action="<?= ROOT ?>/Homes/index" id="projectFilterForm">
                     <input type="hidden" name="page" value="<?= $currentPage ?>" id="projectPageInput">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-lg-4"><label class="form-label fw-semibold">Recherche</label><input type="text"
+                    <div class="catalogue-filter-grid">
+                        <div class="filter-field filter-field--search"><label class="form-label fw-semibold">Recherche</label><input type="text"
                                 name="search" class="form-control" id="projectSearchInput"
                                 value="<?= htmlspecialchars($projectSearch) ?>"
                                 placeholder="Titre, techno, categorie, auteur..."></div>
-                        <div class="col-lg-3"><label class="form-label fw-semibold">Categorie</label><select
+                        <div class="filter-field"><label class="form-label fw-semibold">Categorie</label><select
                                 name="category" class="form-select" id="projectCategorySelect">
                                 <option value="">Toutes les categories</option>
                                 <?php foreach ($projectCategories as $category): ?><option
@@ -1285,15 +2100,15 @@ $departmentOpportunities = $departmentOpportunities ?? [];
                                     <?= htmlspecialchars((string) ($category->nom ?? 'Sans nom')) ?></option>
                                 <?php endforeach; ?>
                             </select></div>
-                        <div class="col-lg-3"><label class="form-label fw-semibold">Par page</label><select
+                        <div class="filter-field"><label class="form-label fw-semibold">Par page</label><select
                                 name="per_page" class="form-select"
                                 id="perPageSelect"><?php foreach ([5,10,15,20] as $option): ?><option
                                     value="<?= $option ?>" <?= $perPage === $option ? 'selected' : '' ?>><?= $option ?>
                                     projets</option><?php endforeach; ?></select></div>
-                        <div class="col-md-6 col-lg-1"><button type="submit" class="hero-btn w-100 border-0">OK</button>
-                        </div>
-                        <div class="col-md-6 col-lg-1"><a href="<?= ROOT ?>/Homes/index"
-                                class="hero-btn-outline w-100 justify-content-center" id="projectFilterReset">Reset</a>
+                        <div class="filter-actions">
+                            <button type="submit" class="hero-btn border-0"><i class='bx bx-search'></i> Rechercher</button>
+                            <a href="<?= ROOT ?>/Homes/index"
+                                class="hero-btn-outline justify-content-center" id="projectFilterReset"><i class='bx bx-reset'></i> Reset</a>
                         </div>
                     </div>
                 </form>
@@ -1314,46 +2129,31 @@ $departmentOpportunities = $departmentOpportunities ?? [];
                     l'espace principal reserve a la decouverte des projets.</p>
             </div>
             <div class="news-grid">
-                <?php foreach ($departmentAnnouncements as $item): ?><article class="news-card"><span
-                        class="badge-pill badge-ann">Annonce</span>
-                    <h3 class="publication-title"><?= htmlspecialchars((string) ($item['title'] ?? 'Sans titre')) ?>
-                    </h3>
-                    <div class="news-meta mb-2 text-muted"><span><i
-                                class='bx bx-calendar'></i><?= htmlspecialchars((string) ($item['date'] ?? '')) ?></span>
-                    </div>
-                    <p class="publication-text">
-                        <?= htmlspecialchars(mb_strimwidth((string) ($item['content'] ?? ''), 0, 120, '...')) ?></p>
-                </article><?php endforeach; ?>
-                <?php foreach ($departmentInformations as $item): ?><article class="news-card"><span
-                        class="badge-pill badge-info">Information</span>
-                    <h3 class="publication-title"><?= htmlspecialchars((string) ($item['title'] ?? 'Sans titre')) ?>
-                    </h3>
-                    <div class="news-meta mb-2 text-muted"><span><i
-                                class='bx bx-calendar'></i><?= htmlspecialchars((string) ($item['date'] ?? '')) ?></span>
-                    </div>
-                    <p class="publication-text">
-                        <?= htmlspecialchars(mb_strimwidth((string) ($item['content'] ?? ''), 0, 120, '...')) ?></p>
-                </article><?php endforeach; ?>
-                <?php foreach ($departmentResults as $item): ?><article class="news-card"><span
-                        class="badge-pill badge-res">Resultat</span>
-                    <h3 class="publication-title"><?= htmlspecialchars((string) ($item['title'] ?? 'Sans titre')) ?>
-                    </h3>
-                    <div class="news-meta mb-2 text-muted"><span><i
-                                class='bx bx-calendar'></i><?= htmlspecialchars((string) ($item['date'] ?? '')) ?></span>
-                    </div>
-                    <p class="publication-text">
-                        <?= htmlspecialchars(mb_strimwidth((string) ($item['content'] ?? ''), 0, 120, '...')) ?></p>
-                </article><?php endforeach; ?>
-                <?php foreach ($departmentOpportunities as $item): ?><article class="news-card"><span
-                        class="badge-pill badge-op">Opportunite</span>
-                    <h3 class="publication-title"><?= htmlspecialchars((string) ($item['title'] ?? 'Sans titre')) ?>
-                    </h3>
-                    <div class="news-meta mb-2 text-muted"><span><i
-                                class='bx bx-calendar'></i><?= htmlspecialchars((string) ($item['date'] ?? '')) ?></span>
-                    </div>
-                    <p class="publication-text">
-                        <?= htmlspecialchars(mb_strimwidth((string) ($item['content'] ?? ''), 0, 120, '...')) ?></p>
-                </article><?php endforeach; ?>
+                <?php foreach ($homeDepartmentSections as $section): ?>
+                    <?php foreach ($section['items'] as $item): ?>
+                        <?php
+                        $files = $item['files'] ?? [];
+                        $imageFiles = array_values(array_filter($files, static fn($file) => home_department_file_is_image($file)));
+                        ?>
+                        <article class="news-card home-department-card">
+                            <?php if (!empty($imageFiles)): ?>
+                                <a class="home-department-card__media" href="<?= ROOT ?>/Homes/department_publication_detail/<?= (int) ($item['id'] ?? 0) ?>">
+                                    <img src="<?= htmlspecialchars((string) ($imageFiles[0]['url'] ?? '')) ?>" alt="<?= htmlspecialchars((string) ($item['title'] ?? 'Publication')) ?>">
+                                    <?php if (count($imageFiles) > 1): ?>
+                                        <span>+<?= count($imageFiles) - 1 ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endif; ?>
+                            <div class="home-department-card__body">
+                                <span class="badge-pill <?= htmlspecialchars($section['class']) ?>"><i class='<?= htmlspecialchars($section['icon']) ?>'></i><?= htmlspecialchars($section['label']) ?></span>
+                                <h3 class="publication-title"><?= htmlspecialchars((string) ($item['title'] ?? 'Sans titre')) ?></h3>
+                                <div class="news-meta mb-2 text-muted"><span><i class='bx bx-calendar'></i><?= htmlspecialchars((string) ($item['date'] ?? '')) ?></span></div>
+                                <p class="publication-text"><?= htmlspecialchars(mb_strimwidth((string) ($item['content'] ?? ''), 0, 130, '...')) ?></p>
+                                <a class="project-link" href="<?= ROOT ?>/Homes/department_publication_detail/<?= (int) ($item['id'] ?? 0) ?>">Voir la publication <i class='bx bx-right-arrow-alt'></i></a>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
             </div>
         </section>
 
@@ -1449,10 +2249,37 @@ $departmentOpportunities = $departmentOpportunities ?? [];
                     arrows: true,
                     dots: true,
                     infinite: true,
-                    speed: 450,
+                    autoplay: true,
+                    autoplaySpeed: 3600,
+                    pauseOnHover: true,
+                    speed: 700,
+                    cssEase: 'cubic-bezier(.2,.8,.2,1)',
                     prevArrow: '<button type="button" class="slick-prev" aria-label="Image precedente"><i class="bx bx-chevron-left"></i></button>',
                     nextArrow: '<button type="button" class="slick-next" aria-label="Image suivante"><i class="bx bx-chevron-right"></i></button>'
                 });
+            });
+        }
+
+        function initRevealOnScroll() {
+            const items = document.querySelectorAll('.mini-card, .project-card-modern, .news-card, .ai-launcher, .filters');
+            if (!('IntersectionObserver' in window)) {
+                items.forEach(function(item) {
+                    item.classList.add('is-visible');
+                });
+                return;
+            }
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                threshold: 0.12
+            });
+            items.forEach(function(item) {
+                item.classList.add('reveal-item');
+                observer.observe(item);
             });
         }
 
@@ -1587,6 +2414,7 @@ $departmentOpportunities = $departmentOpportunities ?? [];
         });
 
         initProjectCarousels();
+        initRevealOnScroll();
     })(jQuery);
     </script>
 </body>

@@ -16,6 +16,16 @@ $perPage = (int) ($perPage ?? 10);
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $totalItems = max(0, (int) ($totalItems ?? count($projects ?? [])));
 $paginationQuery = (string) ($paginationQuery ?? '');
+$dashboardStats = $dashboardStats ?? [];
+$pendingCount = (int) ($dashboardStats['pending'] ?? 0);
+$validatedCount = (int) ($dashboardStats['validated'] ?? 0);
+$rejectedCount = (int) ($dashboardStats['rejected'] ?? 0);
+$projectStatusFilters = [
+    ['value' => 'all', 'label' => 'Tous', 'count' => $pendingCount + $validatedCount + $rejectedCount],
+    ['value' => 'en_attente', 'label' => 'A valider', 'count' => $pendingCount],
+    ['value' => 'valide', 'label' => 'Valides', 'count' => $validatedCount],
+    ['value' => 'rejete', 'label' => 'Rejetes', 'count' => $rejectedCount],
+];
 ?>
 <style>
 :root {
@@ -149,6 +159,51 @@ body {
     color: white;
     border-color: var(--primary-color);
 }
+
+.status-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 42px;
+    padding: .65rem 1rem;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: var(--text-main);
+    border: 1px solid #e2e8f0;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.status-filter-tab:hover,
+.status-filter-tab.is-active {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.status-filter-tab__count {
+    min-width: 26px;
+    height: 24px;
+    padding: 0 .45rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, .08);
+    font-size: .76rem;
+}
+
+.status-filter-tab.is-active .status-filter-tab__count,
+.status-filter-tab:hover .status-filter-tab__count {
+    background: rgba(255, 255, 255, .22);
+}
 </style>
 <section class="dashboard">
     <div class="dashboard__inner d-flex">
@@ -165,17 +220,26 @@ body {
                             </a>
                             <div>
                                 <h3 class="mb-0 fw-800 text-primary">Gestion des Projets</h3>
-                                <p class="text-muted small mb-0">Vue d'ensemble et contrôle global de la plateforme</p>
+                                <p class="text-muted small mb-0">Validation, suivi et moderation dans un seul module</p>
                             </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                             <a href="<?= ROOT ?>/Admins/pending_projects" class="btn btn-warning btn-sm rounded-pill px-4">⌛ File d'attente</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="card common-card">
                     <div class="card-body p-4">
+                        <div class="status-filter-tabs" aria-label="Filtres rapides par statut">
+                            <?php foreach ($projectStatusFilters as $statusFilter): ?>
+                                <?php
+                                $query = $statusFilter['value'] === 'all' ? '' : ('?status=' . urlencode($statusFilter['value']));
+                                $isActive = $projectStatusFilter === $statusFilter['value'];
+                                ?>
+                                <a class="status-filter-tab <?= $isActive ? 'is-active' : '' ?>" href="<?= ROOT ?>/Admins/projects_management<?= $query ?>">
+                                    <span><?= htmlspecialchars($statusFilter['label']) ?></span>
+                                    <span class="status-filter-tab__count"><?= (int) $statusFilter['count'] ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
 
                         <div class="filter-shelf">
                             <form method="GET" action="<?= ROOT ?>/Admins/projects_management" class="row gy-3">

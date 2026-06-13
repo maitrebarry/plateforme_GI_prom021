@@ -67,15 +67,6 @@
                             </li>
                             <?php elseif ($role === 'admin'): ?>
                             <li class="sidebar-list__item">
-                                <a href="<?= ROOT ?>/Admins/pending_projects" class="sidebar-list__link">
-                                    <span class="sidebar-list__icon">
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon10.svg" alt="" class="icon">
-                                        <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active10.svg" alt="" class="icon icon-active">
-                                    </span>
-                                    <span class="text">Projets a valider</span>
-                                </a>
-                            </li>
-                            <li class="sidebar-list__item">
                                 <a href="<?= ROOT ?>/Admins/projects_management" class="sidebar-list__link">
                                     <span class="sidebar-list__icon">
                                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon3.svg" alt="" class="icon">
@@ -138,7 +129,7 @@
                                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon13.svg" alt="" class="icon">
                                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active13.svg" alt="" class="icon icon-active">
                                     </span>
-                                    <span class="text">Logout</span>
+                                    <span class="text">Déconnexion</span>
                                 </a>
                             </li>
                         </ul>

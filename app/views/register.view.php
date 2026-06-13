@@ -1,6 +1,6 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Inscription']); ?>
 
-<body>
+<body class="public-site public-auth public-register">
     <style>
         /* Styles principaux pour les deux cartes */
         .two-cards-section {
@@ -513,4 +513,4 @@
     </script>
 </body>
 
-</html
+</html>

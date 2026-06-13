@@ -1,6 +1,6 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Connexion']); ?>
 
-<body>
+<body class="public-site public-auth">
     <style>
         /* Styles principaux pour les deux cartes */
         .two-cards-section {
@@ -341,7 +341,7 @@
                         <div class="modern-card image-card">
                             <div class="image-card-content">
                                 <div class="welcome-badge">
-                                    <span>✨ Bienvenue sur N'kakodon ✨</span>
+                                    <span>Bienvenue sur N'kakodon</span>
                                 </div>
                                 <img src="<?= ROOT ?>/assets/images/logo/login.png" alt="Connexion" style="max-width: 260px;">
                                 <h2>Heureux de vous revoir !</h2>
@@ -368,7 +368,7 @@
                     <div class="col-lg-6">
                         <div class="modern-card form-card">
                             <div class="form-card-header">
-                                <a href="index.html" class="logo">
+                                <a href="<?= ROOT ?>/Homes/index" class="logo">
                                     <img src="<?= ROOT ?>/assets/images/logo/n'kakodon.png" alt="N'kakodon">
                                 </a>
                                 <h3>Connexion</h3>

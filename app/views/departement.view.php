@@ -1,5 +1,5 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Espace Département']); ?>
-<body>
+<body class="public-site public-department">
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
 <?php $this->view('Partials/header'); ?>
@@ -15,6 +15,13 @@ $perPage = (int) ($perPage ?? 6);
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $totalItems = max(0, (int) ($totalItems ?? count($departmentPosts)));
 $paginationQuery = (string) ($paginationQuery ?? '');
+$departmentStatCards = [
+    ['label' => 'Annonces', 'value' => (int) ($departmentStats['annonces'] ?? 0), 'icon' => 'bx bx-megaphone', 'class' => 'annonce'],
+    ['label' => 'Informations', 'value' => (int) ($departmentStats['informations'] ?? 0), 'icon' => 'bx bx-info-circle', 'class' => 'information'],
+    ['label' => 'Événements', 'value' => (int) ($departmentStats['evenements'] ?? 0), 'icon' => 'bx bx-calendar-event', 'class' => 'evenement'],
+    ['label' => 'Résultats', 'value' => (int) ($departmentStats['resultats'] ?? 0), 'icon' => 'bx bx-award', 'class' => 'resultat'],
+    ['label' => 'Opportunités', 'value' => (int) ($departmentStats['opportunites'] ?? 0), 'icon' => 'bx bx-briefcase-alt-2', 'class' => 'opportunite'],
+];
 ?>
 <style>
 .department-card,
@@ -136,11 +143,13 @@ $paginationQuery = (string) ($paginationQuery ?? '');
     <section class="padding-y-120" data-dynamic-block="department-space">
         <div class="container container-two">
             <div class="department-stats-grid">
-                <div class="department-stat"><span>Annonces</span><strong><?= (int) ($departmentStats['annonces'] ?? 0) ?></strong></div>
-                <div class="department-stat"><span>Informations</span><strong><?= (int) ($departmentStats['informations'] ?? 0) ?></strong></div>
-                <div class="department-stat"><span>Evenements</span><strong><?= (int) ($departmentStats['evenements'] ?? 0) ?></strong></div>
-                <div class="department-stat"><span>Resultats</span><strong><?= (int) ($departmentStats['resultats'] ?? 0) ?></strong></div>
-                <div class="department-stat"><span>Opportunites</span><strong><?= (int) ($departmentStats['opportunites'] ?? 0) ?></strong></div>
+                <?php foreach ($departmentStatCards as $stat): ?>
+                    <div class="department-stat department-stat--<?= htmlspecialchars($stat['class']) ?>">
+                        <span class="department-stat__icon"><i class='<?= htmlspecialchars($stat['icon']) ?>'></i></span>
+                        <span class="department-stat__label"><?= htmlspecialchars($stat['label']) ?></span>
+                        <strong><?= (int) $stat['value'] ?></strong>
+                    </div>
+                <?php endforeach; ?>
             </div>
 
             <div class="card common-card department-card" data-dynamic-block="department-latest-posts">

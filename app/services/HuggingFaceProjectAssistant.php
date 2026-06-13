@@ -76,6 +76,33 @@ class HuggingFaceProjectAssistant
         return $this->buildLocalProjectResponse($message, $projectContext, $history);
     }
 
+    public function answerForPlatform(string $message, array $pageContext = [], array $history = []): array
+    {
+        $role = (string) ($pageContext['role'] ?? 'utilisateur');
+        $pageTitle = (string) ($pageContext['title'] ?? 'page inconnue');
+        $pagePath = (string) ($pageContext['path'] ?? '');
+
+        $systemPrompt = "Tu es N'KadonBot, l'assistant conversationnel integre a Plateforme GI Promo 21. "
+            . "Ta mission est d'aider les visiteurs, etudiants, administrateurs et responsables DER a utiliser la plateforme. "
+            . "Tu reponds en francais par defaut, avec un ton clair, professionnel, chaleureux et concis. "
+            . "Contexte utilisateur: role actuel = {$role}. Page actuelle = {$pageTitle}. Chemin = {$pagePath}. "
+            . "Fonctionnalites connues: accueil, catalogue des projets, recherche de projets, details de projet, publication et modification de projet, profil, tableau de bord etudiant, messages visiteurs, espace DER, annonces, gestion des utilisateurs, categories, statistiques et administration des projets. "
+            . "Regles: donne des etapes pratiques adaptees a la page et au role; reste dans le contexte de la plateforme, des projets etudiants et du departement GI; ne demande jamais de mot de passe, de cle API ou de donnee sensible; si une action exacte n'est pas certaine, propose une demarche prudente.";
+
+        $userPrompt = "Historique recent :\n"
+            . $this->formatHistoryForPrompt($history)
+            . "\n\nQuestion utilisateur : " . $message;
+
+        if ($this->isConfigured()) {
+            $response = $this->request($systemPrompt, $userPrompt);
+            if (($response['ok'] ?? false) === true) {
+                return $response;
+            }
+        }
+
+        return $this->buildLocalPlatformResponse($message, $pageContext, $history);
+    }
+
     private function request(string $instructions, string $input): array
     {
         if (!$this->isConfigured()) {
@@ -250,6 +277,43 @@ class HuggingFaceProjectAssistant
                 'Ce projet est-il adapte a un debutant ?',
                 'Quels sont ses points forts pour une demonstration ?',
                 'Quelles ameliorations prioritaires proposer ?',
+            ],
+        ];
+    }
+
+    private function buildLocalPlatformResponse(string $message, array $pageContext, array $history = []): array
+    {
+        $question = mb_strtolower(trim($message));
+        $pageTitle = trim((string) ($pageContext['title'] ?? 'cette page'));
+        $role = trim((string) ($pageContext['role'] ?? ($_SESSION['role'] ?? 'utilisateur')));
+
+        if (preg_match('/^(salut|bonjour|bonsoir|hello|coucou|hey)\b/u', $question)) {
+            $message = "Salut, je vais bien merci. Je suis N'KadonBot, pret a t'aider sur la plateforme. Tu veux qu'on regarde les projets, les utilisateurs, les messages ou une action d'administration ?";
+        } elseif (str_contains($question, 'tu vas bien') || str_contains($question, 'ca va') || str_contains($question, 'ça va')) {
+            $message = "Oui, ca va bien, merci. Je suis la pour t'aider tranquillement. Dis-moi ce que tu veux faire sur Plateforme GI Promo 21 et je te guide.";
+        } elseif (str_contains($question, 'publier') || str_contains($question, 'projet')) {
+            $message = "Pour publier ou gerer un projet, va dans ton espace etudiant, ouvre la section de publication, renseigne le titre, la categorie, la description et les technologies, puis ajoute les fichiers ou images utiles avant validation.";
+        } elseif (str_contains($question, 'message') || str_contains($question, 'contact')) {
+            $message = "Pour les messages, ouvre ton tableau de bord puis la section Messages. Tu peux consulter les demandes des visiteurs et repondre selon ton role.";
+        } elseif (str_contains($question, 'profil') || str_contains($question, 'compte')) {
+            $message = "Pour modifier ton profil, ouvre Mon espace puis Profil. Verifie tes informations personnelles, ton universite, ta filiere et ta photo avant d'enregistrer.";
+        } elseif (str_contains($question, 'admin') || str_contains($question, 'utilisateur') || str_contains($question, 'categorie')) {
+            $message = "Pour l'administration, utilise les menus de gestion des utilisateurs, categories, projets et statistiques. Le mieux est de faire une action a la fois, puis de verifier le resultat dans le tableau de bord.";
+        } elseif (str_contains($question, 'der') || str_contains($question, 'annonce') || str_contains($question, 'departement')) {
+            $message = "Pour l'espace DER, utilise les annonces et publications du departement pour partager les informations officielles avec les etudiants et les visiteurs.";
+        } else {
+            $context = ($pageTitle !== '' && $pageTitle !== 'cette page') ? "Je vois que tu es sur {$pageTitle}. " : '';
+            $message = $context . "Je peux t'aider sur la recherche de projets, la publication, le profil, les messages, l'espace DER ou l'administration. Dis-moi simplement ce que tu veux faire.";
+        }
+
+        return [
+            'ok' => true,
+            'mode' => 'local',
+            'message' => $message,
+            'suggestions' => [
+                'Comment publier un projet ?',
+                'Comment gerer mes messages ?',
+                'Comment modifier mon profil ?',
             ],
         ];
     }

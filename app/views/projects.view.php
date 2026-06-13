@@ -1,5 +1,5 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Projets']); ?>
-<body>
+<body class="public-site public-list">
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
 <?php $this->view('Partials/header'); ?>
