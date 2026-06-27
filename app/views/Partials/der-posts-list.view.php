@@ -26,12 +26,12 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 
 .der-post-card:hover {
     box-shadow: 0 10px 25px -10px rgba(0,0,0,0.1);
-    border-color: #e0e7ff;
+    border-color: var(--ds-brand-100);
 }
 
 .der-post-card.active-edit {
-    border: 2px solid #6366f1;
-    box-shadow: 0 0 0 4px rgba(99,102,241,0.08);
+    border: 2px solid var(--ds-brand-600);
+    box-shadow: 0 0 0 4px rgba(var(--ds-brand-rgb),0.08);
 }
 
 .der-post-card h5 {
@@ -49,7 +49,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
     padding: 4px 14px;
     border-radius: 999px;
     background: #ede9fe;
-    color: #5b21b6;
+    color: var(--ds-brand-800);
     font-weight: 800;
     font-size: .73rem;
     text-transform: uppercase;
@@ -99,8 +99,8 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 .der-inline-form select:focus,
 .der-inline-form textarea:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    border-color: var(--ds-brand-600);
+    box-shadow: 0 0 0 3px rgba(var(--ds-brand-rgb),0.1);
 }
 
 /* File links */
@@ -121,7 +121,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 
 .der-file-link:hover {
     background: #f1f5f9;
-    border-color: #c7d2fe;
+    border-color: var(--ds-brand-200);
 }
 
 /* Action buttons inside cards */
@@ -141,13 +141,13 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 
 .btn-action-sm:hover { transform: translateY(-2px); }
 
-.btn-action-sm--primary   { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
-.btn-action-sm--success   { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
-.btn-action-sm--warning   { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
-.btn-action-sm--danger    { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-.btn-action-sm--secondary { background: #94a3b8; color: #fff; }
-.btn-action-sm--ghost     { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-.btn-action-sm--ghost:hover { background: #e2e8f0; color: #0f172a; }
+.btn-action-sm--primary   { background: var(--ds-brand-600); color: #fff; }
+.btn-action-sm--success   { background: var(--ds-success, #1f8a64); color: #fff; }
+.btn-action-sm--warning   { background: var(--ds-accent); color: #3d2900; }
+.btn-action-sm--danger    { background: var(--ds-danger); color: #fff; }
+.btn-action-sm--secondary { background: var(--ds-surface-2); color: var(--ds-ink); border: 1px solid var(--ds-border); }
+.btn-action-sm--ghost     { background: var(--ds-surface-2); color: var(--ds-ink); border: 1px solid var(--ds-border); }
+.btn-action-sm--ghost:hover { background: var(--ds-brand-50); color: var(--ds-brand-700); }
 
 /* Empty state */
 .der-empty {
@@ -191,7 +191,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 </style>
 
 <div class="der-results-header">
-    <h6>📋 Publications DER</h6>
+    <h6><i class='bx bx-news'></i> Publications DER</h6>
     <span class="der-count-pill"><?= $totalItems ?> élément<?= $totalItems > 1 ? 's' : '' ?></span>
 </div>
 
@@ -206,16 +206,16 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
                 <div class="d-flex gap-2 flex-wrap align-items-center">
                     <span class="der-type-badge"><?= htmlspecialchars((string) ($post->type ?? 'publication')) ?></span>
                     <?php if ((int) ($post->is_archived ?? 0) === 1): ?>
-                        <span style="padding:4px 12px;border-radius:999px;background:#f1f5f9;color:#64748b;font-size:.73rem;font-weight:800;">🗄️ Archivée</span>
+                        <span style="padding:4px 12px;border-radius:999px;background:var(--ds-surface-2);color:var(--ds-muted);font-size:.73rem;font-weight:800;"><i class='bx bx-archive'></i> Archivée</span>
                     <?php else: ?>
-                        <span style="padding:4px 12px;border-radius:999px;background:#f0fdf4;color:#059669;font-size:.73rem;font-weight:800;">✅ Active</span>
+                        <span style="padding:4px 12px;border-radius:999px;background:#e4f3ea;color:#11703a;font-size:.73rem;font-weight:800;"><i class='bx bx-check-circle'></i> Active</span>
                     <?php endif; ?>
                 </div>
             </div>
 
             <?php if ($activeEditPostId === (int) ($post->id ?? 0)): ?>
-                <div style="background:#eff6ff;border:1px solid #c7d2fe;border-radius:10px;padding:0.6rem 1rem;margin:0.5rem 0 0.75rem;font-size:.88rem;font-weight:700;color:#4338ca;">
-                    ✏️ Cette publication est prête à être modifiée ci-dessous.
+                <div style="background:var(--ds-brand-50);border:1px solid var(--ds-brand-200);border-radius:10px;padding:0.6rem 1rem;margin:0.5rem 0 0.75rem;font-size:.88rem;font-weight:700;color:var(--ds-brand-800);">
+                    <i class='bx bx-edit'></i> Cette publication est prête à être modifiée ci-dessous.
                 </div>
             <?php endif; ?>
 
@@ -313,7 +313,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
                     <form method="POST" action="<?= htmlspecialchars($formAction) ?>" enctype="multipart/form-data" class="d-inline-flex align-items-center gap-2 flex-grow-1">
                         <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
                         <input type="hidden" name="post_id" value="<?= (int) ($post->id ?? 0) ?>">
-                        <input type="file" name="fichiers[]" multiple style="font-size:.82rem;padding:6px 10px;border:1px dashed #c7d2fe;border-radius:10px;background:#f5f3ff;color:#5b21b6;cursor:pointer;max-width:240px;">
+                        <input type="file" name="fichiers[]" multiple style="font-size:.82rem;padding:6px 10px;border:1px dashed var(--ds-brand-200);border-radius:10px;background:var(--ds-brand-50);color:var(--ds-brand-800);cursor:pointer;max-width:240px;">
                         <button type="submit" name="attach_der_files" class="btn-action-sm btn-action-sm--primary">
                             <i class="bx bx-upload"></i> Joindre
                         </button>

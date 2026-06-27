@@ -29,6 +29,12 @@ class Assistants extends Controller
             return;
         }
 
+        if (!RateLimiter::allow('ai_chat', 20, 60)) {
+            http_response_code(429);
+            echo json_encode(['error' => 'Trop de messages envoyes. Patientez quelques instants avant de reessayer.']);
+            return;
+        }
+
         $pageContext['role'] = (string) ($_SESSION['role'] ?? 'visiteur');
         $pageContext['name'] = trim((string) (($_SESSION['prenom'] ?? '') . ' ' . ($_SESSION['nom'] ?? '')));
 

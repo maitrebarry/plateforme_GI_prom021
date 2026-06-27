@@ -1,145 +1,8 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Corbeille DER']); ?>
-
-<style>
-:root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #94a3b8;
-    --success-color: #10b981;
-    --danger-color: #ef4444;
-    --bg-light: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-body {
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.dashboard-body {
-    background-color: var(--bg-light);
-    min-height: 100vh;
-}
-
-/* Animation d'entrée fluide */
-.dashboard-body__content { 
-    animation: fadeIn 0.5s ease-out; 
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Hero Banner Style Moderne (Identique au Dashboard) */
-.der-trash-hero {
-    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-    border-radius: 20px;
-    padding: 2.5rem 3rem;
-    color: #fff;
-    margin-bottom: 2rem;
-    box-shadow: var(--card-shadow);
-    position: relative;
-    overflow: hidden;
-}
-
-.der-trash-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-}
-
-.der-trash-hero h3 { 
-    color: #ffffff; 
-    font-weight: 800; 
-    letter-spacing: -0.5px;
-}
-
-.der-trash-hero p { 
-    color: rgba(255,255,255,0.85); 
-    font-size: 0.95rem;
-}
-
-/* Cartes Communes */
-.common-card {
-    border: none;
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    background: #ffffff;
-    margin-bottom: 24px;
-    transition: transform 0.3s ease;
-}
-
-/* Style des Champs de Saisie (Inputs) */
-.common-input--bg {
-    background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 0.7rem 1rem !important;
-    font-weight: 500;
-    color: var(--text-main) !important;
-    transition: all 0.2s;
-}
-
-.common-input--bg:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
-    background: #fff !important;
-}
-
-/* Boutons */
-.btn {
-    font-weight: 700;
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.3s;
-    border: none;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-}
-
-.btn-primary { 
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
-    color: white; 
-}
-
-.btn-outline-white { 
-    background: rgba(255,255,255,0.15); 
-    border: 1px solid rgba(255,255,255,0.3); 
-    color: white; 
-    backdrop-filter: blur(5px);
-}
-
-.btn-outline-white:hover {
-    background: #ffffff;
-    color: var(--primary-color);
-}
-
-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-</style>
-
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
-
 <?php
-// Initialisation des variables
 $derStats = $derStats ?? [];
 $derPosts = $derPosts ?? [];
 $derAllowedTypes = $derAllowedTypes ?? [];
@@ -159,107 +22,71 @@ $paginationQuery = (string) ($paginationQuery ?? '');
 <section class="dashboard">
     <div class="dashboard__inner d-flex">
         <?php $this->view('Partials/dashboard-sidebar'); ?>
-        
         <div class="dashboard-body">
             <?php $this->view('Partials/dashboard-nav'); ?>
-            
-            <div class="dashboard-body__content p-4">
+            <div class="dashboard-body__content p-3 p-lg-4">
                 <?php $this->view('set_flash'); ?>
 
-                <div class="der-trash-hero">
-                    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap" style="position:relative; z-index:2;">
+                <style>
+                    .der-hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--ds-brand-700), var(--ds-brand-800)); border-radius: var(--ds-radius-xl); padding: 26px; color: #fff; margin-bottom: 22px; }
+                    .der-hero::before { content: ''; position: absolute; top: -60px; right: -40px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(224,168,46,.2), transparent 70%); }
+                    .der-hero__row { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+                    .der-hero h1 { font-family: var(--ds-font-heading); font-weight: 800; font-size: 1.55rem; color: #fff; margin: 0 0 6px; }
+                    .der-hero p { color: rgba(231,240,235,.82); font-size: .94rem; margin: 0; }
+                    .der-btn { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: .88rem; padding: 10px 16px; border-radius: var(--ds-radius-pill); text-decoration: none; transition: all var(--ds-transition); }
+                    .der-btn--glass { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); } .der-btn--glass:hover { background: rgba(255,255,255,.2); color: #fff; }
+                    .der-count-badge { background: rgba(255,255,255,.92); color: var(--ds-brand-700); font-weight: 800; font-size: .85rem; padding: 8px 16px; border-radius: var(--ds-radius-pill); }
+
+                    .der-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); padding: 20px; }
+                    .der-filter { background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 14px; margin-bottom: 18px; }
+                    .der-filter label { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--ds-muted); margin-bottom: 5px; display: block; }
+                    .der-filter .form-control, .der-filter .form-select { width: 100%; border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius); padding: 9px 12px; font-size: .87rem; color: var(--ds-ink); background: var(--ds-surface); font-family: var(--ds-font-sans); }
+                    .der-filter .form-control:focus, .der-filter .form-select:focus { outline: none; border-color: var(--ds-brand-400); box-shadow: var(--ds-ring); }
+                    .der-filter__btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; background: var(--ds-brand-600); color: #fff; font-weight: 700; padding: 10px; border: 0; border-radius: var(--ds-radius); cursor: pointer; }
+                    .der-filter__btn:hover { background: var(--ds-brand-700); }
+                </style>
+
+                <div class="der-hero">
+                    <div class="der-hero__row">
                         <div>
-                            <h3 class="mb-1">🗑️ Corbeille DER</h3>
-                            <p class="mb-0">Retrouvez et restaurez vos publications archivées en un clic.</p>
+                            <h1><i class='bx bx-trash'></i> Corbeille DER</h1>
+                            <p>Retrouvez et restaurez vos publications archivées, ou supprimez-les définitivement.</p>
                         </div>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="<?= ROOT ?>/Homes/der_espace" class="btn btn-outline-white">
-                                <i class="bx bx-arrow-back"></i> Retour à la gestion
-                            </a>
-                            <div class="btn btn-light border-0 fw-bold px-4" style="background: rgba(255,255,255,0.9); color: var(--primary-color);">
-                                Archives: <?= (int) ($derStats['archived'] ?? 0) ?>
-                            </div>
+                        <div class="d-flex gap-2 flex-wrap align-items-center">
+                            <a href="<?= ROOT ?>/Homes/der_espace" class="der-btn der-btn--glass"><i class='bx bx-arrow-back'></i> Gestion</a>
+                            <span class="der-count-badge">Archives : <?= (int) ($derStats['archived'] ?? 0) ?></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card common-card">
-                    <div class="card-body p-4">
-                        <form method="GET" action="<?= ROOT ?>/Homes/der_corbeille" class="row gy-3 mb-4" id="der-trash-filter-form">
+                <div class="der-card">
+                    <div class="der-filter">
+                        <form method="GET" action="<?= ROOT ?>/Homes/der_corbeille" class="row gy-2 gx-2" id="der-trash-filter-form">
                             <input type="hidden" name="visibility" value="archived">
-                            
-                            <div class="col-md-4">
-                                <label>Rechercher</label>
-                                <input type="text" name="search" value="<?= htmlspecialchars($derSearch) ?>" class="common-input common-input--bg w-100" placeholder="Titre ou contenu...">
-                            </div>
-
-                            <div class="col-md-2">
-                                <label>Catégorie</label>
-                                <select name="type" class="common-input common-input--bg w-100">
-                                    <option value="all" <?= $derTypeFilter === 'all' ? 'selected' : '' ?>>Tous types</option>
-                                    <?php foreach ($derAllowedTypes as $type): ?>
-                                        <option value="<?= htmlspecialchars($type) ?>" <?= $derTypeFilter === $type ? 'selected' : '' ?>><?= htmlspecialchars(ucfirst($type)) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label>Depuis le</label>
-                                <input type="date" name="date_from" value="<?= htmlspecialchars($derDateFrom) ?>" class="common-input common-input--bg w-100">
-                            </div>
-
-                            <div class="col-md-2">
-                                <label>Jusqu'au</label>
-                                <input type="date" name="date_to" value="<?= htmlspecialchars($derDateTo) ?>" class="common-input common-input--bg w-100">
-                            </div>
-
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                                    <i class="bx bx-filter-alt"></i> Filtrer
-                                </button>
-                            </div>
-
-                            <div class="col-12 mt-3 pt-3 border-top d-flex gap-4 flex-wrap align-items-center">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="small fw-bold text-muted">Trier par :</span>
-                                    <select name="sort_by" class="common-input--bg border-0 py-1 px-2 small">
-                                        <option value="date" <?= $derSortBy === 'date' ? 'selected' : '' ?>>Date</option>
-                                        <option value="title" <?= $derSortBy === 'title' ? 'selected' : '' ?>>Titre</option>
-                                        <option value="author" <?= $derSortBy === 'author' ? 'selected' : '' ?>>Auteur</option>
-                                    </select>
-                                    <select name="sort_dir" class="common-input--bg border-0 py-1 px-2 small">
-                                        <option value="desc" <?= $derSortDir === 'desc' ? 'selected' : '' ?>>Décroissant</option>
-                                        <option value="asc" <?= $derSortDir === 'asc' ? 'selected' : '' ?>>Croissant</option>
-                                    </select>
-                                </div>
-
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="small fw-bold text-muted">Affichage :</span>
-                                    <select name="per_page" class="common-input--bg border-0 py-1 px-2 small">
-                                        <option value="10" <?= $perPage === 10 ? 'selected' : '' ?>>10 par page</option>
-                                        <option value="20" <?= $perPage === 20 ? 'selected' : '' ?>>20 par page</option>
-                                        <option value="50" <?= $perPage === 50 ? 'selected' : '' ?>>50 par page</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <div class="col-md-4"><label>Rechercher</label><input type="text" name="search" value="<?= htmlspecialchars($derSearch) ?>" class="form-control" placeholder="Titre ou contenu…"></div>
+                            <div class="col-md-2 col-6"><label>Type</label><select name="type" class="form-select"><option value="all" <?= $derTypeFilter === 'all' ? 'selected' : '' ?>>Tous</option><?php foreach ($derAllowedTypes as $type): ?><option value="<?= htmlspecialchars($type) ?>" <?= $derTypeFilter === $type ? 'selected' : '' ?>><?= htmlspecialchars(ucfirst($type)) ?></option><?php endforeach; ?></select></div>
+                            <div class="col-md-2 col-6"><label>Depuis</label><input type="date" name="date_from" value="<?= htmlspecialchars($derDateFrom) ?>" class="form-control"></div>
+                            <div class="col-md-2 col-6"><label>Jusqu'au</label><input type="date" name="date_to" value="<?= htmlspecialchars($derDateTo) ?>" class="form-control"></div>
+                            <div class="col-md-2 col-6 d-flex align-items-end"><button type="submit" class="der-filter__btn"><i class='bx bx-filter-alt'></i> Filtrer</button></div>
+                            <div class="col-md-3 col-6"><label>Trier par</label><select name="sort_by" class="form-select"><option value="date" <?= $derSortBy === 'date' ? 'selected' : '' ?>>Date</option><option value="title" <?= $derSortBy === 'title' ? 'selected' : '' ?>>Titre</option><option value="author" <?= $derSortBy === 'author' ? 'selected' : '' ?>>Auteur</option></select></div>
+                            <div class="col-md-3 col-6"><label>Ordre</label><select name="sort_dir" class="form-select"><option value="desc" <?= $derSortDir === 'desc' ? 'selected' : '' ?>>Décroissant</option><option value="asc" <?= $derSortDir === 'asc' ? 'selected' : '' ?>>Croissant</option></select></div>
+                            <div class="col-md-3 col-6"><label>Par page</label><select name="per_page" class="form-select"><?php foreach ([10, 20, 50] as $pp): ?><option value="<?= $pp ?>" <?= $perPage === $pp ? 'selected' : '' ?>><?= $pp ?> / page</option><?php endforeach; ?></select></div>
                         </form>
-
-                        <div class="mt-4">
-                            <?php $this->view('Partials/der-posts-list', [
-                                'derPosts' => $derPosts,
-                                'derAllowedTypes' => $derAllowedTypes,
-                                'formAction' => ROOT . '/Homes/der_corbeille',
-                                'paginationBasePath' => 'Homes/der_corbeille',
-                                'detailReturnBasePath' => 'Homes/der_corbeille',
-                                'paginationQuery' => $paginationQuery,
-                                'currentPage' => $currentPage,
-                                'perPage' => $perPage,
-                                'totalPages' => $totalPages,
-                                'totalItems' => $totalItems,
-                                'activeEditPostId' => 0,
-                            ]); ?>
-                        </div>
                     </div>
+
+                    <?php $this->view('Partials/der-posts-list', [
+                        'derPosts' => $derPosts,
+                        'derAllowedTypes' => $derAllowedTypes,
+                        'formAction' => ROOT . '/Homes/der_corbeille',
+                        'paginationBasePath' => 'Homes/der_corbeille',
+                        'detailReturnBasePath' => 'Homes/der_corbeille',
+                        'paginationQuery' => $paginationQuery,
+                        'currentPage' => $currentPage,
+                        'perPage' => $perPage,
+                        'totalPages' => $totalPages,
+                        'totalItems' => $totalItems,
+                        'activeEditPostId' => 0,
+                    ]); ?>
                 </div>
             </div>
 

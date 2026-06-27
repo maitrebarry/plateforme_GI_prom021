@@ -14,8 +14,8 @@
             <div class="dashboard-body__content p-4">
                 <style>
                 :root {
-                    --primary-color: #6366f1;
-                    --primary-hover: #4f46e5;
+                    --primary-color: var(--ds-brand-600);
+                    --primary-hover: var(--ds-brand-700);
                     --bg-light: #f1f5f9;
                     --text-main: #0f172a;
                     --text-muted: #64748b;
@@ -72,7 +72,7 @@
 
                 .form-control:focus, .form-select:focus {
                     border-color: var(--primary-color);
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                    box-shadow: 0 0 0 4px rgba(var(--ds-brand-rgb), 0.1);
                     outline: none;
                 }
 
@@ -107,11 +107,11 @@
                 .tech-container:focus-within {
                     border-color: var(--primary-color);
                     background: #ffffff;
-                    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                    box-shadow: 0 0 0 4px rgba(var(--ds-brand-rgb), 0.1);
                 }
 
                 .tech-tag {
-                    background: rgba(99, 102, 241, 0.1);
+                    background: rgba(var(--ds-brand-rgb), 0.1);
                     color: var(--primary-color);
                     padding: 4px 10px;
                     border-radius: 8px;
@@ -135,7 +135,7 @@
 
                 .upload-box:hover {
                     border-color: var(--primary-color);
-                    background: rgba(99, 102, 241, 0.03);
+                    background: rgba(var(--ds-brand-rgb), 0.03);
                     color: var(--primary-color);
                 }
 
@@ -180,13 +180,13 @@
                 }
 
                 .btn-update {
-                    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                    background: linear-gradient(135deg, var(--ds-brand-600) 0%, var(--ds-brand-700) 100%);
                     color: white !important;
                     padding: 1rem 2.5rem;
                     border-radius: 14px;
                     font-weight: 800;
                     border: none;
-                    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+                    box-shadow: 0 10px 15px -3px rgba(var(--ds-brand-rgb), 0.4);
                     transition: all 0.3s;
                     display: inline-flex;
                     align-items: center;
@@ -196,7 +196,7 @@
 
                 .btn-update:hover {
                     transform: translateY(-3px);
-                    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+                    box-shadow: 0 20px 25px -5px rgba(var(--ds-brand-rgb), 0.4);
                 }
 
                 [data-reveal] {
@@ -274,8 +274,8 @@
                                                 <div class="preview-container mb-3">
                                                     <?php foreach($images as $img): ?>
                                                         <div class="preview-item">
-                                                            <img src="<?= ROOT_IMG ?>/uploads/projects/images/<?= $img->image ?>">
-                                                            <a href="<?= ROOT ?>/Projets/delete_image/<?= $img->id ?>/<?=$project->id ?>" class="remove-btn-abs" title="Supprimer">×</a>
+                                                            <img src="<?= ROOT_IMG ?>/uploads/projects/images/<?= htmlspecialchars((string) $img->image) ?>">
+                                                            <button type="button" class="remove-btn-abs js-post-delete" style="border:none;cursor:pointer" data-action="<?= ROOT ?>/Projets/delete_image/<?= (int) $img->id ?>/<?= (int) $project->id ?>" data-confirm="Supprimer cette image ?" title="Supprimer">×</button>
                                                         </div>
                                                     <?php endforeach ?>
                                                 </div>
@@ -293,10 +293,10 @@
                                                     <?php if(!empty($files)): ?>
                                                         <?php foreach($files as $file): ?>
                                                             <div class="file-item">
-                                                                <span class="small text-truncate"><i class='bx bx-file me-2 text-primary'></i><?= $file->fichier ?></span>
-                                                                <a href="<?= ROOT ?>/Projets/delete_file/<?= $file->id ?>/<?=$project->id ?>" class="text-danger" title="Supprimer">
+                                                                <span class="small text-truncate"><i class='bx bx-file me-2 text-primary'></i><?= htmlspecialchars((string) $file->fichier) ?></span>
+                                                                <button type="button" class="text-danger js-post-delete" style="border:none;background:transparent;cursor:pointer" data-action="<?= ROOT ?>/Projets/delete_file/<?= (int) $file->id ?>/<?= (int) $project->id ?>" data-confirm="Supprimer ce fichier ?" title="Supprimer">
                                                                     <i class='bx bx-trash'></i>
-                                                                </a>
+                                                                </button>
                                                             </div>
                                                         <?php endforeach ?>
                                                     <?php endif ?>
@@ -356,7 +356,29 @@
             ]
         }
     });
-    quill.root.innerHTML = <?= json_encode($project->description) ?>;
+    quill.root.innerHTML = <?= json_encode((string) $project->description, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+
+    /* SUPPRESSION MEDIA : envoi en POST avec jeton CSRF (au lieu d'un lien GET) */
+    document.querySelectorAll('.js-post-delete').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var action = btn.getAttribute('data-action');
+            if (!action) { return; }
+            if (btn.dataset.confirm && !window.confirm(btn.dataset.confirm)) { return; }
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+
+            var token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = 'csrf_token';
+            token.value = window.CSRF_TOKEN || '';
+            form.appendChild(token);
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
 
     /* TECH TAGS */
     const techContainer = document.getElementById("techContainer");

@@ -8,9 +8,9 @@
     --public-paper: #fffaf4;
     --public-card: #ffffff;
     --public-border: #e3d8cc;
-    --public-accent: #bd4a1f;
-    --public-accent-dark: #873115;
-    --public-green: #123c34;
+    --public-accent: #157f5a;
+    --public-accent-dark: #0a4d35;
+    --public-green: #0a4d35;
     --public-shadow: 0 24px 70px -48px rgba(23, 21, 18, .55);
 }
 
@@ -71,7 +71,7 @@
     border: 1px solid var(--public-accent) !important;
     color: #fff !important;
     border-radius: 10px !important;
-    box-shadow: 0 16px 34px -26px rgba(135, 49, 21, .9) !important;
+    box-shadow: 0 16px 34px -26px rgba(10, 77, 53, .9) !important;
     font-weight: 800;
 }
 
@@ -85,8 +85,8 @@
 .public-site .footer,
 .um6p-site .footer {
     background:
-        radial-gradient(circle at 12% 12%, rgba(189, 74, 31, .18), transparent 28%),
-        linear-gradient(135deg, #123c34 0%, #0c2722 62%, #171512 100%) !important;
+        radial-gradient(circle at 12% 12%, rgba(21, 127, 90, .18), transparent 28%),
+        linear-gradient(135deg, #0a4d35 0%, #0c2722 62%, #171512 100%) !important;
     color: #fffaf4;
     position: relative;
     overflow: hidden;
@@ -204,7 +204,7 @@
     border-radius: 14px;
     background: #f4e6dc;
     color: var(--public-accent-dark);
-    border: 1px solid rgba(189, 74, 31, .18);
+    border: 1px solid rgba(21, 127, 90, .18);
 }
 
 .public-site .mobile-menu,
@@ -311,7 +311,7 @@
     align-items: stretch !important;
     padding: clamp(28px, 5vw, 76px) 18px !important;
     background:
-        linear-gradient(90deg, rgba(255, 250, 244, .92) 0%, rgba(255, 250, 244, .78) 48%, rgba(18, 60, 52, .1) 100%),
+        linear-gradient(90deg, rgba(255, 250, 244, .92) 0%, rgba(255, 250, 244, .78) 48%, rgba(10, 77, 53, .1) 100%),
         var(--public-soft) !important;
 }
 
@@ -335,8 +335,8 @@
 
 .public-auth .image-card {
     background:
-        linear-gradient(180deg, rgba(18, 60, 52, .18), rgba(18, 60, 52, .05)),
-        #123c34 !important;
+        linear-gradient(180deg, rgba(10, 77, 53, .18), rgba(10, 77, 53, .05)),
+        #0a4d35 !important;
 }
 
 .public-auth .image-card::before {
@@ -516,7 +516,7 @@
 .public-auth .form-control-modern:focus {
     background: #fff !important;
     border-color: var(--public-accent) !important;
-    box-shadow: 0 0 0 4px rgba(189, 74, 31, .12) !important;
+    box-shadow: 0 0 0 4px rgba(21, 127, 90, .12) !important;
 }
 
 .public-auth .form-card-body .form-group,
@@ -588,7 +588,7 @@
 .public-detail .change-gradient,
 .public-department .change-gradient {
     background:
-        radial-gradient(circle at 8% 0%, rgba(189, 74, 31, .08), transparent 30%),
+        radial-gradient(circle at 8% 0%, rgba(21, 127, 90, .08), transparent 30%),
         linear-gradient(180deg, #fffaf4 0%, #f6f1ea 46%, #fffaf4 100%) !important;
 }
 
@@ -596,7 +596,7 @@
 .public-detail .breadcrumb,
 .public-department .breadcrumb {
     background:
-        linear-gradient(135deg, rgba(18, 60, 52, .95), rgba(18, 60, 52, .82)),
+        linear-gradient(135deg, rgba(10, 77, 53, .95), rgba(10, 77, 53, .82)),
         var(--public-green) !important;
     padding: clamp(58px, 8vw, 110px) 0 !important;
     overflow: hidden;
@@ -639,7 +639,7 @@
 
 .public-list .product-card:hover {
     transform: translateY(-6px);
-    border-color: rgba(189, 74, 31, .28) !important;
+    border-color: rgba(21, 127, 90, .28) !important;
     box-shadow: 0 34px 90px -56px rgba(23, 21, 18, .62) !important;
 }
 
@@ -685,7 +685,7 @@
 
 .public-detail .pd-shell {
     background:
-        radial-gradient(circle at 12% 8%, rgba(189, 74, 31, .08), transparent 28%),
+        radial-gradient(circle at 12% 8%, rgba(21, 127, 90, .08), transparent 28%),
         linear-gradient(180deg, #fffaf4 0%, #f6f1ea 100%) !important;
 }
 
@@ -705,7 +705,7 @@
 .public-detail .pd-card:hover,
 .public-detail .pd-side:hover,
 .public-detail .pd-section:hover {
-    border-color: rgba(189, 74, 31, .3) !important;
+    border-color: rgba(21, 127, 90, .3) !important;
     box-shadow: 0 34px 90px -58px rgba(23, 21, 18, .62) !important;
 }
 
@@ -757,12 +757,12 @@
     right: -42px;
     top: -34px;
     border-radius: 50%;
-    background: rgba(189, 74, 31, .1);
+    background: rgba(21, 127, 90, .1);
 }
 
 .public-department .department-stat:hover {
     transform: translateY(-5px);
-    border-color: rgba(189, 74, 31, .3) !important;
+    border-color: rgba(21, 127, 90, .3) !important;
     box-shadow: 0 34px 82px -54px rgba(23, 21, 18, .62);
 }
 
@@ -805,7 +805,7 @@
 
 .public-department .department-stat--information .department-stat__icon {
     background: #e8f3ef;
-    color: #123c34 !important;
+    color: #0a4d35 !important;
 }
 
 .public-department .department-stat--evenement .department-stat__icon {
@@ -831,7 +831,7 @@
 
 .public-department .department-post-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(189, 74, 31, .3);
+    border-color: rgba(21, 127, 90, .3);
     box-shadow: 0 34px 90px -58px rgba(23, 21, 18, .62);
 }
 
@@ -890,7 +890,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(18, 60, 52, .68);
+    background: rgba(10, 77, 53, .68);
     color: #fffaf4;
     font-family: var(--public-display);
     font-size: 1.55rem;
@@ -1003,7 +1003,7 @@
 .um6p-home .salon-kicker,
 .um6p-home .hero-chip,
 .um6p-home .section-head small {
-    box-shadow: inset 0 0 0 1px rgba(189, 74, 31, .08);
+    box-shadow: inset 0 0 0 1px rgba(21, 127, 90, .08);
 }
 
 .um6p-home .salon-lead {
@@ -1039,7 +1039,7 @@
     right: 0;
     bottom: .03em;
     height: .18em;
-    background: rgba(189, 74, 31, .16);
+    background: rgba(21, 127, 90, .16);
     z-index: -1;
     border-radius: 999px;
     transform: scaleX(0);
@@ -1083,7 +1083,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(120deg, rgba(189, 74, 31, .08), transparent 42%, rgba(18, 60, 52, .06));
+    background: linear-gradient(120deg, rgba(21, 127, 90, .08), transparent 42%, rgba(10, 77, 53, .06));
     pointer-events: none;
 }
 
@@ -1100,7 +1100,7 @@
     padding: clamp(28px, 5vw, 54px) !important;
     min-height: 280px;
     background:
-        radial-gradient(circle at 100% 0%, rgba(189, 74, 31, .12), transparent 32%),
+        radial-gradient(circle at 100% 0%, rgba(21, 127, 90, .12), transparent 32%),
         linear-gradient(135deg, #ffffff, #fffaf4) !important;
     overflow: hidden;
     position: relative;
@@ -1114,7 +1114,7 @@
     right: -90px;
     bottom: -110px;
     border-radius: 50%;
-    border: 1px solid rgba(189, 74, 31, .18);
+    border: 1px solid rgba(21, 127, 90, .18);
     animation: public-slow-spin 22s linear infinite;
 }
 
@@ -1127,7 +1127,7 @@
     border-radius: 28px;
     background: var(--public-green);
     color: #fffaf4;
-    box-shadow: 0 26px 55px -35px rgba(18, 60, 52, .8);
+    box-shadow: 0 26px 55px -35px rgba(10, 77, 53, .8);
     animation: public-float 3.6s ease-in-out infinite;
 }
 
@@ -1220,8 +1220,8 @@
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(180deg, transparent 34%, rgba(18, 60, 52, .45)),
-        linear-gradient(90deg, rgba(18, 60, 52, .18), transparent 48%);
+        linear-gradient(180deg, transparent 34%, rgba(10, 77, 53, .45)),
+        linear-gradient(90deg, rgba(10, 77, 53, .18), transparent 48%);
     pointer-events: none;
     z-index: 2;
 }
@@ -1241,8 +1241,8 @@
 
 .um6p-home .salon-proof__item:hover {
     transform: translateY(-4px);
-    border-color: rgba(189, 74, 31, .34) !important;
-    box-shadow: 0 18px 45px -36px rgba(135, 49, 21, .65);
+    border-color: rgba(21, 127, 90, .34) !important;
+    box-shadow: 0 18px 45px -36px rgba(10, 77, 53, .65);
 }
 
 .um6p-home .hero-btn,
@@ -1313,7 +1313,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: rgba(18, 60, 52, .84);
+    background: rgba(10, 77, 53, .84);
     color: #fffaf4;
     font-weight: 850;
 }
@@ -1365,7 +1365,7 @@
 
 .um6p-home .project-carousel .slick-arrow:hover {
     transform: translateY(-50%) scale(1.08);
-    background: rgba(189, 74, 31, .88);
+    background: rgba(21, 127, 90, .88);
 }
 
 .um6p-home .project-carousel .slick-dots li button {

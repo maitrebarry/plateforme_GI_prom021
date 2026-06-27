@@ -3,8 +3,7 @@
 $studentStats = $studentStats ?? [];
 $projects = $projects ?? [];
 $studentName = $studentName ?? 'Etudiant';
-$studentLatestProject = $studentLatestProject ?? null;
-$studentCompletionRate = (int) ($studentCompletionRate ?? 0);
+$studentCompletionRate = max(0, min(100, (int) ($studentCompletionRate ?? 0)));
 $studentVisitorReviews = $studentVisitorReviews ?? [];
 $studentUnreadThreadsPreview = $studentUnreadThreadsPreview ?? [];
 $studentUnreadMessages = (int) ($studentUnreadMessages ?? 0);
@@ -20,446 +19,240 @@ $studentActions = $studentActions ?? [];
         <div class="dashboard-body">
             <?php $this->view('Partials/dashboard-nav'); ?>
 
-            <div class="dashboard-body__content p-4">
+            <div class="dashboard-body__content p-3 p-lg-4">
                 <?php $this->view('set_flash'); ?>
 
                 <style>
-                :root {
-                    --primary-color: #6366f1;
-                    --primary-hover: #4f46e5;
-                    --secondary-color: #94a3b8;
-                    --success-color: #10b981;
-                    --warning-color: #f59e0b;
-                    --danger-color: #ef4444;
-                    --info-color: #0ea5e9;
-                    --bg-light: #f1f5f9;
-                    --glass-bg: rgba(255, 255, 255, 0.85);
-                    --text-main: #0f172a;
-                    --text-muted: #64748b;
-                    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                    --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                }
+                    .sd-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); }
+                    .sd-card__body { padding: 20px; }
+                    .sd-title { display: flex; align-items: center; gap: 9px; font-family: var(--ds-font-heading); font-size: 1.1rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; }
+                    .sd-title i { color: var(--ds-brand-600); font-size: 1.25rem; }
+                    .sd-link { display: inline-flex; align-items: center; gap: 5px; color: var(--ds-brand-600); font-weight: 700; font-size: .82rem; text-decoration: none; }
+                    .sd-link:hover { color: var(--ds-brand-700); }
 
-                .dashboard-body__content {
-                    animation: fadeIn 0.5s ease-out;
-                    background-color: var(--bg-light);
-                }
+                    .sd-hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--ds-brand-700), var(--ds-brand-800)); border-radius: var(--ds-radius-xl); padding: 26px; color: #fff; margin-bottom: 22px; }
+                    .sd-hero::before { content: ''; position: absolute; top: -70px; right: -50px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(224,168,46,.2), transparent 70%); pointer-events: none; }
+                    .sd-hero__grid { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
+                    .sd-hero h1 { font-family: var(--ds-font-heading); font-weight: 800; font-size: 1.7rem; line-height: 1.2; margin: 0 0 8px; color: #fff; }
+                    .sd-hero p { color: rgba(231,240,235,.82); font-size: .96rem; line-height: 1.55; margin: 0 0 16px; max-width: 540px; }
+                    .sd-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: .9rem; padding: 11px 18px; border-radius: var(--ds-radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: all var(--ds-transition); }
+                    .sd-btn--gold { background: var(--ds-accent); color: #3d2900; } .sd-btn--gold:hover { background: #f0b53e; color: #3d2900; transform: translateY(-1px); }
+                    .sd-btn--glass { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); } .sd-btn--glass:hover { background: rgba(255,255,255,.2); color: #fff; }
+                    .sd-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: var(--ds-radius-lg); padding: 16px 22px; }
+                    .sd-ring { position: relative; width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#fff calc(var(--p, 0) * 1%), rgba(255,255,255,.18) 0); }
+                    .sd-ring::after { content: ''; position: absolute; width: 74px; height: 74px; border-radius: 50%; background: var(--ds-brand-800); }
+                    .sd-ring b { position: relative; z-index: 1; color: #fff; font-weight: 800; font-size: 1.25rem; }
+                    .sd-ring-wrap small { color: rgba(231,240,235,.8); font-size: .76rem; text-align: center; } .sd-ring-wrap strong { color: #fff; font-size: .9rem; }
 
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
+                    .sd-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+                    .sd-stat { position: relative; overflow: hidden; background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); padding: 16px; box-shadow: var(--ds-shadow-sm); transition: transform var(--ds-transition), box-shadow var(--ds-transition); }
+                    .sd-stat:hover { transform: translateY(-3px); box-shadow: var(--ds-shadow-md); }
+                    .sd-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ds-brand-500); }
+                    .sd-stat--likes::before { background: var(--ds-danger); } .sd-stat--reviews::before { background: var(--ds-accent); } .sd-stat--messages::before { background: #1d59b8; }
+                    .sd-stat__icon { width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.35rem; background: var(--ds-brand-50); color: var(--ds-brand-600); margin-bottom: 10px; }
+                    .sd-stat--likes .sd-stat__icon { background: var(--ds-danger-soft); color: var(--ds-danger); }
+                    .sd-stat--reviews .sd-stat__icon { background: var(--ds-accent-soft); color: #8a6310; }
+                    .sd-stat--messages .sd-stat__icon { background: #e3effb; color: #1d59b8; }
+                    .sd-stat__value { font-family: var(--ds-font-heading); font-size: 1.9rem; font-weight: 800; color: var(--ds-ink-strong); line-height: 1; }
+                    .sd-stat__label { color: var(--ds-muted); font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; }
+                    .sd-stat__sub { color: var(--ds-muted-soft); font-size: .78rem; margin-top: 4px; }
 
-                /* Common Card from Admin */
-                .common-card {
-                    border: none;
-                    border-radius: 16px;
-                    box-shadow: var(--card-shadow);
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    background: #ffffff;
-                    overflow: hidden;
-                    position: relative;
-                    height: 100%;
-                }
+                    .sd-proj { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--ds-border); }
+                    .sd-proj:last-child { border-bottom: 0; padding-bottom: 0; }
+                    .sd-proj__thumb { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+                    .sd-proj__body { flex: 1; min-width: 0; }
+                    .sd-proj__title { font-family: var(--ds-font-heading); font-weight: 800; font-size: .98rem; margin: 0 0 4px; }
+                    .sd-proj__title a { color: var(--ds-ink-strong); text-decoration: none; } .sd-proj__title a:hover { color: var(--ds-brand-600); }
+                    .sd-proj__meta { display: flex; flex-wrap: wrap; gap: 12px; color: var(--ds-muted); font-size: .78rem; }
+                    .sd-proj__meta span { display: inline-flex; align-items: center; gap: 4px; }
+                    .sd-proj__stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; font-size: .8rem; font-weight: 700; }
+                    .sd-proj__stats .s-like { color: var(--ds-danger); } .sd-proj__stats .s-rev { color: var(--ds-brand-600); } .sd-proj__stats .s-rate { color: #8a6310; }
+                    .sd-status { flex-shrink: 0; display: inline-flex; align-items: center; height: 24px; padding: 0 11px; border-radius: var(--ds-radius-pill); font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+                    .sd-status--ok { background: #e4f3ea; color: #11703a; }
+                    .sd-status--pending { background: var(--ds-accent-soft); color: #8a6310; }
+                    .sd-status--draft { background: var(--ds-surface-2); color: var(--ds-muted); }
 
-                .common-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: var(--card-hover-shadow);
-                }
+                    .sd-action { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: var(--ds-radius); border: 1px solid var(--ds-border); background: var(--ds-surface); text-decoration: none; transition: all var(--ds-transition); }
+                    .sd-action + .sd-action { margin-top: 10px; }
+                    .sd-action:hover { border-color: var(--ds-brand-300); background: var(--ds-brand-50); transform: translateX(3px); }
+                    .sd-action__icon { width: 38px; height: 38px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; background: var(--ds-brand-600); color: #fff; font-size: 1.2rem; flex-shrink: 0; }
+                    .sd-action__title { font-weight: 700; color: var(--ds-ink-strong); font-size: .92rem; }
+                    .sd-action__text { color: var(--ds-muted); font-size: .78rem; }
 
-                .common-card .card-body {
-                    padding: 1.5rem;
-                    z-index: 1;
-                    position: relative;
-                }
+                    .sd-thread { padding: 12px 0; border-bottom: 1px solid var(--ds-border); }
+                    .sd-thread:last-child { border-bottom: 0; }
+                    .sd-thread__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+                    .sd-thread__who { font-weight: 700; color: var(--ds-ink-strong); font-size: .88rem; }
+                    .sd-thread__date { color: var(--ds-muted-soft); font-size: .74rem; }
+                    .sd-thread__msg { color: var(--ds-muted); font-size: .82rem; margin: 4px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    .sd-thread__reply { color: var(--ds-brand-600); font-weight: 700; font-size: .8rem; text-decoration: none; }
 
-                .stat-icon {
-                    position: absolute;
-                    right: 1.25rem;
-                    bottom: 1rem;
-                    font-size: 2.5rem;
-                    opacity: 0.1;
-                    transition: all 0.3s;
-                }
+                    .sd-review { border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 16px; height: 100%; background: var(--ds-surface); }
+                    .sd-review__head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+                    .sd-ava { width: 38px; height: 38px; border-radius: 50%; background: var(--ds-brand-100); color: var(--ds-brand-700); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+                    .sd-review__name { font-weight: 700; color: var(--ds-ink-strong); font-size: .9rem; } .sd-review__on { color: var(--ds-muted); font-size: .76rem; }
+                    .sd-review__rating { margin-left: auto; color: var(--ds-accent); font-weight: 800; font-size: .85rem; white-space: nowrap; }
+                    .sd-review__text { color: var(--ds-ink); font-size: .88rem; line-height: 1.55; margin-bottom: 12px; }
+                    .sd-review__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+                    .sd-pill-btn { display: inline-flex; align-items: center; gap: 5px; font-size: .76rem; font-weight: 700; padding: 6px 12px; border-radius: var(--ds-radius-pill); text-decoration: none; }
+                    .sd-pill-btn--wa { background: #e7f7ed; color: #1a7f43; } .sd-pill-btn--tel { background: #e3effb; color: #1d59b8; }
 
-                .common-card:hover .stat-icon {
-                    opacity: 0.2;
-                    transform: scale(1.1) rotate(-10deg);
-                }
+                    .sd-empty { text-align: center; padding: 30px 16px; color: var(--ds-muted); }
+                    .sd-empty i { font-size: 2.4rem; color: var(--ds-brand-300); display: block; margin-bottom: 8px; }
+                    .sd-badge-unread { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: var(--ds-radius-pill); background: var(--ds-danger); color: #fff; font-size: .72rem; font-weight: 800; }
 
-                /* Border Accents */
-                .stat-card-projects { border-top: 5px solid var(--primary-color); }
-                .stat-card-likes { border-top: 5px solid var(--danger-color); }
-                .stat-card-reviews { border-top: 5px solid var(--warning-color); }
-                .stat-card-messages { border-top: 5px solid var(--info-color); }
+                    [data-reveal] { opacity: 0; transform: translateY(16px); transition: all .5s ease; }
+                    [data-reveal].is-visible { opacity: 1; transform: none; }
 
-                /* Hero Section */
-                .student-hero {
-                    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-                    border-radius: 24px;
-                    padding: 3rem;
-                    color: white;
-                    margin-bottom: 2rem;
-                    position: relative;
-                    overflow: hidden;
-                    box-shadow: var(--card-shadow);
-                }
-
-                .student-hero::before {
-                    content: '';
-                    position: absolute;
-                    top: -50px;
-                    right: -50px;
-                    width: 300px;
-                    height: 300px;
-                    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
-                    border-radius: 50%;
-                }
-
-                .student-hero h1 {
-                    font-weight: 800;
-                    font-size: 2.5rem;
-                    margin-bottom: 1rem;
-                    letter-spacing: -0.02em;
-                }
-
-                .student-hero p {
-                    font-size: 1.1rem;
-                    opacity: 0.9;
-                    max-width: 700px;
-                    line-height: 1.6;
-                }
-
-                .hero-stats-glass {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 20px;
-                    padding: 1.5rem;
-                }
-
-                /* Progress Ring */
-                .progress-ring-container {
-                    position: relative;
-                    width: 100px;
-                    height: 100px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .progress-ring-circle {
-                    width: 100px;
-                    height: 100px;
-                    border-radius: 50%;
-                    background: conic-gradient(var(--success-color) <?= max(0, min(100, $studentCompletionRate)) ?>%, rgba(255, 255, 255, 0.1) 0);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .progress-ring-circle::after {
-                    content: '';
-                    width: 80px;
-                    height: 80px;
-                    background: #1e293b;
-                    border-radius: 50%;
-                    position: absolute;
-                }
-
-                .progress-value {
-                    position: relative;
-                    z-index: 2;
-                    font-weight: 800;
-                    font-size: 1.25rem;
-                }
-
-                /* Buttons */
-                .btn {
-                    padding: 0.6rem 1.25rem;
-                    font-weight: 700;
-                    border-radius: 10px;
-                    transition: all 0.3s;
-                    border: none;
-                    text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-
-                .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; }
-                .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-                .btn-info { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; }
-                .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-                .btn-outline-primary { border: 2px solid var(--primary-color); color: var(--primary-color); background: transparent; }
-                .btn-outline-primary:hover { background: var(--primary-color); color: white; }
-
-                /* Project Cards */
-                .project-item {
-                    display: flex;
-                    gap: 1.5rem;
-                    padding: 1.25rem;
-                    border-bottom: 1px solid #f1f5f9;
-                    transition: background 0.2s;
-                }
-
-                .project-item:last-child { border-bottom: none; }
-                .project-item:hover { background: #f8fafc; }
-
-                .project-thumb {
-                    width: 80px;
-                    height: 80px;
-                    object-fit: cover;
-                    border-radius: 12px;
-                    flex-shrink: 0;
-                }
-
-                .project-info h5 {
-                    margin: 0 0 0.5rem;
-                    font-weight: 700;
-                    color: var(--text-main);
-                }
-
-                .badge {
-                    padding: 0.5rem 0.75rem;
-                    border-radius: 6px;
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                }
-
-                /* Animations */
-                [data-reveal] {
-                    opacity: 0;
-                    transform: translateY(20px);
-                    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-                }
-
-                [data-reveal].is-visible {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-
-                .unread-indicator {
-                    width: 8px;
-                    height: 8px;
-                    background: var(--danger-color);
-                    border-radius: 50%;
-                    display: inline-block;
-                }
+                    @media (min-width: 768px) { .sd-hero { padding: 32px; } .sd-hero h1 { font-size: 2.1rem; } .sd-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
                 </style>
 
-                <div class="student-dashboard" id="student_workspace">
-                    <!-- Hero Section -->
-                    <div class="student-hero" data-reveal>
-                        <div class="row align-items-center g-4">
-                            <div class="col-lg-8">
-                                <h1 class="text-white">Bonjour, <?= htmlspecialchars($studentName) ?> !</h1>
-                                <p>Bienvenue sur votre espace de gestion. Pilotez vos projets, suivez vos statistiques d'engagement et communiquez avec vos visiteurs en un seul endroit.</p>
-                                <div class="mt-4 d-flex flex-wrap gap-2">
-                                    <a href="<?= ROOT ?>/Projets/publier_projet" class="btn btn-primary"><i class='bx bx-plus-circle'></i> Publier un nouveau projet</a>
-                                    <a href="<?= ROOT ?>/Projets/mes_projets" class="btn btn-primary" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05);"><i class='bx bx-list-ul'></i> Mes publications</a>
-                                </div>
+                <div class="sd-hero" data-reveal>
+                    <div class="sd-hero__grid">
+                        <div>
+                            <h1>Bonjour, <?= htmlspecialchars($studentName) ?> !</h1>
+                            <p>Bienvenue sur votre espace. Pilotez vos projets, suivez votre engagement et échangez avec vos visiteurs — au même endroit.</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="<?= ROOT ?>/Projets/publier_projet" class="sd-btn sd-btn--gold"><i class='bx bx-plus-circle'></i> Publier un projet</a>
+                                <a href="<?= ROOT ?>/Projets/mes_projets" class="sd-btn sd-btn--glass"><i class='bx bx-grid-alt'></i> Mes publications</a>
                             </div>
-                            <div class="col-lg-4">
-                                <div class="hero-stats-glass text-center d-flex flex-column align-items-center">
-                                    <div class="progress-ring-container mb-3">
-                                        <div class="progress-ring-circle">
-                                            <span class="progress-value"><?= $studentCompletionRate ?>%</span>
-                                        </div>
-                                    </div>
-                                    <h6 class="mb-1 fw-bold">Taux de validation</h6>
-                                    <p class="small mb-0 opacity-75">Projets validés par rapport au total</p>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="sd-ring-wrap">
+                            <div class="sd-ring" style="--p: <?= $studentCompletionRate ?>"><b><?= $studentCompletionRate ?>%</b></div>
+                            <strong>Taux de validation</strong>
+                            <small>Projets validés / total</small>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Statistics Grid -->
-                    <div class="row g-4 mb-4">
-                        <div class="col-xl-3 col-md-6" data-reveal>
-                            <div class="common-card stat-card-projects">
-                                <div class="card-body">
-                                    <p class="text-muted small fw-bold text-uppercase mb-1">Publications</p>
-                                    <h3 class="fw-bold mb-0"><?= (int) ($studentStats['mesProjets'] ?? 0) ?></h3>
-                                    <div class="small text-muted mt-2">Plus <?= (int) ($studentStats['enAttente'] ?? 0) ?> en attente</div>
-                                    <div class="stat-icon">📁</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6" data-reveal>
-                            <div class="common-card stat-card-likes">
-                                <div class="card-body">
-                                    <p class="text-muted small fw-bold text-uppercase mb-1">Likes reçus</p>
-                                    <h3 class="fw-bold mb-0">❤️ <?= (int) ($studentStats['likes'] ?? 0) ?></h3>
-                                    <div class="small text-muted mt-2">Engagement total</div>
-                                    <div class="stat-icon">❤️</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6" data-reveal>
-                            <div class="common-card stat-card-reviews">
-                                <div class="card-body">
-                                    <p class="text-muted small fw-bold text-uppercase mb-1">Avis & Notes</p>
-                                    <h3 class="fw-bold mb-0">⭐ <?= (int) ($studentStats['reviews'] ?? 0) ?></h3>
-                                    <div class="small text-muted mt-2">Retour des visiteurs</div>
-                                    <div class="stat-icon">💬</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6" data-reveal>
-                            <div class="common-card stat-card-messages">
-                                <div class="card-body">
-                                    <p class="text-muted small fw-bold text-uppercase mb-1">Messages</p>
-                                    <h3 class="fw-bold mb-0"><?= (int) ($studentStats['messages'] ?? 0) ?></h3>
-                                    <div class="small text-muted mt-2"><?= $studentUnreadMessages ?> non lus</div>
-                                    <div class="stat-icon">✉️</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="sd-stats">
+                    <div class="sd-stat" data-reveal>
+                        <span class="sd-stat__icon"><i class='bx bx-folder'></i></span>
+                        <div class="sd-stat__value"><?= (int) ($studentStats['mesProjets'] ?? 0) ?></div>
+                        <div class="sd-stat__label">Publications</div>
+                        <div class="sd-stat__sub"><?= (int) ($studentStats['enAttente'] ?? 0) ?> en attente</div>
                     </div>
+                    <div class="sd-stat sd-stat--likes" data-reveal>
+                        <span class="sd-stat__icon"><i class='bx bxs-heart'></i></span>
+                        <div class="sd-stat__value"><?= (int) ($studentStats['likes'] ?? 0) ?></div>
+                        <div class="sd-stat__label">Likes reçus</div>
+                        <div class="sd-stat__sub">Engagement total</div>
+                    </div>
+                    <div class="sd-stat sd-stat--reviews" data-reveal>
+                        <span class="sd-stat__icon"><i class='bx bxs-star'></i></span>
+                        <div class="sd-stat__value"><?= (int) ($studentStats['reviews'] ?? 0) ?></div>
+                        <div class="sd-stat__label">Avis &amp; notes</div>
+                        <div class="sd-stat__sub">Retour visiteurs</div>
+                    </div>
+                    <div class="sd-stat sd-stat--messages" data-reveal>
+                        <span class="sd-stat__icon"><i class='bx bx-envelope'></i></span>
+                        <div class="sd-stat__value"><?= (int) ($studentStats['messages'] ?? 0) ?></div>
+                        <div class="sd-stat__label">Messages</div>
+                        <div class="sd-stat__sub"><?= $studentUnreadMessages ?> non lus</div>
+                    </div>
+                </div>
 
-                    <div class="row g-4 overflow-hidden">
-                        <!-- Recent Projects -->
-                        <div class="col-lg-8" data-reveal>
-                            <div class="common-card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <h5 class="fw-bold m-0">🚀 Mes projets récents</h5>
-                                        <a href="<?= ROOT ?>/Projets/mes_projets" class="btn btn-sm btn-primary">Voir tout</a>
-                                    </div>
-
-                                    <?php if (!empty($projects)): ?>
-                                        <div class="project-list">
-                                            <?php foreach ($projects as $project): ?>
-                                                <?php
-                                                $statusText = (string) ($project['status'] ?? 'En attente');
-                                                $statusLower = strtolower($statusText);
-                                                $badgeClass = 'bg-warning text-dark';
-                                                if (str_contains($statusLower, 'valid') || str_contains($statusLower, 'publ')) $badgeClass = 'bg-success text-white';
-                                                elseif (str_contains($statusLower, 'draft') || str_contains($statusLower, 'brouillon')) $badgeClass = 'bg-secondary text-white';
-                                                ?>
-                                                <div class="project-item">
-                                                    <img src="<?= htmlspecialchars((string) ($project['image'] ?? (ROOT . '/assets/images/thumbs/product-img1.png'))) ?>" class="project-thumb">
-                                                    <div class="project-info flex-grow-1">
-                                                        <div class="d-flex justify-content-between align-items-start">
-                                                            <div>
-                                                                <h5><a href="<?= ROOT ?>/Projets/detail/<?= (int) ($project['id'] ?? 0) ?>" class="text-decoration-none text-dark"><?= htmlspecialchars((string) ($project['title'] ?? 'Projet')) ?></a></h5>
-                                                                <div class="d-flex gap-3 small text-muted">
-                                                                    <span><i class='bx bx-category'></i> <?= htmlspecialchars((string) ($project['category'] ?? 'Sans catégorie')) ?></span>
-                                                                    <span><i class='bx bx-calendar'></i> <?= htmlspecialchars((string) ($project['date'] ?? '')) ?></span>
-                                                                </div>
-                                                            </div>
-                                                            <span class="badge <?= $badgeClass ?>"><?= $statusText ?></span>
-                                                        </div>
-                                                        <div class="mt-2 d-flex gap-3 small">
-                                                            <span class="fw-bold">❤️ <?= (int) ($project['likes_count'] ?? 0) ?></span>
-                                                            <span class="fw-bold">💬 <?= (int) ($project['reviews_count'] ?? 0) ?> avis</span>
-                                                            <span class="fw-bold text-primary">⭐ <?= number_format((float) ($project['average_rating'] ?? 0), 1) ?></span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="text-center py-5">
-                                            <div class="mb-3" style="font-size: 3rem; opacity: 0.2;">📂</div>
-                                            <p class="text-muted">Vous n'avez pas encore publié de projet.</p>
-                                            <a href="<?= ROOT ?>/Projets/publier_projet" class="btn btn-primary btn-sm">Commencer maintenant</a>
-                                        </div>
-                                    <?php endif; ?>
+                <div class="row g-4">
+                    <div class="col-lg-8" data-reveal>
+                        <div class="sd-card">
+                            <div class="sd-card__body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h2 class="sd-title"><i class='bx bx-rocket'></i> Mes projets récents</h2>
+                                    <a href="<?= ROOT ?>/Projets/mes_projets" class="sd-link">Voir tout <i class='bx bx-right-arrow-alt'></i></a>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="col-lg-4" data-reveal>
-                            <div class="common-card mb-4 border-start border-primary border-4">
-                                <div class="card-body">
-                                    <h5 class="fw-bold mb-3">⚡ Actions rapides</h5>
-                                    <div class="d-grid gap-2">
-                                        <?php foreach ($studentActions as $action): ?>
-                                            <a href="<?= htmlspecialchars((string) ($action['href'] ?? '#')) ?>" class="btn btn-primary text-start justify-content-start p-3 w-100">
-                                                <i class='<?= htmlspecialchars((string) ($action['icon'] ?? 'bx bx-link')) ?>' style="font-size: 1.25rem;"></i>
-                                                <span><?= htmlspecialchars((string) ($action['title'] ?? 'Action')) ?></span>
-                                            </a>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Unread Messages -->
-                            <div class="common-card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="fw-bold m-0">✉️ Messages récents</h5>
-                                        <?php if ($studentUnreadMessages > 0): ?>
-                                            <span class="badge bg-danger"><?= $studentUnreadMessages ?> non lus</span>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <?php if (!empty($studentUnreadThreadsPreview)): ?>
-                                        <?php foreach (array_slice($studentUnreadThreadsPreview, 0, 3) as $thread): ?>
-                                            <div class="mb-3 p-2 rounded hover-bg-light border-bottom">
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="fw-bold small"><?= htmlspecialchars((string) ($thread['visitor_name'] ?? 'Visiteur')) ?></span>
-                                                    <span class="small text-muted"><?= htmlspecialchars((string) ($thread['last_date'] ?? '')) ?></span>
+                                <?php if (!empty($projects)): ?>
+                                    <?php foreach ($projects as $project): ?>
+                                        <?php
+                                        $statusText = (string) ($project['status'] ?? 'En attente');
+                                        $sl = strtolower($statusText); $sc = 'pending';
+                                        if (str_contains($sl, 'valid') || str_contains($sl, 'publ') || str_contains($sl, 'termin')) { $sc = 'ok'; }
+                                        elseif (str_contains($sl, 'draft') || str_contains($sl, 'brouillon')) { $sc = 'draft'; }
+                                        ?>
+                                        <div class="sd-proj">
+                                            <img src="<?= htmlspecialchars((string) ($project['image'] ?? (ROOT . '/assets/images/thumbs/product-img1.png'))) ?>" class="sd-proj__thumb" alt="" loading="lazy">
+                                            <div class="sd-proj__body">
+                                                <h3 class="sd-proj__title"><a href="<?= ROOT ?>/Projets/detail/<?= (int) ($project['id'] ?? 0) ?>"><?= htmlspecialchars((string) ($project['title'] ?? 'Projet')) ?></a></h3>
+                                                <div class="sd-proj__meta">
+                                                    <span><i class='bx bx-category'></i> <?= htmlspecialchars((string) ($project['category'] ?? 'Sans catégorie')) ?></span>
+                                                    <span><i class='bx bx-calendar'></i> <?= htmlspecialchars((string) ($project['date'] ?? '')) ?></span>
                                                 </div>
-                                                <p class="small text-muted text-truncate mb-1" style="max-width: 250px;"><?= htmlspecialchars((string) ($thread['last_message'] ?? '')) ?></p>
-                                                <a href="<?= ROOT ?>/Homes/messages_recus?project_id=<?= (int) ($thread['project_id'] ?? 0) ?>" class="text-primary text-decoration-none small fw-bold">Répondre</a>
+                                                <div class="sd-proj__stats">
+                                                    <span class="s-like"><i class='bx bxs-heart'></i> <?= (int) ($project['likes_count'] ?? 0) ?></span>
+                                                    <span class="s-rev"><i class='bx bxs-message-square-detail'></i> <?= (int) ($project['reviews_count'] ?? 0) ?></span>
+                                                    <span class="s-rate"><i class='bx bxs-star'></i> <?= number_format((float) ($project['average_rating'] ?? 0), 1) ?></span>
+                                                </div>
                                             </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <p class="text-muted small text-center py-3">Aucun message non lu.</p>
-                                    <?php endif; ?>
-                                </div>
+                                            <span class="sd-status sd-status--<?= $sc ?>"><?= htmlspecialchars($statusText) ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="sd-empty"><i class='bx bx-folder-open'></i><p>Vous n'avez pas encore publié de projet.</p><a href="<?= ROOT ?>/Projets/publier_projet" class="sd-btn sd-btn--gold" style="background:var(--ds-brand-600);color:#fff"><i class='bx bx-plus-circle'></i> Commencer</a></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Reviews Section -->
-                    <div class="row mt-4">
-                        <div class="col-12" data-reveal>
-                            <div class="common-card">
-                                <div class="card-body">
-                                    <h5 class="fw-bold mb-4">💬 Derniers commentaires des visiteurs</h5>
-                                    
-                                    <?php if (!empty($studentVisitorReviews)): ?>
-                                        <div class="row g-4">
-                                            <?php foreach ($studentVisitorReviews as $feedback): ?>
-                                                <div class="col-md-6">
-                                                    <div class="p-3 border rounded-4 h-100 position-relative">
-                                                        <div class="d-flex gap-3 align-items-center mb-2">
-                                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                                                <?= htmlspecialchars(strtoupper(substr((string) ($feedback['visitor_name'] ?? 'V'), 0, 1))) ?>
-                                                            </div>
-                                                            <div>
-                                                                <h6 class="fw-bold m-0"><?= htmlspecialchars((string) ($feedback['visitor_name'] ?? 'Visiteur')) ?></h6>
-                                                                <span class="small text-muted">Sur <?= htmlspecialchars((string) ($feedback['project_title'] ?? 'Projet')) ?></span>
-                                                            </div>
-                                                            <div class="ms-auto text-warning fw-bold">
-                                                                ⭐ <?= (int) ($feedback['rating'] ?? 0) ?>/5
-                                                            </div>
-                                                        </div>
-                                                        <p class="small text-dark mb-3">"<?= nl2br(htmlspecialchars((string) ($feedback['review'] ?? ''))) ?>"</p>
-                                                        <div class="d-flex flex-wrap gap-2 mt-auto">
-                                                            <?php if (!empty($feedback['whatsapp_url'])): ?>
-                                                                <a href="<?= htmlspecialchars((string) $feedback['whatsapp_url']) ?>" target="_blank" class="btn btn-sm btn-success py-1 px-2" style="font-size: 0.75rem;"><i class='bx bxl-whatsapp'></i> WhatsApp</a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($feedback['tel_url'])): ?>
-                                                                <a href="<?= htmlspecialchars((string) $feedback['tel_url']) ?>" class="btn btn-sm btn-info py-1 px-2" style="font-size: 0.75rem;"><i class='bx bx-phone-call'></i> Appeler</a>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <p class="text-muted text-center py-4">Pas encore d'avis sur vos projets.</p>
-                                    <?php endif; ?>
-                                </div>
+                    <div class="col-lg-4">
+                        <div class="sd-card mb-4" data-reveal>
+                            <div class="sd-card__body">
+                                <h2 class="sd-title mb-3"><i class='bx bx-bolt-circle'></i> Actions rapides</h2>
+                                <?php foreach ($studentActions as $action): ?>
+                                    <a href="<?= htmlspecialchars((string) ($action['href'] ?? '#')) ?>" class="sd-action">
+                                        <span class="sd-action__icon"><i class='<?= htmlspecialchars((string) ($action['icon'] ?? 'bx bx-link')) ?>'></i></span>
+                                        <span><span class="sd-action__title d-block"><?= htmlspecialchars((string) ($action['title'] ?? 'Action')) ?></span><span class="sd-action__text d-block"><?= htmlspecialchars((string) ($action['text'] ?? '')) ?></span></span>
+                                    </a>
+                                <?php endforeach; ?>
                             </div>
                         </div>
+
+                        <div class="sd-card" data-reveal>
+                            <div class="sd-card__body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h2 class="sd-title"><i class='bx bx-message-dots'></i> Messages récents</h2>
+                                    <?php if ($studentUnreadMessages > 0): ?><span class="sd-badge-unread"><?= $studentUnreadMessages ?> non lus</span><?php endif; ?>
+                                </div>
+                                <?php if (!empty($studentUnreadThreadsPreview)): ?>
+                                    <?php foreach (array_slice($studentUnreadThreadsPreview, 0, 3) as $thread): ?>
+                                        <div class="sd-thread">
+                                            <div class="sd-thread__head"><span class="sd-thread__who"><?= htmlspecialchars((string) ($thread['visitor_name'] ?? 'Visiteur')) ?></span><span class="sd-thread__date"><?= htmlspecialchars((string) ($thread['last_date'] ?? '')) ?></span></div>
+                                            <div class="sd-thread__msg"><?= htmlspecialchars((string) ($thread['last_message'] ?? '')) ?></div>
+                                            <a href="<?= ROOT ?>/Homes/messages_recus?project_id=<?= (int) ($thread['project_id'] ?? 0) ?>" class="sd-thread__reply"><i class='bx bx-reply'></i> Répondre</a>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="sd-empty"><i class='bx bx-message-square-check'></i><p class="mb-0">Aucun message non lu.</p></div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sd-card mt-4" data-reveal>
+                    <div class="sd-card__body">
+                        <h2 class="sd-title mb-3"><i class='bx bx-comment-detail'></i> Derniers commentaires des visiteurs</h2>
+                        <?php if (!empty($studentVisitorReviews)): ?>
+                            <div class="row g-3">
+                                <?php foreach ($studentVisitorReviews as $feedback): ?>
+                                    <?php $fName = (string) ($feedback['visitor_name'] ?? 'Visiteur'); ?>
+                                    <div class="col-md-6">
+                                        <div class="sd-review">
+                                            <div class="sd-review__head">
+                                                <span class="sd-ava"><?= htmlspecialchars(strtoupper(mb_substr($fName, 0, 1))) ?></span>
+                                                <div><div class="sd-review__name"><?= htmlspecialchars($fName) ?></div><div class="sd-review__on">Sur <?= htmlspecialchars((string) ($feedback['project_title'] ?? 'Projet')) ?></div></div>
+                                                <span class="sd-review__rating"><i class='bx bxs-star'></i> <?= (int) ($feedback['rating'] ?? 0) ?>/5</span>
+                                            </div>
+                                            <div class="sd-review__text">« <?= nl2br(htmlspecialchars((string) ($feedback['review'] ?? ''))) ?> »</div>
+                                            <div class="sd-review__actions">
+                                                <?php if (!empty($feedback['whatsapp_url'])): ?><a href="<?= htmlspecialchars((string) $feedback['whatsapp_url']) ?>" target="_blank" rel="noopener" class="sd-pill-btn sd-pill-btn--wa"><i class='bx bxl-whatsapp'></i> WhatsApp</a><?php endif; ?>
+                                                <?php if (!empty($feedback['tel_url'])): ?><a href="<?= htmlspecialchars((string) $feedback['tel_url']) ?>" class="sd-pill-btn sd-pill-btn--tel"><i class='bx bx-phone-call'></i> Appeler</a><?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="sd-empty"><i class='bx bx-comment'></i><p class="mb-0">Pas encore d'avis sur vos projets.</p></div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -471,27 +264,15 @@ $studentActions = $studentActions ?? [];
 
 <?php $this->view('Partials/scripts'); ?>
 <script>
-(function() {
-    const items = document.querySelectorAll('[data-reveal]');
-    if (!items.length) return;
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.12
-    });
-
-    items.forEach(function(item, index) {
-        item.style.transitionDelay = Math.min(index * 70, 320) + 'ms';
-        observer.observe(item);
-    });
-})();
+    (function () {
+        var items = document.querySelectorAll('[data-reveal]');
+        if (!items.length) { return; }
+        if (!('IntersectionObserver' in window)) { items.forEach(function (i) { i.classList.add('is-visible'); }); return; }
+        var obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1 });
+        items.forEach(function (item, i) { item.style.transitionDelay = Math.min(i * 60, 300) + 'ms'; obs.observe(item); });
+    })();
 </script>
 </body>
 </html>
-

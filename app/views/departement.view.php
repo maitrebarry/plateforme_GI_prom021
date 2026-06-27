@@ -1,464 +1,235 @@
 <?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Espace Département']); ?>
 
 <body class="public-site public-department">
-    <?php $this->view('Partials/global-shell'); ?>
-    <?php $this->view('Partials/mobile-menu'); ?>
-    <?php $this->view('Partials/header'); ?>
-    <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
-    <?php
-    $departmentStats = $departmentStats ?? [];
-    $departmentPosts = $departmentPosts ?? [];
-    $departmentAllowedTypes = $departmentAllowedTypes ?? [];
-    $departmentTypeFilter = $departmentTypeFilter ?? 'all';
-    $departmentSearch = $departmentSearch ?? '';
-    $currentPage = max(1, (int) ($currentPage ?? 1));
-    $perPage = (int) ($perPage ?? 6);
-    $totalPages = max(1, (int) ($totalPages ?? 1));
-    $totalItems = max(0, (int) ($totalItems ?? count($departmentPosts)));
-    $paginationQuery = (string) ($paginationQuery ?? '');
-    $departmentStatCards = [
-        ['label' => 'Annonces', 'value' => (int) ($departmentStats['annonces'] ?? 0), 'icon' => 'bx bx-megaphone', 'class' => 'annonce'],
-        ['label' => 'Informations', 'value' => (int) ($departmentStats['informations'] ?? 0), 'icon' => 'bx bx-info-circle', 'class' => 'information'],
-        ['label' => 'Événements', 'value' => (int) ($departmentStats['evenements'] ?? 0), 'icon' => 'bx bx-calendar-event', 'class' => 'evenement'],
-        ['label' => 'Résultats', 'value' => (int) ($departmentStats['resultats'] ?? 0), 'icon' => 'bx bx-award', 'class' => 'resultat'],
-        ['label' => 'Opportunités', 'value' => (int) ($departmentStats['opportunites'] ?? 0), 'icon' => 'bx bx-briefcase-alt-2', 'class' => 'opportunite'],
-    ];
-    ?>
+<?php $this->view('Partials/global-shell'); ?>
+<?php $this->view('Partials/mobile-menu'); ?>
+<?php $this->view('Partials/header'); ?>
+<?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
+<?php
+$departmentStats = $departmentStats ?? [];
+$departmentPosts = $departmentPosts ?? [];
+$departmentAllowedTypes = $departmentAllowedTypes ?? [];
+$departmentTypeFilter = $departmentTypeFilter ?? 'all';
+$departmentSearch = (string) ($departmentSearch ?? '');
+$currentPage = max(1, (int) ($currentPage ?? 1));
+$perPage = (int) ($perPage ?? 6);
+$totalPages = max(1, (int) ($totalPages ?? 1));
+$totalItems = max(0, (int) ($totalItems ?? count($departmentPosts)));
+$paginationQuery = (string) ($paginationQuery ?? '');
+$depTotal = array_sum(array_map('intval', $departmentStats));
+$depTypeMeta = [
+    'annonce'     => ['Annonces', 'bx-megaphone', 'annonces'],
+    'information' => ['Informations', 'bx-info-circle', 'informations'],
+    'evenement'   => ['Événements', 'bx-calendar-event', 'evenements'],
+    'resultat'    => ['Résultats', 'bx-award', 'resultats'],
+    'opportunite' => ['Opportunités', 'bx-briefcase-alt-2', 'opportunites'],
+];
+?>
+
+<main>
     <style>
-        /* Import Boxicons fallback CDN */
-        @import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
+        .dep-wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 
-        /* Fluid Container Layout */
-        .public-department .container,
-        .public-department .container-two {
-            max-width: 1680px !important;
-            width: 95% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-        }
+        /* Hero */
+        .dep-hero { position: relative; overflow: hidden; background: linear-gradient(160deg, var(--ds-brand-700), var(--ds-brand-800)); color: #fff; padding: 42px 0 50px; }
+        .dep-hero::before { content: ''; position: absolute; top: -90px; right: -70px; width: 290px; height: 290px; border-radius: 50%; background: radial-gradient(circle, rgba(224,168,46,.22), transparent 70%); pointer-events: none; }
+        .dep-hero .dep-wrap { position: relative; z-index: 1; }
+        .dep-kicker { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; font-weight: 700; font-size: .76rem; padding: 6px 14px; border-radius: var(--ds-radius-pill); }
+        .dep-hero h1 { font-family: var(--ds-font-heading); font-weight: 800; font-size: 1.8rem; line-height: 1.2; margin: 14px 0 8px; color: #fff; overflow-wrap: break-word; }
+        .dep-hero p { color: rgba(231,240,235,.82); font-size: 1rem; line-height: 1.55; margin: 0 0 20px; max-width: 600px; }
+        .dep-search { display: flex; align-items: center; gap: 6px; background: #fff; border-radius: var(--ds-radius-lg); padding: 7px; box-shadow: var(--ds-shadow-md); max-width: 640px; }
+        .dep-search > i { color: var(--ds-muted); font-size: 1.3rem; padding-left: 8px; flex-shrink: 0; }
+        .dep-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: .98rem; color: var(--ds-ink); padding: 10px 4px; font-family: var(--ds-font-sans); }
+        .dep-search button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; background: var(--ds-brand-600); color: #fff; border: 0; font-weight: 700; padding: 11px 18px; border-radius: var(--ds-radius); cursor: pointer; transition: background var(--ds-transition); }
+        .dep-search button:hover { background: var(--ds-brand-700); }
 
-        /* Background & Breadcrumb Override */
-        .public-department.change-gradient {
-            background: linear-gradient(180deg, #fffaf4 0%, #f7f2ea 35%, #ffffff 70%, #fffaf4 100%) !important;
-        }
+        /* Section + barre d'outils */
+        .dep-section { padding: 24px 0 64px; }
+        .dep-toolbar { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+        .dep-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .dep-chips::-webkit-scrollbar { display: none; }
+        .dep-chip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; background: var(--ds-surface); border: 1px solid var(--ds-border); color: var(--ds-ink); font-weight: 600; font-size: .85rem; padding: 9px 15px; border-radius: var(--ds-radius-pill); cursor: pointer; white-space: nowrap; transition: all var(--ds-transition); }
+        .dep-chip i { font-size: 1.05rem; }
+        .dep-chip:hover { border-color: var(--ds-brand-300); color: var(--ds-brand-700); }
+        .dep-chip.is-active { background: var(--ds-brand-600); border-color: var(--ds-brand-600); color: #fff; }
+        .dep-chip span { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--ds-radius-pill); background: var(--ds-surface-2); color: var(--ds-muted); font-size: .72rem; font-weight: 800; }
+        .dep-chip.is-active span { background: rgba(255,255,255,.22); color: #fff; }
+        .dep-toolbar__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .dep-count { color: var(--ds-muted); font-size: .9rem; font-weight: 600; }
+        .dep-count strong { color: var(--ds-ink-strong); }
+        .dep-field { display: flex; align-items: center; gap: 7px; }
+        .dep-field label { color: var(--ds-muted); font-size: .85rem; font-weight: 600; }
+        .dep-field select { border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius); padding: 8px 12px; font-size: .88rem; color: var(--ds-ink); background: var(--ds-surface); cursor: pointer; font-family: var(--ds-font-sans); }
 
-        .public-department .breadcrumb {
-            background: linear-gradient(135deg, #123c34, #1c5248) !important;
-            box-shadow: 0 10px 30px -10px rgba(18, 60, 52, 0.5) !important;
-            border-radius: 0 0 30px 30px !important;
-            margin-bottom: 24px !important;
-        }
+        #department-posts-results { transition: opacity .2s ease; }
 
-        .public-department .department-card,
-        .public-department .department-card .card-body,
-        .public-department .department-card h3,
-        .public-department .department-card h4,
-        .public-department .department-card h5,
-        .public-department .department-card p,
-        .public-department .department-card span,
-        .public-department .department-card label {
-            color: #171512;
-        }
+        /* Cartes publication (partial department-posts-list) */
+        .public-department .department-post-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); padding: 20px; height: 100%; box-shadow: var(--ds-shadow-sm); transition: transform var(--ds-transition), box-shadow var(--ds-transition), border-color var(--ds-transition); }
+        .public-department .department-post-card:hover { transform: translateY(-4px); box-shadow: var(--ds-shadow-md); border-color: var(--ds-brand-200); }
+        .public-department .department-post-card strong { display: block; font-family: var(--ds-font-heading); font-size: 1.12rem; font-weight: 800; color: var(--ds-ink-strong); margin-bottom: 10px; }
+        .public-department .department-post-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .public-department .department-post-meta span { display: inline-flex; align-items: center; gap: 5px; background: var(--ds-brand-50); color: var(--ds-brand-700); font-size: .76rem; font-weight: 600; padding: 4px 11px; border-radius: var(--ds-radius-pill); }
+        .public-department .department-post-card .mb-3 { color: var(--ds-ink); line-height: 1.6; font-size: .92rem; }
+        .public-department .department-image-preview { display: grid; gap: 8px; margin-bottom: 14px; border-radius: var(--ds-radius); overflow: hidden; }
+        .public-department .department-image-preview--1 { grid-template-columns: 1fr; }
+        .public-department .department-image-preview--2 { grid-template-columns: 1fr 1fr; }
+        .public-department .department-image-preview--3 { grid-template-columns: 2fr 1fr; }
+        .public-department .department-image-preview__item { position: relative; line-height: 0; display: block; }
+        .public-department .department-image-preview__item img { width: 100%; height: 150px; object-fit: cover; }
+        .public-department .department-image-preview--3 .department-image-preview__item:first-child img { height: 100%; }
+        .public-department .department-image-preview__item span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(10,35,27,.55); color: #fff; font-weight: 800; font-size: 1.1rem; }
+        .public-department .department-file-link { display: inline-flex; align-items: center; gap: 6px; margin: 0 6px 6px 0; padding: 7px 13px; border-radius: var(--ds-radius-pill); border: 1px solid var(--ds-border); background: var(--ds-surface-2); color: var(--ds-ink); text-decoration: none; font-weight: 600; font-size: .82rem; transition: all var(--ds-transition); }
+        .public-department .department-file-link:hover { background: var(--ds-brand-600); color: #fff; border-color: var(--ds-brand-600); }
+        .public-department .department-post-card .btn-outline-primary { border: 1px solid var(--ds-brand-300); color: var(--ds-brand-700); border-radius: var(--ds-radius-pill); font-weight: 700; font-size: .85rem; padding: 8px 16px; background: transparent; transition: all var(--ds-transition); }
+        .public-department .department-post-card .btn-outline-primary:hover { background: var(--ds-brand-600); color: #fff; border-color: var(--ds-brand-600); }
 
-        .public-department .department-card {
-            background: #ffffff !important;
-            border-radius: 24px !important;
-            border: 1px solid rgba(23, 21, 18, 0.08) !important;
-            box-shadow: 0 20px 55px -35px rgba(23, 21, 18, 0.12) !important;
-            overflow: hidden;
-        }
+        /* Etat vide */
+        #department-posts-results > p.text-muted { text-align: center; background: var(--ds-surface); border: 1px dashed var(--ds-border-strong); border-radius: var(--ds-radius-lg); padding: 40px 24px; color: var(--ds-muted); }
 
-        .public-department .department-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 35px;
-        }
+        /* Pagination (Partials/admin-pagination) */
+        .public-department .admin-pagination-wrap { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+        .public-department .admin-pagination-summary { color: var(--ds-muted); font-size: .85rem; font-weight: 600; }
+        .public-department .admin-pagination { display: flex; gap: 6px; flex-wrap: wrap; }
+        .public-department .page-link-nav { min-width: 40px; height: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--ds-radius); border: 1px solid var(--ds-border); background: var(--ds-surface); color: var(--ds-ink); text-decoration: none; font-weight: 700; font-size: .9rem; transition: all var(--ds-transition); }
+        .public-department .page-link-nav:hover:not(.is-disabled) { border-color: var(--ds-brand-300); color: var(--ds-brand-700); }
+        .public-department .page-link-nav.is-active { background: var(--ds-brand-600); border-color: var(--ds-brand-600); color: #fff; }
+        .public-department .page-link-nav.is-disabled { pointer-events: none; opacity: .4; }
 
-        /* Stunning Stat Cards */
-        .public-department .department-stat {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(189, 74, 31, 0.08);
-            border-radius: 20px;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 10px 25px -15px rgba(23, 21, 18, 0.08);
-        }
-
-        .public-department .department-stat::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(189, 74, 31, 0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transition: transform 0.5s ease;
-        }
-
-        .public-department .department-stat:hover {
-            transform: translateY(-6px);
-            border-color: rgba(189, 74, 31, 0.25);
-            background: #ffffff;
-            box-shadow: 0 20px 45px -20px rgba(189, 74, 31, 0.2);
-        }
-
-        .public-department .department-stat:hover::before {
-            transform: scale(1.5);
-        }
-
-        .public-department .department-stat strong {
-            display: block;
-            font-size: 2.2rem;
-            font-weight: 850;
-            margin-top: 10px;
-            font-family: "Sora", sans-serif;
-            color: #171512;
-        }
-
-        .public-department .department-stat__icon {
-            font-size: 1.8rem;
-            color: #bd4a1f;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-
-        /* Post Cards with Lift Effects */
-        .public-department .department-post-card {
-            background: #ffffff;
-            border: 1px solid rgba(23, 21, 18, 0.08);
-            border-radius: 22px;
-            padding: 24px;
-            height: 100%;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 12px 30px -15px rgba(23, 21, 18, 0.05);
-        }
-
-        .public-department .department-post-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(189, 74, 31, 0.25);
-            box-shadow: 0 25px 60px -25px rgba(189, 74, 31, 0.18), 0 10px 20px -10px rgba(18, 60, 52, 0.06);
-        }
-
-        .public-department .department-post-card strong {
-            font-family: "Sora", sans-serif;
-            font-size: 1.25rem;
-            color: #171512;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .public-department .department-post-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            color: #67615a;
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .public-department .department-post-meta span {
-            background: rgba(189, 74, 31, 0.06);
-            padding: 4px 12px;
-            border-radius: 999px;
-            color: #bd4a1f;
-        }
-
-        .public-department .department-file-link {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid #eaded3;
-            background: #fdf5ef;
-            color: #873115;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .public-department .department-file-link:hover {
-            background: #bd4a1f;
-            color: #ffffff;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px -5px rgba(189, 74, 31, 0.4);
-        }
-
-        .public-department .admin-pagination-wrap {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: 24px;
-        }
-
-        .public-department .admin-pagination-summary {
-            color: #67615a;
-            font-weight: 700;
-        }
-
-        .public-department .admin-pagination {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .public-department .page-link-nav {
-            min-width: 42px;
-            height: 42px;
-            padding: 0 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            border: 1px solid #eaded3;
-            background: #ffffff;
-            color: #171512;
-            text-decoration: none;
-            font-weight: 750;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .public-department .page-link-nav:hover:not(.is-disabled) {
-            background: #bd4a1f;
-            color: #ffffff;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -8px rgba(189, 74, 31, 0.5);
-        }
-
-        .public-department .page-link-nav.is-active {
-            background: #bd4a1f;
-            border-color: transparent;
-            color: #ffffff;
-            box-shadow: 0 10px 20px -8px rgba(189, 74, 31, 0.5);
-        }
-
-        .public-department .page-link-nav.is-disabled {
-            pointer-events: none;
-            opacity: 0.45;
-        }
-
-        /* Animations for initial load */
-        .public-department .department-stat,
-        .public-department .department-post-card {
-            animation: public-card-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        .public-department .department-stat:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-
-        .public-department .department-stat:nth-child(3) {
-            animation-delay: 0.2s;
-        }
-
-        .public-department .department-stat:nth-child(4) {
-            animation-delay: 0.3s;
-        }
-
-        .public-department .department-stat:nth-child(5) {
-            animation-delay: 0.4s;
-        }
-
-        .public-department .department-post-card:nth-child(1) {
-            animation-delay: 0.15s;
-        }
-
-        .public-department .department-post-card:nth-child(2) {
-            animation-delay: 0.25s;
-        }
-
-        .public-department .department-post-card:nth-child(3) {
-            animation-delay: 0.35s;
-        }
-
-        .public-department .department-post-card:nth-child(4) {
-            animation-delay: 0.45s;
-        }
-
-        @keyframes public-card-rise {
-            from {
-                opacity: 0;
-                transform: translateY(35px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        @media (min-width: 768px) {
+            .dep-hero { padding: 58px 0 66px; }
+            .dep-hero h1 { font-size: 2.5rem; }
+            .dep-toolbar { flex-direction: row; align-items: center; justify-content: space-between; }
+            .dep-chips { flex-wrap: wrap; overflow: visible; }
         }
     </style>
 
-    <main class="change-gradient">
-        <section class="breadcrumb mb-0 bg-main-two position-relative z-index-1 overflow-hidden">
-            <div class="container container-two">
-                <div class="breadcrumb-two">
-                    <h1 class="breadcrumb-two__title text-white mb-2">Espace Département</h1>
-                    <p class="text-white mb-0"><?= htmlspecialchars($department['name'] ?? 'Département') ?></p>
-                </div>
-            </div>
-        </section>
+    <!-- ===== HERO ===== -->
+    <section class="dep-hero">
+        <div class="dep-wrap">
+            <span class="dep-kicker"><i class='bx bx-buildings'></i> Département</span>
+            <h1>Espace Département — Génie Informatique</h1>
+            <p><?= htmlspecialchars($department['subtitle'] ?? 'Annonces, informations officielles, résultats et opportunités du département.') ?></p>
+            <form id="department-filter-form" method="get" action="<?= ROOT ?>/Homes/departement" class="dep-search" role="search">
+                <i class='bx bx-search'></i>
+                <input type="search" id="depSearch" name="search" value="<?= htmlspecialchars($departmentSearch) ?>" placeholder="Rechercher une publication…" aria-label="Rechercher" autocomplete="off">
+                <input type="hidden" id="depType" name="type" value="<?= htmlspecialchars($departmentTypeFilter) ?>">
+                <button type="submit"><i class='bx bx-search'></i><span class="d-none d-sm-inline">Rechercher</span></button>
+            </form>
+        </div>
+    </section>
 
-        <section class="padding-y-120" data-dynamic-block="department-space">
-            <div class="container container-two">
-                <div class="department-stats-grid">
-                    <?php foreach ($departmentStatCards as $stat): ?>
-                        <div class="department-stat department-stat--<?= htmlspecialchars($stat['class']) ?>">
-                            <span class="department-stat__icon"><i class='<?= htmlspecialchars($stat['icon']) ?>'></i></span>
-                            <span class="department-stat__label"><?= htmlspecialchars($stat['label']) ?></span>
-                            <strong><?= (int) $stat['value'] ?></strong>
-                        </div>
+    <!-- ===== PUBLICATIONS ===== -->
+    <section class="dep-section">
+        <div class="dep-wrap">
+            <div class="dep-toolbar">
+                <div class="dep-chips">
+                    <button type="button" class="dep-chip <?= $departmentTypeFilter === 'all' ? 'is-active' : '' ?>" data-type="all"><i class='bx bx-grid-alt'></i> Tous <span><?= $depTotal ?></span></button>
+                    <?php foreach ($departmentAllowedTypes as $type): ?>
+                        <?php $m = $depTypeMeta[$type] ?? [ucfirst($type), 'bx-bookmark', '']; $cnt = $m[2] !== '' ? (int) ($departmentStats[$m[2]] ?? 0) : 0; ?>
+                        <button type="button" class="dep-chip <?= $departmentTypeFilter === $type ? 'is-active' : '' ?>" data-type="<?= htmlspecialchars($type) ?>"><i class='bx <?= htmlspecialchars($m[1]) ?>'></i> <?= htmlspecialchars($m[0]) ?> <span><?= $cnt ?></span></button>
                     <?php endforeach; ?>
                 </div>
-
-                <div class="card common-card department-card" data-dynamic-block="department-latest-posts">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-3">
-                            <div>
-                                <h5 class="mb-1">Publications du DER</h5>
-                                <p class="mb-0 text-muted"><?= htmlspecialchars($department['subtitle'] ?? 'Informations officielles du département.') ?></p>
-                            </div>
-                            <span class="text-muted"><?= $totalItems ?> publication(s)</span>
-                        </div>
-
-                        <form method="GET" action="<?= ROOT ?>/Homes/departement" class="row gy-3 mb-4" id="department-filter-form">
-                            <div class="col-md-5">
-                                <input type="text" name="search" value="<?= htmlspecialchars($departmentSearch) ?>" class="common-input common-input--bg" placeholder="Rechercher une publication">
-                            </div>
-                            <div class="col-md-3">
-                                <select name="type" class="common-input common-input--bg auto-submit-department">
-                                    <option value="all" <?= $departmentTypeFilter === 'all' ? 'selected' : '' ?>>Tous les types</option>
-                                    <?php foreach ($departmentAllowedTypes as $type): ?>
-                                        <option value="<?= htmlspecialchars($type) ?>" <?= $departmentTypeFilter === $type ? 'selected' : '' ?>><?= htmlspecialchars(ucfirst($type)) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select name="per_page" class="common-input common-input--bg auto-submit-department">
-                                    <option value="6" <?= $perPage === 6 ? 'selected' : '' ?>>6</option>
-                                    <option value="12" <?= $perPage === 12 ? 'selected' : '' ?>>12</option>
-                                    <option value="24" <?= $perPage === 24 ? 'selected' : '' ?>>24</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">Filtrer</button>
-                            </div>
-                        </form>
-
-                        <div id="department-posts-results">
-                            <?php $this->view('Partials/department-posts-list', [
-                                'departmentPosts' => $departmentPosts,
-                                'currentPage' => $currentPage,
-                                'perPage' => $perPage,
-                                'totalPages' => $totalPages,
-                                'totalItems' => $totalItems,
-                                'paginationQuery' => $paginationQuery,
-                            ]); ?>
-                        </div>
+                <div class="dep-toolbar__row">
+                    <div class="dep-count"><strong id="depCountNum"><?= $totalItems ?></strong> publication(s)</div>
+                    <div class="dep-field">
+                        <label for="depPerPage">Par page</label>
+                        <select id="depPerPage">
+                            <?php foreach ([6, 12, 24] as $pp): ?>
+                                <option value="<?= $pp ?>" <?= $perPage === $pp ? 'selected' : '' ?>><?= $pp ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <?php $this->view('Partials/footer'); ?>
-    </main>
+            <div id="department-posts-results">
+                <?php $this->view('Partials/department-posts-list', [
+                    'departmentPosts' => $departmentPosts,
+                    'currentPage' => $currentPage,
+                    'perPage' => $perPage,
+                    'totalPages' => $totalPages,
+                    'totalItems' => $totalItems,
+                    'paginationQuery' => $paginationQuery,
+                ]); ?>
+            </div>
+        </div>
+    </section>
 
-    <?php $this->view('Partials/scripts'); ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var filterForm = document.getElementById('department-filter-form');
-            var resultsContainer = document.getElementById('department-posts-results');
-            var searchInput = filterForm ? filterForm.querySelector('input[name="search"]') : null;
-            var debounceTimer = null;
+    <?php $this->view('Partials/footer'); ?>
+</main>
 
-            function bindDepartmentPagination() {
-                if (!resultsContainer) {
-                    return;
-                }
+<?php $this->view('Partials/scripts'); ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var filterForm = document.getElementById('department-filter-form');
+        var resultsContainer = document.getElementById('department-posts-results');
+        var searchInput = document.getElementById('depSearch');
+        var typeInput = document.getElementById('depType');
+        var perPageSelect = document.getElementById('depPerPage');
+        var chips = document.querySelectorAll('.dep-chip');
+        var debounceTimer = null;
+        var action = filterForm ? filterForm.getAttribute('action') : '<?= ROOT ?>/Homes/departement';
 
-                resultsContainer.querySelectorAll('.admin-pagination a.page-link-nav').forEach(function(link) {
-                    link.addEventListener('click', function(event) {
-                        if (link.classList.contains('is-disabled')) {
-                            event.preventDefault();
-                            return;
-                        }
+        function currentUrl() {
+            var p = new URLSearchParams();
+            var s = searchInput ? searchInput.value.trim() : '';
+            if (s) { p.set('search', s); }
+            var t = typeInput ? typeInput.value : 'all';
+            if (t && t !== 'all') { p.set('type', t); }
+            var pp = perPageSelect ? perPageSelect.value : '6';
+            if (pp && pp !== '6') { p.set('per_page', pp); }
+            var qs = p.toString();
+            return action + (qs ? '?' + qs : '');
+        }
 
-                        event.preventDefault();
-                        loadDepartmentResults(link.getAttribute('href'));
-                    });
-                });
-            }
-
-            function loadDepartmentResults(url) {
-                if (!resultsContainer || !url) {
-                    return;
-                }
-
-                resultsContainer.style.opacity = '0.6';
-                fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(function(response) {
-                        return response.json();
-                    })
-                    .then(function(payload) {
-                        if (!payload || payload.ok !== true || typeof payload.html !== 'string') {
-                            return;
-                        }
-
-                        resultsContainer.innerHTML = payload.html;
-                        resultsContainer.style.opacity = '1';
-                        bindDepartmentPagination();
-                        window.history.replaceState({}, '', url);
-                    })
-                    .catch(function() {
-                        resultsContainer.style.opacity = '1';
-                    });
-            }
-
-            document.querySelectorAll('.auto-submit-department').forEach(function(element) {
-                element.addEventListener('change', function() {
-                    if (filterForm) {
-                        loadDepartmentResults(filterForm.getAttribute('action') + '?' + new URLSearchParams(new FormData(filterForm)).toString());
-                    }
+        function bindPagination() {
+            if (!resultsContainer) { return; }
+            resultsContainer.querySelectorAll('.admin-pagination a.page-link-nav').forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    if (link.classList.contains('is-disabled')) { return; }
+                    load(link.getAttribute('href'));
                 });
             });
+        }
 
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(function() {
-                        loadDepartmentResults(filterForm.getAttribute('action') + '?' + new URLSearchParams(new FormData(filterForm)).toString());
-                    }, 300);
-                });
-            }
+        function load(url) {
+            if (!resultsContainer || !url) { return; }
+            resultsContainer.style.opacity = '0.55';
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.json(); })
+                .then(function (payload) {
+                    if (!payload || payload.ok !== true || typeof payload.html !== 'string') { resultsContainer.style.opacity = '1'; return; }
+                    resultsContainer.innerHTML = payload.html;
+                    resultsContainer.style.opacity = '1';
+                    bindPagination();
+                    var cnt = document.getElementById('depCountNum');
+                    if (cnt && typeof payload.totalItems !== 'undefined') { cnt.textContent = payload.totalItems; }
+                    window.history.replaceState({}, '', url);
+                })
+                .catch(function () { resultsContainer.style.opacity = '1'; });
+        }
 
-            if (filterForm) {
-                filterForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    loadDepartmentResults(filterForm.getAttribute('action') + '?' + new URLSearchParams(new FormData(filterForm)).toString());
-                });
-            }
-
-            bindDepartmentPagination();
+        chips.forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                if (typeInput) { typeInput.value = chip.getAttribute('data-type') || 'all'; }
+                chips.forEach(function (c) { c.classList.remove('is-active'); });
+                chip.classList.add('is-active');
+                load(currentUrl());
+            });
         });
-    </script>
+        if (perPageSelect) { perPageSelect.addEventListener('change', function () { load(currentUrl()); }); }
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function () { load(currentUrl()); }, 320);
+            });
+        }
+        if (filterForm) {
+            filterForm.addEventListener('submit', function (event) { event.preventDefault(); load(currentUrl()); });
+        }
+        bindPagination();
+    });
+</script>
 </body>
-
 </html>

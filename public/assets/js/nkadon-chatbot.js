@@ -82,7 +82,8 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "X-CSRF-Token": window.CSRF_TOKEN || ""
             },
             body: JSON.stringify({
                 message: message,

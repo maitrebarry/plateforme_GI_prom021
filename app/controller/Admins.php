@@ -62,10 +62,11 @@ class Admins extends Controller
         }
 
         if (isset($_POST['reject_project'])) {
+            $reason = trim((string) ($_POST['reject_reason'] ?? ''));
             $this->redirectWithStatus(
                 $adminPanel,
                 $route,
-                $adminPanel->setProjectAdminStatus($projectId, 'rejete'),
+                $adminPanel->setProjectAdminStatus($projectId, 'rejete', $reason),
                 'Projet rejete avec succes.',
                 'Impossible de rejeter ce projet.'
             );

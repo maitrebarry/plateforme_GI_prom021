@@ -1,0 +1,20 @@
+# Dumps de base de donnees (contiennent des donnees personnelles + hash).
+# Ne jamais versionner. Pour partager le schema, exporter une version
+# SANS les donnees (structure uniquement).
+/docs/*.sql
+
+# Fichiers televerses par les utilisateurs (medias, avatars).
+/uploads/
+/public/uploads/
+/public/image_profile/
+
+# Secrets / environnement local.
+.env
+.env.*
+*.log
+
+# Systeme / editeurs.
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

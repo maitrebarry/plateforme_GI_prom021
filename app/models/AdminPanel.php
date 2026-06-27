@@ -355,7 +355,53 @@ class AdminPanel extends Model
         );
     }
 
-    public function setProjectAdminStatus(int $projectId, string $status): bool
+    private function ensureRejectReasonColumn(): void
+    {
+        if (!$this->tableExists('projects') || $this->columnExists('projects', 'reject_reason')) {
+            return;
+        }
+
+        $this->insertion_update_simples(
+            "ALTER TABLE projects ADD COLUMN reject_reason TEXT DEFAULT NULL AFTER admin_status"
+        );
+    }
+
+    // Notifie le proprietaire d'un projet d'un changement de statut de moderation.
+    private function pushModerationNotification(int $ownerId, string $projectTitle, int $projectId, string $status, ?string $reason): void
+    {
+        if ($ownerId <= 0 || !class_exists('Notification')) {
+            return;
+        }
+
+        $notif = new Notification();
+        $title = $projectTitle !== '' ? $projectTitle : 'votre projet';
+
+        if ($status === 'valide') {
+            $notif->create(
+                $ownerId,
+                'project_validated',
+                'Projet validé',
+                'Votre projet « ' . $title . ' » a été validé et est maintenant visible publiquement.',
+                'Projets/detail/' . $projectId
+            );
+        } elseif ($status === 'rejete') {
+            $message = 'Votre projet « ' . $title . ' » a été rejeté.';
+            if ($reason !== null && trim($reason) !== '') {
+                $message .= ' Motif : ' . trim($reason);
+            }
+            $notif->create($ownerId, 'project_rejected', 'Projet rejeté', $message, 'Projets/mes_projets');
+        } elseif ($status === 'en_attente') {
+            $notif->create(
+                $ownerId,
+                'project_pending',
+                'Projet remis en attente',
+                'Votre projet « ' . $title . ' » a été remis en attente de validation.',
+                'Projets/mes_projets'
+            );
+        }
+    }
+
+    public function setProjectAdminStatus(int $projectId, string $status, ?string $reason = null): bool
     {
         if (!$this->tableExists('projects')) {
             return false;
@@ -366,15 +412,25 @@ class AdminPanel extends Model
         }
 
         $this->ensureAdminStatusColumn();
+        $this->ensureRejectReasonColumn();
 
         $legacyStatus = $status === 'valide' ? 'termine' : 'en cours';
+        $reasonValue = ($status === 'rejete' && $reason !== null && trim($reason) !== '') ? trim($reason) : null;
 
         $query = $this->insertion_update_simples(
-            'UPDATE projects SET admin_status = ?, status = ? WHERE id = ?',
-            [$status, $legacyStatus, $projectId]
+            'UPDATE projects SET admin_status = ?, status = ?, reject_reason = ? WHERE id = ?',
+            [$status, $legacyStatus, $reasonValue, $projectId]
         );
 
-        return $query->rowCount() > 0;
+        $changed = $query->rowCount() > 0;
+        if ($changed) {
+            $owner = $this->FetchSelectWhere('user_id, title', 'projects', 'id = ?', [$projectId]);
+            if ($owner) {
+                $this->pushModerationNotification((int) ($owner->user_id ?? 0), (string) ($owner->title ?? ''), $projectId, $status, $reasonValue);
+            }
+        }
+
+        return $changed;
     }
 
     public function setManyProjectAdminStatus(array $projectIds, string $status): int
@@ -389,17 +445,29 @@ class AdminPanel extends Model
         }
 
         $this->ensureAdminStatusColumn();
+        $this->ensureRejectReasonColumn();
 
         $legacyStatus = $status === 'valide' ? 'termine' : 'en cours';
         $placeholders = implode(',', array_fill(0, count($projectIds), '?'));
-        $params = array_merge([$status, $legacyStatus], $projectIds);
 
+        // Liste des projets qui vont REELLEMENT changer (pour ne notifier que ceux-la).
+        $toNotify = $this->select_data_table_join_where(
+            "SELECT id, user_id, title FROM projects
+             WHERE id IN ({$placeholders}) AND COALESCE(admin_status, 'en_attente') <> ?",
+            array_merge($projectIds, [$status])
+        );
+
+        $params = array_merge([$status, $legacyStatus], $projectIds);
         $query = $this->insertion_update_simples(
             "UPDATE projects
-             SET admin_status = ?, status = ?
+             SET admin_status = ?, status = ?, reject_reason = NULL
              WHERE id IN ({$placeholders})",
             $params
         );
+
+        foreach ($toNotify as $proj) {
+            $this->pushModerationNotification((int) ($proj->user_id ?? 0), (string) ($proj->title ?? ''), (int) ($proj->id ?? 0), $status, null);
+        }
 
         return (int) $query->rowCount();
     }
@@ -487,12 +555,18 @@ class AdminPanel extends Model
             'reviews' => 0,
             'messages' => 0,
             'owners' => 0,
+            'follows' => 0,
             'average_rating' => 0.0,
         ];
 
         if ($this->tableExists('project_likes')) {
             $row = $this->FetchSelectWhere('COUNT(*) AS total', 'project_likes', '1=1');
             $stats['likes'] = (int) ($row->total ?? 0);
+        }
+
+        if ($this->tableExists('project_follows')) {
+            $row = $this->FetchSelectWhere('COUNT(*) AS total', 'project_follows', '1=1');
+            $stats['follows'] = (int) ($row->total ?? 0);
         }
 
         if ($this->tableExists('project_reviews')) {
@@ -527,6 +601,7 @@ class AdminPanel extends Model
         $hasLikes = $this->tableExists('project_likes');
         $hasReviews = $this->tableExists('project_reviews');
         $hasMessages = $this->tableExists('project_messages');
+        $hasFollows = $this->tableExists('project_follows');
 
         return $this->select_data_table_join_where(
             "SELECT
@@ -539,15 +614,17 @@ class AdminPanel extends Model
                 " . ($hasLikes ? "COUNT(DISTINCT pl.id)" : "0") . " AS likes_count,
                 " . ($hasReviews ? "COUNT(DISTINCT pr.id)" : "0") . " AS reviews_count,
                 " . ($hasMessages ? "COUNT(DISTINCT pm.id)" : "0") . " AS messages_count,
-                " . ($hasReviews ? "COALESCE(ROUND(AVG(pr.rating), 1), 0)" : "0") . " AS average_rating
+                " . ($hasReviews ? "COALESCE(ROUND(AVG(pr.rating), 1), 0)" : "0") . " AS average_rating,
+                " . ($hasFollows ? "COUNT(DISTINCT pf.id)" : "0") . " AS follows_count
              FROM projects p
              LEFT JOIN users u ON u.user_id = p.user_id
              LEFT JOIN categories c ON c.id = p.category_id
              " . ($hasLikes ? "LEFT JOIN project_likes pl ON pl.project_id = p.id" : "") . "
              " . ($hasReviews ? "LEFT JOIN project_reviews pr ON pr.project_id = p.id" : "") . "
              " . ($hasMessages ? "LEFT JOIN project_messages pm ON pm.project_id = p.id" : "") . "
+             " . ($hasFollows ? "LEFT JOIN project_follows pf ON pf.project_id = p.id" : "") . "
              GROUP BY p.id, p.title, p.created_at, p.admin_status, u.nom, u.prenom, c.nom
-             ORDER BY likes_count DESC, messages_count DESC, reviews_count DESC, average_rating DESC, p.created_at DESC
+             ORDER BY follows_count DESC, likes_count DESC, messages_count DESC, reviews_count DESC, average_rating DESC, p.created_at DESC
              LIMIT {$limit}"
         );
     }
@@ -568,6 +645,7 @@ class AdminPanel extends Model
         $hasLikes = $this->tableExists('project_likes');
         $hasReviews = $this->tableExists('project_reviews');
         $hasMessages = $this->tableExists('project_messages');
+        $hasFollows = $this->tableExists('project_follows');
         $pagination = $this->normalizePagination($page, $perPage);
         $totalRow = $this->FetchSelectWhere('COUNT(*) AS total', 'projects', '1=1');
         $total = (int) ($totalRow->total ?? 0);
@@ -586,15 +664,17 @@ class AdminPanel extends Model
                 " . ($hasLikes ? "COUNT(DISTINCT pl.id)" : "0") . " AS likes_count,
                 " . ($hasReviews ? "COUNT(DISTINCT pr.id)" : "0") . " AS reviews_count,
                 " . ($hasMessages ? "COUNT(DISTINCT pm.id)" : "0") . " AS messages_count,
-                " . ($hasReviews ? "COALESCE(ROUND(AVG(pr.rating), 1), 0)" : "0") . " AS average_rating
+                " . ($hasReviews ? "COALESCE(ROUND(AVG(pr.rating), 1), 0)" : "0") . " AS average_rating,
+                " . ($hasFollows ? "COUNT(DISTINCT pf.id)" : "0") . " AS follows_count
              FROM projects p
              LEFT JOIN users u ON u.user_id = p.user_id
              LEFT JOIN categories c ON c.id = p.category_id
              " . ($hasLikes ? "LEFT JOIN project_likes pl ON pl.project_id = p.id" : "") . "
              " . ($hasReviews ? "LEFT JOIN project_reviews pr ON pr.project_id = p.id" : "") . "
              " . ($hasMessages ? "LEFT JOIN project_messages pm ON pm.project_id = p.id" : "") . "
+             " . ($hasFollows ? "LEFT JOIN project_follows pf ON pf.project_id = p.id" : "") . "
              GROUP BY p.id, p.title, p.created_at, p.admin_status, u.nom, u.prenom, c.nom
-             ORDER BY likes_count DESC, messages_count DESC, reviews_count DESC, average_rating DESC, p.created_at DESC
+             ORDER BY follows_count DESC, likes_count DESC, messages_count DESC, reviews_count DESC, average_rating DESC, p.created_at DESC
              LIMIT {$pagination['perPage']} OFFSET {$offset}"
         );
 

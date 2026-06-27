@@ -82,7 +82,7 @@ class HuggingFaceProjectAssistant
         $pageTitle = (string) ($pageContext['title'] ?? 'page inconnue');
         $pagePath = (string) ($pageContext['path'] ?? '');
 
-        $systemPrompt = "Tu es N'KadonBot, l'assistant conversationnel integre a Plateforme GI Promo 21. "
+        $systemPrompt = "Tu es N'KadonBot, l'assistant conversationnel integre a NGAKODON. "
             . "Ta mission est d'aider les visiteurs, etudiants, administrateurs et responsables DER a utiliser la plateforme. "
             . "Tu reponds en francais par defaut, avec un ton clair, professionnel, chaleureux et concis. "
             . "Contexte utilisateur: role actuel = {$role}. Page actuelle = {$pageTitle}. Chemin = {$pagePath}. "
@@ -290,7 +290,7 @@ class HuggingFaceProjectAssistant
         if (preg_match('/^(salut|bonjour|bonsoir|hello|coucou|hey)\b/u', $question)) {
             $message = "Salut, je vais bien merci. Je suis N'KadonBot, pret a t'aider sur la plateforme. Tu veux qu'on regarde les projets, les utilisateurs, les messages ou une action d'administration ?";
         } elseif (str_contains($question, 'tu vas bien') || str_contains($question, 'ca va') || str_contains($question, 'ça va')) {
-            $message = "Oui, ca va bien, merci. Je suis la pour t'aider tranquillement. Dis-moi ce que tu veux faire sur Plateforme GI Promo 21 et je te guide.";
+            $message = "Oui, ca va bien, merci. Je suis la pour t'aider tranquillement. Dis-moi ce que tu veux faire sur NGAKODON et je te guide.";
         } elseif (str_contains($question, 'publier') || str_contains($question, 'projet')) {
             $message = "Pour publier ou gerer un projet, va dans ton espace etudiant, ouvre la section de publication, renseigne le titre, la categorie, la description et les technologies, puis ajoute les fichiers ou images utiles avant validation.";
         } elseif (str_contains($question, 'message') || str_contains($question, 'contact')) {

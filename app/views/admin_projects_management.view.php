@@ -6,8 +6,6 @@
 $projectSearch = $projectSearch ?? '';
 $projectStatusFilter = $projectStatusFilter ?? 'all';
 $projectCategoryFilter = $projectCategoryFilter ?? null;
-$projectDateFrom = $projectDateFrom ?? '';
-$projectDateTo = $projectDateTo ?? '';
 $projectSortBy = $projectSortBy ?? 'date';
 $projectSortDir = $projectSortDir ?? 'desc';
 $categories = $categories ?? [];
@@ -17,373 +15,185 @@ $totalPages = max(1, (int) ($totalPages ?? 1));
 $totalItems = max(0, (int) ($totalItems ?? count($projects ?? [])));
 $paginationQuery = (string) ($paginationQuery ?? '');
 $dashboardStats = $dashboardStats ?? [];
+$projects = $projects ?? [];
+$csrf = (string) ($_SESSION['csrf_token'] ?? '');
 $pendingCount = (int) ($dashboardStats['pending'] ?? 0);
 $validatedCount = (int) ($dashboardStats['validated'] ?? 0);
 $rejectedCount = (int) ($dashboardStats['rejected'] ?? 0);
-$projectStatusFilters = [
-    ['value' => 'all', 'label' => 'Tous', 'count' => $pendingCount + $validatedCount + $rejectedCount],
-    ['value' => 'en_attente', 'label' => 'A valider', 'count' => $pendingCount],
-    ['value' => 'valide', 'label' => 'Valides', 'count' => $validatedCount],
-    ['value' => 'rejete', 'label' => 'Rejetes', 'count' => $rejectedCount],
+$statusTabs = [
+    ['all', 'Tous', $pendingCount + $validatedCount + $rejectedCount],
+    ['en_attente', 'À valider', $pendingCount],
+    ['valide', 'Validés', $validatedCount],
+    ['rejete', 'Rejetés', $rejectedCount],
 ];
 ?>
-<style>
-:root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #94a3b8;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --bg-light: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
 
-body {
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.common-card {
-    border: none;
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    background: #ffffff;
-    margin-bottom: 24px;
-    overflow: hidden;
-}
-
-.header-back-btn {
-    width: 45px;
-    height: 45px;
-    background: white;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.header-back-btn:hover {
-    transform: translateX(-5px);
-    background: #f8fafc;
-}
-
-.table thead th {
-    background: #f8fafc !important;
-    color: #475569 !important;
-    font-weight: 800 !important;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    padding: 1.25rem 1rem !important;
-    border-bottom: 2px solid #e2e8f0 !important;
-}
-
-.table tbody td {
-    padding: 1.25rem 1rem !important;
-    font-weight: 600;
-    color: #1e293b;
-    vertical-align: middle;
-}
-
-.table tbody tr {
-    transition: all 0.2s;
-}
-
-.table tbody tr:hover {
-    background-color: #f1f5f9 !important;
-    transform: scale(1.002);
-}
-
-.badge {
-    padding: 0.6em 1.25em;
-    border-radius: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-}
-
-.btn {
-    font-weight: 700;
-    border-radius: 12px;
-    padding: 0.6rem 1.2rem;
-    transition: all 0.3s;
-}
-
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; }
-.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; color: white; }
-.btn-danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: none; }
-.btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; }
-
-.filter-shelf {
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid #e2e8f0;
-}
-
-.admin-bulk-bar {
-    background: #f1f5f9;
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-}
-
-.page-link-nav {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: white;
-    border: 1px solid #e2e8f0;
-    color: var(--text-main);
-    text-decoration: none;
-    font-weight: 700;
-    transition: all 0.2s;
-}
-
-.page-link-nav.is-active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-
-.status-filter-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .75rem;
-    margin-bottom: 1.5rem;
-}
-
-.status-filter-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    min-height: 42px;
-    padding: .65rem 1rem;
-    border-radius: 999px;
-    background: #f8fafc;
-    color: var(--text-main);
-    border: 1px solid #e2e8f0;
-    text-decoration: none;
-    font-weight: 800;
-}
-
-.status-filter-tab:hover,
-.status-filter-tab.is-active {
-    background: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-.status-filter-tab__count {
-    min-width: 26px;
-    height: 24px;
-    padding: 0 .45rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(15, 23, 42, .08);
-    font-size: .76rem;
-}
-
-.status-filter-tab.is-active .status-filter-tab__count,
-.status-filter-tab:hover .status-filter-tab__count {
-    background: rgba(255, 255, 255, .22);
-}
-</style>
 <section class="dashboard">
     <div class="dashboard__inner d-flex">
         <?php $this->view('Partials/dashboard-sidebar'); ?>
         <div class="dashboard-body">
             <?php $this->view('Partials/dashboard-nav'); ?>
-            <div class="dashboard-body__content p-4">
+            <div class="dashboard-body__content p-3 p-lg-4">
                 <?php $this->view('set_flash'); ?>
-                <div class="card common-card mb-4 border-0" style="background: transparent; box-shadow: none;">
-                    <div class="card-body p-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <a href="<?= ROOT ?>/Admins/dashboard" class="header-back-btn">
-                                ⬅️
-                            </a>
-                            <div>
-                                <h3 class="mb-0 fw-800 text-primary">Gestion des Projets</h3>
-                                <p class="text-muted small mb-0">Validation, suivi et moderation dans un seul module</p>
-                            </div>
-                        </div>
+
+                <style>
+                    .adm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+                    .adm-back { width: 42px; height: 42px; border-radius: 12px; background: var(--ds-surface); border: 1px solid var(--ds-border); display: inline-flex; align-items: center; justify-content: center; color: var(--ds-ink); text-decoration: none; font-size: 1.2rem; transition: all var(--ds-transition); }
+                    .adm-back:hover { background: var(--ds-brand-50); color: var(--ds-brand-700); }
+                    .adm-head h1 { font-family: var(--ds-font-heading); font-size: 1.35rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; }
+                    .adm-head p { color: var(--ds-muted); font-size: .85rem; margin: 0; }
+
+                    .adm-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); padding: 20px; }
+                    .adm-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+                    .adm-tab { display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: var(--ds-radius-pill); background: var(--ds-surface); border: 1px solid var(--ds-border); color: var(--ds-ink); text-decoration: none; font-weight: 700; font-size: .86rem; transition: all var(--ds-transition); }
+                    .adm-tab:hover { border-color: var(--ds-brand-300); color: var(--ds-brand-700); }
+                    .adm-tab.is-active { background: var(--ds-brand-600); border-color: var(--ds-brand-600); color: #fff; }
+                    .adm-tab__count { min-width: 22px; height: 20px; padding: 0 6px; border-radius: var(--ds-radius-pill); display: inline-flex; align-items: center; justify-content: center; background: var(--ds-surface-2); color: var(--ds-muted); font-size: .72rem; font-weight: 800; }
+                    .adm-tab.is-active .adm-tab__count { background: rgba(255,255,255,.22); color: #fff; }
+
+                    .adm-filter { background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 14px; margin-bottom: 18px; }
+                    .adm-filter label { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ds-muted); margin-bottom: 5px; display: block; }
+                    .adm-filter .form-control, .adm-filter .form-select { width: 100%; border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius); padding: 9px 12px; font-size: .87rem; color: var(--ds-ink); background: var(--ds-surface); font-family: var(--ds-font-sans); }
+                    .adm-filter .form-control:focus, .adm-filter .form-select:focus { outline: none; border-color: var(--ds-brand-400); box-shadow: var(--ds-ring); }
+                    .adm-filter__btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; background: var(--ds-brand-600); color: #fff; font-weight: 700; padding: 9px; border: 0; border-radius: var(--ds-radius); cursor: pointer; }
+                    .adm-filter__btn:hover { background: var(--ds-brand-700); }
+
+                    .adm-bulk { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 12px 16px; margin-bottom: 14px; }
+                    .adm-bulk__check { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .82rem; color: var(--ds-ink); }
+                    .adm-bulk__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+                    .adm-bbtn { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .8rem; padding: 8px 14px; border-radius: var(--ds-radius-pill); border: 0; cursor: pointer; color: #fff; }
+                    .adm-bbtn--ok { background: #1f8a4d; } .adm-bbtn--wait { background: var(--ds-accent); color: #3d2900; } .adm-bbtn--no { background: var(--ds-danger); }
+
+                    .adm-table-wrap { overflow-x: auto; }
+                    .adm-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+                    .adm-table thead th { text-align: left; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ds-muted); padding: 11px 12px; border-bottom: 2px solid var(--ds-border); white-space: nowrap; }
+                    .adm-table tbody td { padding: 12px; border-bottom: 1px solid var(--ds-border); color: var(--ds-ink); font-size: .88rem; font-weight: 600; vertical-align: middle; }
+                    .adm-table tbody tr:hover { background: var(--ds-surface-2); }
+                    .adm-table .t-title { font-family: var(--ds-font-heading); font-weight: 800; color: var(--ds-ink-strong); }
+                    .adm-author { display: inline-flex; align-items: center; gap: 8px; }
+                    .adm-author__ava { width: 28px; height: 28px; border-radius: 50%; background: var(--ds-brand-100); color: var(--ds-brand-700); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .72rem; }
+                    .adm-pill { display: inline-flex; align-items: center; height: 22px; padding: 0 11px; border-radius: var(--ds-radius-pill); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
+                    .adm-pill--cat { background: var(--ds-surface-2); color: var(--ds-muted); }
+                    .adm-pill--pending { background: var(--ds-accent-soft); color: #8a6310; }
+                    .adm-pill--valide { background: #e4f3ea; color: #11703a; }
+                    .adm-pill--rejete { background: var(--ds-danger-soft); color: #a3322e; }
+                    .adm-row-actions { display: flex; gap: 6px; }
+                    .adm-ico { width: 32px; height: 32px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--ds-border); background: var(--ds-surface); color: var(--ds-ink); cursor: pointer; font-size: 1.05rem; text-decoration: none; transition: all var(--ds-transition); }
+                    .adm-ico:hover { transform: translateY(-1px); }
+                    .adm-ico--view:hover { background: var(--ds-brand-50); color: var(--ds-brand-700); border-color: var(--ds-brand-300); }
+                    .adm-ico--ok:hover { background: #1f8a4d; color: #fff; border-color: #1f8a4d; }
+                    .adm-ico--wait:hover { background: var(--ds-accent); color: #3d2900; border-color: var(--ds-accent); }
+                    .adm-ico--no:hover { background: var(--ds-danger); color: #fff; border-color: var(--ds-danger); }
+                    .adm-check { width: 18px; height: 18px; accent-color: var(--ds-brand-600); cursor: pointer; }
+                    .adm-empty { text-align: center; color: var(--ds-muted); padding: 30px; }
+
+                    /* Pagination (admin-pagination partial) */
+                    .admin-pagination-wrap { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
+                    .admin-pagination-summary { color: var(--ds-muted); font-size: .85rem; font-weight: 600; }
+                    .admin-pagination { display: flex; gap: 6px; flex-wrap: wrap; }
+                    .page-link-nav { min-width: 40px; height: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--ds-radius); border: 1px solid var(--ds-border); background: var(--ds-surface); color: var(--ds-ink); text-decoration: none; font-weight: 700; font-size: .9rem; transition: all var(--ds-transition); }
+                    .page-link-nav:hover:not(.is-disabled) { border-color: var(--ds-brand-300); color: var(--ds-brand-700); }
+                    .page-link-nav.is-active { background: var(--ds-brand-600); border-color: var(--ds-brand-600); color: #fff; }
+                    .page-link-nav.is-disabled { pointer-events: none; opacity: .4; }
+                </style>
+
+                <div class="adm-head">
+                    <a href="<?= ROOT ?>/Admins/dashboard" class="adm-back"><i class='bx bx-left-arrow-alt'></i></a>
+                    <div>
+                        <h1>Gestion des projets</h1>
+                        <p>Validation, suivi et modération des publications.</p>
                     </div>
                 </div>
 
-                <div class="card common-card">
-                    <div class="card-body p-4">
-                        <div class="status-filter-tabs" aria-label="Filtres rapides par statut">
-                            <?php foreach ($projectStatusFilters as $statusFilter): ?>
-                                <?php
-                                $query = $statusFilter['value'] === 'all' ? '' : ('?status=' . urlencode($statusFilter['value']));
-                                $isActive = $projectStatusFilter === $statusFilter['value'];
-                                ?>
-                                <a class="status-filter-tab <?= $isActive ? 'is-active' : '' ?>" href="<?= ROOT ?>/Admins/projects_management<?= $query ?>">
-                                    <span><?= htmlspecialchars($statusFilter['label']) ?></span>
-                                    <span class="status-filter-tab__count"><?= (int) $statusFilter['count'] ?></span>
-                                </a>
-                            <?php endforeach; ?>
+                <div class="adm-card">
+                    <div class="adm-tabs">
+                        <?php foreach ($statusTabs as $t): ?>
+                            <?php $q = $t[0] === 'all' ? '' : ('?status=' . urlencode($t[0])); ?>
+                            <a class="adm-tab <?= $projectStatusFilter === $t[0] ? 'is-active' : '' ?>" href="<?= ROOT ?>/Admins/projects_management<?= $q ?>"><?= htmlspecialchars($t[1]) ?> <span class="adm-tab__count"><?= (int) $t[2] ?></span></a>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="adm-filter">
+                        <form method="GET" action="<?= ROOT ?>/Admins/projects_management" class="row gy-2 gx-2">
+                            <div class="col-md-4"><label>Recherche</label><input type="text" name="search" value="<?= htmlspecialchars($projectSearch) ?>" class="form-control" placeholder="Titre, auteur…"></div>
+                            <div class="col-md-2 col-6"><label>Statut</label><select name="status" class="form-select"><option value="all" <?= $projectStatusFilter === 'all' ? 'selected' : '' ?>>Tous</option><option value="en_attente" <?= $projectStatusFilter === 'en_attente' ? 'selected' : '' ?>>En attente</option><option value="valide" <?= $projectStatusFilter === 'valide' ? 'selected' : '' ?>>Validé</option><option value="rejete" <?= $projectStatusFilter === 'rejete' ? 'selected' : '' ?>>Rejeté</option></select></div>
+                            <div class="col-md-3 col-6"><label>Catégorie</label><select name="category" class="form-select"><option value="">Toutes</option><?php foreach ($categories as $category): ?><option value="<?= (int) ($category->id ?? 0) ?>" <?= (int) $projectCategoryFilter === (int) ($category->id ?? 0) ? 'selected' : '' ?>><?= htmlspecialchars((string) ($category->nom ?? 'Catégorie')) ?></option><?php endforeach; ?></select></div>
+                            <div class="col-md-2 col-6"><label>Tri</label><select name="sort_by" class="form-select"><option value="date" <?= $projectSortBy === 'date' ? 'selected' : '' ?>>Date</option><option value="title" <?= $projectSortBy === 'title' ? 'selected' : '' ?>>Titre</option><option value="author" <?= $projectSortBy === 'author' ? 'selected' : '' ?>>Auteur</option></select></div>
+                            <div class="col-md-1 col-6"><label>Ordre</label><select name="sort_dir" class="form-select"><option value="desc" <?= $projectSortDir === 'desc' ? 'selected' : '' ?>>↓</option><option value="asc" <?= $projectSortDir === 'asc' ? 'selected' : '' ?>>↑</option></select></div>
+                            <div class="col-12"><button class="adm-filter__btn" type="submit" style="width:auto;padding:9px 22px"><i class='bx bx-filter-alt'></i> Filtrer</button></div>
+                        </form>
+                    </div>
+
+                    <form method="POST" action="<?= ROOT ?>/Admins/projects_management">
+                        <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+                        <div class="adm-bulk">
+                            <label class="adm-bulk__check"><input class="adm-check" type="checkbox" id="select-all-management"> Tout sélectionner</label>
+                            <div class="adm-bulk__actions">
+                                <button class="adm-bbtn adm-bbtn--ok" type="submit" name="bulk_validate_projects"><i class='bx bx-check'></i> Valider</button>
+                                <button class="adm-bbtn adm-bbtn--wait" type="submit" name="bulk_set_pending_projects"><i class='bx bx-time'></i> Attente</button>
+                                <button class="adm-bbtn adm-bbtn--no" type="submit" name="bulk_reject_projects" onclick="return confirm('Rejeter les projets sélectionnés ?');"><i class='bx bx-x'></i> Rejeter</button>
+                            </div>
                         </div>
 
-                        <div class="filter-shelf">
-                            <form method="GET" action="<?= ROOT ?>/Admins/projects_management" class="row gy-3">
-                                <div class="col-md-3">
-                                    <label class="small fw-bold text-muted mb-2">Recherche</label>
-                                    <input type="text" name="search" value="<?= htmlspecialchars($projectSearch) ?>" class="form-control rounded-3 border-0 bg-white" placeholder="Titre, auteur...">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="small fw-bold text-muted mb-2">Statut</label>
-                                    <select name="status" class="form-select rounded-3 border-0 bg-white">
-                                        <option value="all" <?= $projectStatusFilter === 'all' ? 'selected' : '' ?>>Tous les statuts</option>
-                                        <option value="en_attente" <?= $projectStatusFilter === 'en_attente' ? 'selected' : '' ?>>En attente</option>
-                                        <option value="valide" <?= $projectStatusFilter === 'valide' ? 'selected' : '' ?>>Valide</option>
-                                        <option value="rejete" <?= $projectStatusFilter === 'rejete' ? 'selected' : '' ?>>Rejeté</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="small fw-bold text-muted mb-2">Catégorie</label>
-                                    <select name="category" class="form-select rounded-3 border-0 bg-white">
-                                        <option value="">Toutes catégories</option>
-                                        <?php foreach ($categories as $category): ?>
-                                            <option value="<?= (int) ($category->id ?? 0) ?>" <?= (int) $projectCategoryFilter === (int) ($category->id ?? 0) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars((string) ($category->nom ?? 'Categorie')) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="small fw-bold text-muted mb-2">Tri par</label>
-                                    <div class="input-group">
-                                        <select name="sort_by" class="form-select rounded-start-3 border-0 bg-white">
-                                            <option value="date" <?= $projectSortBy === 'date' ? 'selected' : '' ?>>Date</option>
-                                            <option value="title" <?= $projectSortBy === 'title' ? 'selected' : '' ?>>Titre</option>
-                                            <option value="author" <?= $projectSortBy === 'author' ? 'selected' : '' ?>>Auteur</option>
-                                        </select>
-                                        <select name="sort_dir" class="form-select rounded-end-3 border-0 bg-white">
-                                            <option value="desc" <?= $projectSortDir === 'desc' ? 'selected' : '' ?>>DESC</option>
-                                            <option value="asc" <?= $projectSortDir === 'asc' ? 'selected' : '' ?>>ASC</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 d-flex align-items-end">
-                                    <button class="btn btn-primary w-100 shadow-sm" type="submit">🔍 Filtrer</button>
-                                </div>
-                            </form>
-                        </div>
-                        <form method="POST" action="<?= ROOT ?>/Admins/projects_management">
-                            <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
-                            <div class="admin-bulk-bar shadow-sm">
-                                <div class="form-check mb-0">
-                                    <input class="form-check-input" type="checkbox" id="select-all-management" style="width: 1.2rem; height: 1.2rem;">
-                                    <label class="form-check-label fw-bold small ms-2" for="select-all-management">TOUT SÉLECTIONNER</label>
-                                </div>
-                                <div class="admin-bulk-actions">
-                                    <button class="btn btn-success btn-sm px-3" type="submit" name="bulk_validate_projects">✅ Valider</button>
-                                    <button class="btn btn-warning btn-sm px-3" type="submit" name="bulk_set_pending_projects">⌛ Attente</button>
-                                    <button class="btn btn-danger btn-sm px-3" type="submit" name="bulk_reject_projects" onclick="return confirm('Rejeter les projets selectionnes ?');">❌ Rejeter</button>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Titre</th>
-                                        <th>Auteur</th>
-                                        <th>Categorie</th>
-                                        <th>Date</th>
-                                        <th>Statut</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
+                        <div class="adm-table-wrap">
+                            <table class="adm-table">
+                                <thead><tr><th></th><th>Titre</th><th>Auteur</th><th>Catégorie</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
                                 <tbody>
                                     <?php if (!empty($projects)): ?>
                                         <?php foreach ($projects as $project): ?>
-                                            <?php
-                                            $status = (string) ($project->statut_admin ?? 'en_attente');
-                                            $badgeClass = 'bg-warning text-dark';
-                                            if ($status === 'valide') {
-                                                $badgeClass = 'bg-success';
-                                            } elseif ($status === 'rejete') {
-                                                $badgeClass = 'bg-danger';
-                                            }
-                                            ?>
+                                            <?php $st = (string) ($project->statut ?? $project->statut_admin ?? 'en_attente'); $stCls = $st === 'valide' ? 'valide' : ($st === 'rejete' ? 'rejete' : 'pending'); $pid = (int) ($project->id ?? 0); $auteur = (string) ($project->auteur ?? '-'); ?>
                                             <tr>
-                                                <td><input type="checkbox" class="management-project-checkbox form-check-input" name="project_ids[]" value="<?= (int)($project->id ?? 0) ?>" style="width: 1.1rem; height: 1.1rem;"></td>
-                                                <td class="fw-800 text-dark"><?= htmlspecialchars($project->title ?? '') ?></td>
-                                                <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 0.8rem;">👤</div>
-                                                        <span><?= htmlspecialchars($project->auteur ?? '') ?></span>
-                                                    </div>
-                                                </td>
-                                                <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($project->categorie ?? '') ?></span></td>
-                                                <td class="text-muted small"><?= htmlspecialchars(date('d/m/Y', strtotime((string)($project->created_at ?? 'now')))) ?></td>
-                                                <td><span class="badge <?= $badgeClass ?> bg-opacity-10 text-<?= str_replace('bg-', '', explode(' ', $badgeClass)[0]) ?>"><?= htmlspecialchars($status) ?></span></td>
-                                                <td class="admin-table-actions">
-                                                    <div class="d-flex gap-1">
-                                                        <a href="<?= ROOT ?>/Admins/project_detail/<?= (int)($project->id ?? 0) ?>" class="btn btn-light btn-sm border" title="Détails">👁️</a>
-                                                        <button class="btn btn-success btn-sm" type="submit" name="single_validate_project" value="<?= (int)($project->id ?? 0) ?>" title="Valider">✅</button>
-                                                        <button class="btn btn-warning btn-sm" type="submit" name="single_set_pending_project" value="<?= (int)($project->id ?? 0) ?>" title="Attente">⌛</button>
-                                                        <button class="btn btn-danger btn-sm" type="submit" name="single_reject_project" value="<?= (int)($project->id ?? 0) ?>" onclick="return confirm('Rejeter ce projet ?');" title="Rejeter">❌</button>
+                                                <td class="is-cardcheck"><input type="checkbox" class="management-project-checkbox adm-check" name="project_ids[]" value="<?= $pid ?>"></td>
+                                                <td class="t-title is-cardtitle"><?= htmlspecialchars($project->title ?? '') ?></td>
+                                                <td data-label="Auteur"><span class="adm-author"><span class="adm-author__ava"><?= htmlspecialchars(strtoupper(mb_substr($auteur, 0, 1))) ?></span><?= htmlspecialchars($auteur) ?></span></td>
+                                                <td data-label="Catégorie"><span class="adm-pill adm-pill--cat"><?= htmlspecialchars($project->categorie ?? '-') ?></span></td>
+                                                <td class="text-muted" data-label="Date"><?= htmlspecialchars(date('d/m/Y', strtotime((string) ($project->created_at ?? 'now')))) ?></td>
+                                                <td data-label="Statut"><span class="adm-pill adm-pill--<?= $stCls ?>"><?= htmlspecialchars($st) ?></span></td>
+                                                <td class="is-cardaction">
+                                                    <div class="adm-row-actions">
+                                                        <a href="<?= ROOT ?>/Admins/project_detail/<?= $pid ?>" class="adm-ico adm-ico--view" title="Détails"><i class='bx bx-show'></i></a>
+                                                        <button class="adm-ico adm-ico--ok" type="submit" name="single_validate_project" value="<?= $pid ?>" title="Valider"><i class='bx bx-check'></i></button>
+                                                        <button class="adm-ico adm-ico--wait" type="submit" name="single_set_pending_project" value="<?= $pid ?>" title="Mettre en attente"><i class='bx bx-time'></i></button>
+                                                        <button class="adm-ico adm-ico--no" type="submit" name="single_reject_project" value="<?= $pid ?>" onclick="return confirm('Rejeter ce projet ?');" title="Rejeter"><i class='bx bx-x'></i></button>
                                                     </div>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <tr><td colspan="7" class="text-center text-muted">Aucun projet trouve.</td></tr>
+                                        <tr><td colspan="7" class="adm-empty">Aucun projet trouvé.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
-                            </div>
-                        </form>
-                        <?php $this->view('Partials/admin-pagination', [
-                            'currentPage' => $currentPage,
-                            'perPage' => $perPage,
-                            'totalPages' => $totalPages,
-                            'totalItems' => $totalItems,
-                            'basePath' => 'Admins/projects_management',
-                            'queryString' => $paginationQuery,
-                            'itemLabel' => 'projet(s)',
-                        ]); ?>
-                    </div>
+                        </div>
+                    </form>
+
+                    <?php $this->view('Partials/admin-pagination', [
+                        'currentPage' => $currentPage,
+                        'perPage' => $perPage,
+                        'totalPages' => $totalPages,
+                        'totalItems' => $totalItems,
+                        'basePath' => 'Admins/projects_management',
+                        'queryString' => $paginationQuery,
+                        'itemLabel' => 'projet(s)',
+                    ]); ?>
                 </div>
             </div>
             <?php $this->view('Partials/dashboard-footer'); ?>
         </div>
     </div>
 </section>
+
 <?php $this->view('Partials/scripts'); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var selectAll = document.getElementById('select-all-management');
-    if (!selectAll) {
-        return;
-    }
-
-    var checkboxes = Array.from(document.querySelectorAll('.management-project-checkbox'));
-    selectAll.addEventListener('change', function () {
-        checkboxes.forEach(function (checkbox) {
-            checkbox.checked = selectAll.checked;
+    document.addEventListener('DOMContentLoaded', function () {
+        var selectAll = document.getElementById('select-all-management');
+        if (!selectAll) { return; }
+        var checkboxes = Array.from(document.querySelectorAll('.management-project-checkbox'));
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(function (cb) { cb.checked = selectAll.checked; });
         });
     });
-});
 </script>
 </body>
 </html>

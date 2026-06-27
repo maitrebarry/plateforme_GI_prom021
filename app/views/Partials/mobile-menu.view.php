@@ -27,8 +27,27 @@ $publicNavItems = [
                 <?php else: ?>
                 <li class="nav-menu__item"><a href="<?= ROOT ?>/Homes/dashboard" class="nav-menu__link"><i class="las la-th-large"></i>Mon espace</a></li>
                 <li class="nav-menu__item"><a href="<?= ROOT ?>/Profiles/appercu" class="nav-menu__link"><i class="las la-user-circle"></i>Profil</a></li>
-                <li class="nav-menu__item"><a href="<?= ROOT ?>/Logins/logout" class="nav-menu__link"><i class="las la-sign-out-alt"></i>Déconnexion</a></li>
+                <li class="nav-menu__item"><a href="<?= ROOT ?>/Logins/logout" data-logout class="nav-menu__link"><i class="las la-sign-out-alt"></i>Déconnexion</a></li>
                 <?php endif; ?>
+                <li class="nav-menu__item">
+                    <a href="#" class="nav-menu__link" role="button" onclick="if(window.nkInstall){window.nkInstall();}return false;">
+                        <i class="bx bx-download"></i>Installer l'application
+                    </a>
+                </li>
+                <li class="nav-menu__item">
+                    <a href="#" class="nav-menu__link" data-theme-toggle role="button">
+                        <i class="bx bx-moon"></i><span data-theme-label>Mode sombre</span>
+                    </a>
+                </li>
+                <li class="nav-menu__item" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <i class='bx bx-palette'></i><span>Couleur</span>
+                    <span class="ds-color-swatches" style="margin-left:auto;">
+                        <button type="button" class="ds-color-swatch" data-color-value="green" style="--sw:#157f5a" title="Vert" aria-label="Vert"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="blue" style="--sw:#1d59b8" title="Bleu" aria-label="Bleu"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="orange" style="--sw:#cf5410" title="Orange" aria-label="Orange"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="violet" style="--sw:#6236c4" title="Violet" aria-label="Violet"></button>
+                    </span>
+                </li>
             </ul>
         </div>
     </div>

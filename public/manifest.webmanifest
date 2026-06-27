@@ -1,0 +1,26 @@
+{
+  "name": "NGAKODON — Vitrine des projets GI",
+  "short_name": "NGAKODON",
+  "description": "Découvrez, explorez et contactez les projets étudiants en Génie Informatique de la Promo 2021.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#f6f9f7",
+  "theme_color": "#157f5a",
+  "categories": ["education", "social"],
+  "icons": [
+    { "src": "assets/icons/nk-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/nk-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/nk-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/nk-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/icons/nk-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Explorer les projets", "short_name": "Projets", "url": "./Homes/projects", "icons": [{ "src": "assets/icons/nk-192.png", "sizes": "192x192" }] },
+    { "name": "Départements", "short_name": "Départements", "url": "./Homes/departement", "icons": [{ "src": "assets/icons/nk-192.png", "sizes": "192x192" }] }
+  ]
+}

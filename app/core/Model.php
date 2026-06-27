@@ -53,15 +53,13 @@ class Model extends Database
 
 
 
-    // Échappe les caractères spéciaux dans une chaîne pour la rendre sûre pour l'affichage HTML
+    // Nettoie une valeur destinee au STOCKAGE (on conserve le texte brut).
+    // L'echappement HTML est fait a l'AFFICHAGE (htmlspecialchars dans les vues).
+    // Ancienne version : htmlspecialchars + htmlentities + strip_tags => provoquait
+    // un double/triple encodage en base (&amp;lt; ...). Ne plus encoder ici.
     public function e($value)
     {
-        if ($value) {
-            $value = htmlspecialchars($value);
-            $value = htmlentities($value);
-            $value = strip_tags($value);
-            return $value;
-        }
+        return trim((string) $value);
     }
 
     // Hache un mot de passe en utilisant l'algorithme Bcrypt

@@ -25,6 +25,24 @@ if (!function_exists('home_pagination_window')) {
         return range($start, $end);
     }
 }
+
+if (!function_exists('home_project_badges')) {
+    function home_project_badges(array $project): array
+    {
+        $badges = [];
+        $created = !empty($project['created_at']) ? strtotime((string) $project['created_at']) : 0;
+        if ($created && $created >= strtotime('-30 days')) {
+            $badges[] = ['label' => 'Nouveau', 'class' => 'is-new', 'icon' => 'bx bx-rocket'];
+        }
+        $likes = (int) ($project['likes_count'] ?? 0);
+        $reviews = (int) ($project['reviews_count'] ?? 0);
+        $rating = (float) ($project['average_rating'] ?? 0);
+        if ($likes >= 3 || ($reviews >= 1 && $rating >= 4.5)) {
+            $badges[] = ['label' => 'Populaire', 'class' => 'is-hot', 'icon' => 'bx bx-trending-up'];
+        }
+        return $badges;
+    }
+}
 ?>
 <div class="results-chip">
     <i class='bx bx-filter-alt'></i>
@@ -52,6 +70,14 @@ if (!function_exists('home_pagination_window')) {
                             <i class='bx bx-images'></i>
                             <?= count($project['images'] ?? []) ?>
                         </span>
+                        <?php $hprBadges = home_project_badges($project); ?>
+                        <?php if (!empty($hprBadges)): ?>
+                            <div class="project-badges">
+                                <?php foreach ($hprBadges as $b): ?>
+                                    <span class="project-badge <?= $b['class'] ?>"><i class='<?= $b['icon'] ?>'></i><?= $b['label'] ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <div class="project-body">
                         <div class="project-topline">

@@ -1,7 +1,17 @@
 Options -Multiviews
 RewriteEngine On
 
+# Types MIME pour la PWA (manifeste + service worker).
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType text/javascript .js
+</IfModule>
+
 RewriteBase /plateforme_GI_prom021/public
+
+# Acces au dossier /public nu (sans route) -> accueil de l'app.
+# Sinon Apache tente un listing -> 403 Forbidden (Options -Indexes).
+RewriteRule ^$ ../index.php?url=Homes/index [QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f

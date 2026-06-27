@@ -1,5 +1,5 @@
 <div class="nk-chatbot" data-nk-chatbot data-endpoint="<?= ROOT ?>/Assistants/chat" data-bot-name="N'KadonBot">
-    <section class="nk-chatbot__panel" data-nk-chat-panel aria-label="Assistant IA Plateforme GI Promo 21">
+    <section class="nk-chatbot__panel" data-nk-chat-panel aria-label="Assistant IA NGAKODON">
         <header class="nk-chatbot__header">
             <div class="nk-chatbot__identity">
                 <span class="nk-chatbot__title">N'KadonBot</span>

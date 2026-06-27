@@ -113,3 +113,26 @@
         setupReveal();
     }
 })();
+
+// Carte projet entierement cliquable (parcours mobile) : un tap sur la carte
+// — hors lien, bouton ou controle de carousel — ouvre la fiche projet.
+// Listener delegue sur document => survit au re-rendu AJAX des resultats.
+(function () {
+    'use strict';
+    document.addEventListener('click', function (e) {
+        var card = e.target.closest('.project-card-modern');
+        if (!card) {
+            return;
+        }
+        if (e.target.closest('a, button, input, .slick-prev, .slick-next, .slick-arrow, .slick-dots')) {
+            return;
+        }
+        if (window.getSelection && String(window.getSelection())) {
+            return; // ne pas declencher pendant une selection de texte
+        }
+        var link = card.querySelector('.project-title a, a.project-link');
+        if (link && link.href) {
+            window.location.href = link.href;
+        }
+    });
+}());

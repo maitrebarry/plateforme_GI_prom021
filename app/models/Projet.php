@@ -8,7 +8,10 @@ class Projet extends Model
 
     private function excerpt(string $text, int $limit = 180): string
     {
-        $text = trim($text);
+        // Les descriptions peuvent contenir du HTML (editeur riche) : on retire les
+        // balises et on decode les entites pour produire un extrait en texte brut.
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = trim(preg_replace('/\s+/u', ' ', $text) ?? '');
 
         if ($text === '') {
             return 'Description indisponible.';
@@ -259,7 +262,7 @@ class Projet extends Model
         return $this->getHomepageProjectsPaginated($search, $categoryId, 1, $limit)['projects'];
     }
 
-    public function getHomepageProjectsPaginated(?string $search = null, ?int $categoryId = null, int $page = 1, int $perPage = 5): array
+    public function getHomepageProjectsPaginated(?string $search = null, ?int $categoryId = null, int $page = 1, int $perPage = 5, ?string $sort = null): array
     {
         if (!$this->tableExists('projects')) {
             return [
@@ -275,6 +278,18 @@ class Projet extends Model
         $page = max(1, $page);
         $allowedPerPage = [5, 10, 15, 20];
         $perPage = in_array($perPage, $allowedPerPage, true) ? $perPage : 5;
+
+        // Tri intelligent : 'appreciated' = indice d'engagement (likes x3 + avis x2 + note x4).
+        $orderMap = [
+            'appreciated' => '(likes_count * 3 + reviews_count * 2 + average_rating * 4) DESC, p.created_at DESC',
+            'recent'      => 'p.created_at DESC',
+            'rating'      => 'average_rating DESC, likes_count DESC, p.created_at DESC',
+            'likes'       => 'likes_count DESC, p.created_at DESC',
+            'title'       => 'p.title ASC',
+        ];
+        $sort = (is_string($sort) && isset($orderMap[$sort])) ? $sort : 'recent';
+        $orderBy = $orderMap[$sort];
+
         $queryParts = $this->buildProjectRowsQuery($search, $categoryId);
         $totalRow = $this->select_data_table_join_where(
             "SELECT COUNT(*) AS total " . $queryParts['sql'],
@@ -309,7 +324,7 @@ class Projet extends Model
                         ? "(SELECT image FROM project_images WHERE project_id = p.id ORDER BY id ASC LIMIT 1)"
                         : "NULL") . " AS cover_image
                 " . $queryParts['sql'] . "
-                ORDER BY p.created_at DESC
+                ORDER BY " . $orderBy . "
                 LIMIT " . (int) $perPage . " OFFSET " . (int) $offset;
 
         $rows = $this->select_data_table_join_where($sql, $queryParts['params']);
@@ -414,18 +429,20 @@ class Projet extends Model
 
     public function getProjectsByUser( $user_id ) {
 
-        $sql = "SELECT 
+        $sql = "SELECT
             p.id,
             p.title,
             p.description,
             p.technologies,
             p.status,
+            p.admin_status,
+            p.reject_reason,
             p.created_at,
             c.nom as categorie,
             (
-            SELECT image 
-            FROM project_images 
-            WHERE project_id = p.id 
+            SELECT image
+            FROM project_images
+            WHERE project_id = p.id
             LIMIT 1
             ) as image
 
@@ -988,6 +1005,83 @@ class Projet extends Model
         );
     }
 
+    private static bool $followTableEnsured = false;
+
+    // Cree la table project_follows au besoin (suivi reel, remplace l'ancien "follow" simule).
+    private function ensureFollowTable(): void
+    {
+        if (self::$followTableEnsured) {
+            return;
+        }
+
+        $this->insertion_update_simples(
+            "CREATE TABLE IF NOT EXISTS project_follows (
+                id INT(11) NOT NULL AUTO_INCREMENT,
+                project_id INT(11) NOT NULL,
+                user_id INT(11) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY uniq_project_user (project_id, user_id),
+                KEY idx_follow_project (project_id),
+                KEY idx_follow_user (user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+        );
+
+        self::$followTableEnsured = true;
+    }
+
+    public function getProjectFollowersCount(int $projectId): int
+    {
+        $this->ensureFollowTable();
+        $row = $this->FetchSelectWhere('COUNT(*) AS total', 'project_follows', 'project_id = ?', [$projectId]);
+        return (int) ($row->total ?? 0);
+    }
+
+    public function userIsFollowingProject(int $projectId, int $userId): bool
+    {
+        if ($userId <= 0) {
+            return false;
+        }
+
+        $this->ensureFollowTable();
+        return !empty($this->FetchSelectWhere('id', 'project_follows', 'project_id = ? AND user_id = ?', [$projectId, $userId]));
+    }
+
+    // Bascule le suivi. Retourne 'followed', 'unfollowed' ou '' (echec).
+    public function toggleProjectFollow(int $projectId, int $userId): string
+    {
+        if ($projectId <= 0 || $userId <= 0) {
+            return '';
+        }
+
+        $this->ensureFollowTable();
+
+        if ($this->userIsFollowingProject($projectId, $userId)) {
+            $this->insertion_update_simples('DELETE FROM project_follows WHERE project_id = ? AND user_id = ?', [$projectId, $userId]);
+            return 'unfollowed';
+        }
+
+        try {
+            $this->insertion_update_simples('INSERT INTO project_follows (project_id, user_id) VALUES (?, ?)', [$projectId, $userId]);
+            return 'followed';
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+
+    // Enregistre un message du formulaire de contact public (table `messages`, lue par l'admin).
+    public function saveContactMessage(int $projectId, string $nom, string $email, string $message): bool
+    {
+        if (!$this->tableExists('messages') || $projectId <= 0 || trim($message) === '') {
+            return false;
+        }
+
+        return (bool) $this->insertion_update_simples(
+            'INSERT INTO messages (project_id, nom, email, message) VALUES (?, ?, ?, ?)',
+            [$projectId, mb_substr(trim($nom), 0, 100), mb_substr(trim($email), 0, 150), trim($message)]
+        );
+    }
+
     public function getConversationForProject(int $projectId, int $userA, int $userB): array
     {
         if (!$this->tableExists('project_messages') || $userA <= 0 || $userB <= 0) {
@@ -1063,6 +1157,88 @@ class Projet extends Model
         );
 
         return $this->normalizeProjectRows($rows);
+    }
+
+    /**
+     * Projets les plus APPRECIES : classement par indice d'engagement composite
+     * (likes x3 + avis x2 + note moyenne x4) plutot que par simple nombre de likes.
+     * Chaque item recoit en plus : rank (1..N), engagement_score, appreciation_pct
+     * (part relative au 1er, pour une barre visuelle), et stars (5 cases pleines/vides).
+     */
+    public function getMostAppreciatedProjects(int $limit = 3): array
+    {
+        if (!$this->tableExists('projects')) {
+            return [];
+        }
+
+        $limit = max(1, $limit);
+        $hasCategories = $this->tableExists('categories');
+        $hasUsers = $this->tableExists('users');
+        $hasLikes = $this->tableExists('project_likes');
+        $hasReviews = $this->tableExists('project_reviews');
+        $hasImages = $this->tableExists('project_images');
+
+        $groupBy = ['p.id', 'p.title', 'p.description', 'p.technologies', 'p.created_at'];
+        if ($hasCategories) {
+            $groupBy[] = 'c.nom';
+        }
+        if ($hasUsers) {
+            $groupBy[] = 'u.prenom';
+            $groupBy[] = 'u.nom';
+        }
+
+        $likesExpr = $hasLikes ? 'COUNT(DISTINCT pl.id)' : '0';
+        $reviewsExpr = $hasReviews ? 'COUNT(DISTINCT pr.id)' : '0';
+        $ratingExpr = $hasReviews ? 'COALESCE(AVG(pr.rating), 0)' : '0';
+        $engagementExpr = "({$likesExpr} * 3 + {$reviewsExpr} * 2 + {$ratingExpr} * 4)";
+
+        $rows = $this->select_data_table_join_where(
+            "SELECT
+                p.id,
+                p.title,
+                p.description,
+                p.technologies,
+                p.created_at,
+                " . ($hasCategories ? "COALESCE(c.nom, 'Sans categorie')" : "'Sans categorie'") . " AS category_name,
+                " . ($hasUsers ? "COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Etudiant GI')" : "'Etudiant GI'") . " AS author_name,
+                {$likesExpr} AS likes_count,
+                {$reviewsExpr} AS reviews_count,
+                " . ($hasReviews ? "COALESCE(ROUND(AVG(pr.rating), 1), 0)" : "0") . " AS average_rating,
+                {$engagementExpr} AS engagement_score,
+                " . ($hasImages ? "(SELECT image FROM project_images WHERE project_id = p.id ORDER BY id ASC LIMIT 1)" : "NULL") . " AS cover_image
+             FROM projects p
+             " . ($hasCategories ? "LEFT JOIN categories c ON c.id = p.category_id" : "") . "
+             " . ($hasUsers ? "LEFT JOIN users u ON u.user_id = p.user_id" : "") . "
+             " . ($hasLikes ? "LEFT JOIN project_likes pl ON pl.project_id = p.id" : "") . "
+             " . ($hasReviews ? "LEFT JOIN project_reviews pr ON pr.project_id = p.id" : "") . "
+             WHERE " . $this->publicVisibilityCondition('p') . "
+             GROUP BY " . implode(', ', $groupBy) . "
+             ORDER BY engagement_score DESC, likes_count DESC, average_rating DESC, p.created_at DESC
+             LIMIT {$limit}"
+        );
+
+        $items = $this->normalizeProjectRows($rows);
+
+        $maxScore = 0.0;
+        foreach ($items as $item) {
+            $score = ($item['likes_count'] * 3) + ($item['reviews_count'] * 2) + ($item['average_rating'] * 4);
+            if ($score > $maxScore) {
+                $maxScore = $score;
+            }
+        }
+
+        foreach ($items as $index => &$item) {
+            $score = ($item['likes_count'] * 3) + ($item['reviews_count'] * 2) + ($item['average_rating'] * 4);
+            $rating = (float) $item['average_rating'];
+            $item['rank'] = $index + 1;
+            $item['engagement_score'] = (int) round($score);
+            $item['appreciation_pct'] = $maxScore > 0 ? max(8, (int) round(($score / $maxScore) * 100)) : 0;
+            $item['stars_full'] = (int) floor($rating + 0.001);
+            $item['stars_half'] = ($rating - floor($rating)) >= 0.5 ? 1 : 0;
+        }
+        unset($item);
+
+        return $items;
     }
 
     public function getGuidedProjectRecommendations(string $query, int $limit = 3): array

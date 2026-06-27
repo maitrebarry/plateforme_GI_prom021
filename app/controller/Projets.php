@@ -24,6 +24,194 @@ class Projets extends Controller
         return true;
     }
 
+    // Nom lisible de l'utilisateur courant (pour les notifications).
+    private function actorName(): string
+    {
+        $name = trim((string) (($_SESSION['prenom'] ?? '') . ' ' . ($_SESSION['nom'] ?? '')));
+        return $name !== '' ? $name : 'Un visiteur';
+    }
+
+    // Cree une notification pour le proprietaire (jamais pour soi-meme).
+    private function notifyOwner(int $ownerId, int $actorId, string $type, string $title, string $message, string $link): void
+    {
+        if ($ownerId <= 0 || $ownerId === $actorId || !class_exists('Notification')) {
+            return;
+        }
+
+        (new Notification())->create($ownerId, $type, $title, $message, $link);
+    }
+
+    // Traite le formulaire de contact public (table `messages`) + notifie les admins.
+    private function handlePublicContact(Projet $model, int $projectId, $project): void
+    {
+        $nom = trim((string) ($_POST['contact_nom'] ?? ''));
+        $email = trim((string) ($_POST['contact_email'] ?? ''));
+        $message = trim((string) ($_POST['contact_message'] ?? ''));
+
+        // Honeypot anti-spam : champ cache qui doit rester vide.
+        if (trim((string) ($_POST['contact_website'] ?? '')) !== '') {
+            $model->set_flash('Votre message a bien été envoyé. Merci !', 'success');
+            return;
+        }
+
+        if ($nom === '' || $email === '' || $message === '') {
+            $model->set_flash('Veuillez renseigner votre nom, votre email et votre message.', 'warning');
+            return;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $model->set_flash('Adresse email invalide.', 'warning');
+            return;
+        }
+
+        if (!RateLimiter::allow('contact_message', 5, 600)) {
+            $model->set_flash('Trop de messages envoyés. Veuillez réessayer dans quelques minutes.', 'warning');
+            return;
+        }
+
+        $message = mb_substr($message, 0, 2000);
+
+        if ($model->saveContactMessage($projectId, $nom, $email, $message)) {
+            if (class_exists('Notification')) {
+                $notif = new Notification();
+                $notif->createForMany(
+                    $notif->getActiveAdminIds(),
+                    'contact',
+                    'Nouveau message de contact',
+                    $nom . ' a écrit à propos de « ' . (string) ($project->title ?? 'un projet') . ' ».',
+                    'Admins/messages'
+                );
+            }
+            $model->set_flash('Votre message a bien été envoyé. Merci !', 'success');
+        } else {
+            $model->set_flash('Impossible d envoyer votre message pour le moment.', 'danger');
+        }
+    }
+
+    private const PROJECT_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    private const PROJECT_IMAGE_MIME = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    private const PROJECT_FILE_EXT = ['zip', 'rar', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt'];
+    private const PROJECT_MAX_IMAGE_SIZE = 5242880;    // 5 Mo
+    private const PROJECT_MAX_FILE_SIZE = 20971520;    // 20 Mo
+    private const BLOCKED_UPLOAD_MIME = ['text/html', 'application/x-httpd-php', 'application/x-php', 'text/x-php', 'application/javascript', 'application/xhtml+xml'];
+
+    // Detecte le type MIME reel d'un fichier televerse (et non l'extension declaree).
+    private function detectMime(string $tmpPath): string
+    {
+        if (!is_file($tmpPath) || !function_exists('finfo_open')) {
+            return '';
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo === false) {
+            return '';
+        }
+
+        $mime = (string) finfo_file($finfo, $tmpPath);
+        finfo_close($finfo);
+
+        return strtolower($mime);
+    }
+
+    // Televerse les images d'un projet : extension + taille + image reelle + MIME autorise.
+    // Retourne le nombre de fichiers rejetes.
+    private function saveProjectImages(Projet $model, int $projectId, array $filesInput): int
+    {
+        if (empty($filesInput['name']) || !is_array($filesInput['name'])) {
+            return 0;
+        }
+
+        $dir = 'uploads/projects/images/';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $rejected = 0;
+
+        foreach ($filesInput['name'] as $key => $name) {
+            $name = trim((string) $name);
+            $errorCode = (int) ($filesInput['error'][$key] ?? UPLOAD_ERR_NO_FILE);
+
+            if ($errorCode === UPLOAD_ERR_NO_FILE || $name === '') {
+                continue;
+            }
+
+            $tmp = (string) ($filesInput['tmp_name'][$key] ?? '');
+            $size = (int) ($filesInput['size'][$key] ?? 0);
+            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+            if (
+                $errorCode !== UPLOAD_ERR_OK
+                || !in_array($ext, self::PROJECT_IMAGE_EXT, true)
+                || $size <= 0 || $size > self::PROJECT_MAX_IMAGE_SIZE
+                || !is_uploaded_file($tmp)
+                || @getimagesize($tmp) === false
+                || !in_array($this->detectMime($tmp), self::PROJECT_IMAGE_MIME, true)
+            ) {
+                $rejected++;
+                continue;
+            }
+
+            $newName = uniqid('img_') . '.' . $ext;
+            if (move_uploaded_file($tmp, $dir . $newName)) {
+                $model->addImage($projectId, $newName);
+            } else {
+                $rejected++;
+            }
+        }
+
+        return $rejected;
+    }
+
+    // Televerse les fichiers d'un projet : extension + taille + blocage des MIME executables/scripts.
+    // Retourne le nombre de fichiers rejetes.
+    private function saveProjectFiles(Projet $model, int $projectId, array $filesInput): int
+    {
+        if (empty($filesInput['name']) || !is_array($filesInput['name'])) {
+            return 0;
+        }
+
+        $dir = 'uploads/projects/files/';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $rejected = 0;
+
+        foreach ($filesInput['name'] as $key => $name) {
+            $name = trim((string) $name);
+            $errorCode = (int) ($filesInput['error'][$key] ?? UPLOAD_ERR_NO_FILE);
+
+            if ($errorCode === UPLOAD_ERR_NO_FILE || $name === '') {
+                continue;
+            }
+
+            $tmp = (string) ($filesInput['tmp_name'][$key] ?? '');
+            $size = (int) ($filesInput['size'][$key] ?? 0);
+            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+            if (
+                $errorCode !== UPLOAD_ERR_OK
+                || !in_array($ext, self::PROJECT_FILE_EXT, true)
+                || $size <= 0 || $size > self::PROJECT_MAX_FILE_SIZE
+                || !is_uploaded_file($tmp)
+                || in_array($this->detectMime($tmp), self::BLOCKED_UPLOAD_MIME, true)
+            ) {
+                $rejected++;
+                continue;
+            }
+
+            $newName = uniqid('file_') . '.' . $ext;
+            if (move_uploaded_file($tmp, $dir . $newName)) {
+                $model->addFile($projectId, $newName);
+            } else {
+                $rejected++;
+            }
+        }
+
+        return $rejected;
+    }
+
     public function publier_projet() {
         $model = new Model();
         $this->requireAuthUserId($model);
@@ -80,77 +268,18 @@ class Projets extends Controller
 
         $project_id = $project[ 'lastInsertId' ];
 
-        /* dossier upload */
+        /* upload medias : validation extension + taille + type MIME reel */
 
-        $imageDir = 'uploads/projects/images/';
-        $fileDir = 'uploads/projects/files/';
-
-        if ( !file_exists( $imageDir ) ) {
-            mkdir( $imageDir, 0755, true );
-        }
-
-        if ( !file_exists( $fileDir ) ) {
-            mkdir( $fileDir, 0755, true );
-        }
-
-        /* ===  ===  ===  ===  ===  == */
-        /* UPLOAD IMAGES */
-        /* ===  ===  ===  ===  ===  == */
-
-        if ( !empty( $_FILES[ 'images' ][ 'name' ][ 0 ] ) ) {
-
-            foreach ( $_FILES[ 'images' ][ 'name' ] as $key=>$name ) {
-
-                $tmp = $_FILES[ 'images' ][ 'tmp_name' ][ $key ];
-
-                $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-                $allowed = [ 'jpg', 'jpeg', 'png', 'gif', 'webp' ];
-
-                if ( !in_array( $ext, $allowed ) ) {
-                    continue;
-                }
-
-                $newName = uniqid( 'img_' ).'.'.$ext;
-
-                if ( move_uploaded_file( $tmp, $imageDir.$newName ) ) {
-                    $projectModel->addImage( $project_id, $newName );
-                }
-            }
-        }
-
-        /* ===  ===  ===  ===  ===  == */
-        /* UPLOAD FILES */
-        /* ===  ===  ===  ===  ===  == */
-
-        if ( !empty( $_FILES[ 'files' ][ 'name' ][ 0 ] ) ) {
-
-            foreach ( $_FILES[ 'files' ][ 'name' ] as $key=>$name ) {
-
-                $tmp = $_FILES[ 'files' ][ 'tmp_name' ][ $key ];
-
-                $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-                $allowed = [
-                    'zip', 'rar', 'pdf', 'doc', 'docx', 'ppt', 'pptx',
-                    'xls', 'xlsx', 'txt'
-                ];
-
-                if ( !in_array( $ext, $allowed ) ) {
-                    continue;
-                }
-
-                $newName = uniqid( 'file_' ).'.'.$ext;
-
-                if ( move_uploaded_file( $tmp, $fileDir.$newName ) ) {
-                    $projectModel->addFile( $project_id, $newName );
-                }
-            }
-        }
+        $rejected = $this->saveProjectImages( $projectModel, (int) $project_id, $_FILES['images'] ?? [] );
+        $rejected += $this->saveProjectFiles( $projectModel, (int) $project_id, $_FILES['files'] ?? [] );
 
         /* success */
 
-        $model->set_flash( 'Projet publié avec succès', 'success' );
+        if ( $rejected > 0 ) {
+            $model->set_flash( 'Projet publié. ' . $rejected . ' fichier(s) ignoré(s) : format ou taille non autorisés.', 'warning' );
+        } else {
+            $model->set_flash( 'Projet publié avec succès', 'success' );
+        }
 
         $this->redirect( 'Projets/publier_projet' );
 
@@ -221,62 +350,16 @@ class Projets extends Controller
 
         $model->updateProject( $data, $projectId );
 
-        /* upload nouvelles images */
+        /* upload medias : validation extension + taille + type MIME reel */
 
-        if ( !empty( $_FILES[ 'images' ][ 'name' ][ 0 ] ) ) {
+        $rejected = $this->saveProjectImages( $model, $projectId, $_FILES['images'] ?? [] );
+        $rejected += $this->saveProjectFiles( $model, $projectId, $_FILES['files'] ?? [] );
 
-            foreach ( $_FILES[ 'images' ][ 'name' ] as $key=>$name ) {
-
-                $tmp = $_FILES[ 'images' ][ 'tmp_name' ][ $key ];
-
-                $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-                $allowed = [ 'jpg', 'jpeg', 'png', 'gif', 'webp' ];
-
-                if ( !in_array( $ext, $allowed ) ) {
-                    continue;
-                }
-
-                $newName = uniqid().'.'.$ext;
-
-                if ( move_uploaded_file( $tmp, 'uploads/projects/images/'.$newName ) ) {
-                    $model->addImage( $projectId, $newName );
-                }
-
-            }
-
+        if ( $rejected > 0 ) {
+            $model->set_flash( 'Projet modifié. ' . $rejected . ' fichier(s) ignoré(s) : format ou taille non autorisés.', 'warning' );
+        } else {
+            $model->set_flash( 'Projet modifié avec succès', 'success' );
         }
-
-        /* upload nouveaux fichiers */
-
-        if ( !empty( $_FILES[ 'files' ][ 'name' ][ 0 ] ) ) {
-
-            foreach ( $_FILES[ 'files' ][ 'name' ] as $key=>$name ) {
-
-                $tmp = $_FILES[ 'files' ][ 'tmp_name' ][ $key ];
-
-                $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-                $allowed = [
-                    'pdf', 'doc', 'docx', 'ppt', 'pptx',
-                    'xls', 'xlsx', 'zip', 'rar', 'txt'
-                ];
-
-                if ( !in_array( $ext, $allowed ) ) {
-                    continue;
-                }
-
-                $newName = uniqid().'.'.$ext;
-
-                if ( move_uploaded_file( $tmp, 'uploads/projects/files/'.$newName ) ) {
-                    $model->addFile( $projectId, $newName );
-                }
-
-            }
-
-        }
-
-        $model->set_flash( 'Projet modifié avec succès', 'success' );
 
         $model->redirect( 'Projets/mes_projets' );
 
@@ -288,6 +371,11 @@ class Projets extends Controller
 
         $model = new Projet();
         $userId = $this->requireAuthUserId($model);
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('Projets/mes_projets');
+        }
+
         $imageId = (int) $id;
         $projectId = (int) $projetId;
 
@@ -322,6 +410,11 @@ class Projets extends Controller
     public function delete_file( $id, $projetId ) {
         $model = new Projet();
         $userId = $this->requireAuthUserId($model);
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('Projets/mes_projets');
+        }
+
         $fileId = (int) $id;
         $projectId = (int) $projetId;
 
@@ -383,13 +476,52 @@ class Projets extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
 
+            // Formulaire de contact public : accessible SANS authentification.
+            if ($action === 'contact') {
+                $this->handlePublicContact($model, $projectId, $project);
+                $this->redirect('Projets/detail/' . $projectId);
+            }
+
             if ($currentUserId <= 0) {
                 $model->set_flash('Veuillez vous connecter pour interagir avec ce projet.', 'warning');
                 $this->redirect('Projets/detail/' . $projectId);
             }
 
+            $isAjax = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+
             if ($action === 'toggle_like') {
+                $wasLiked = $model->hasUserLikedProject($projectId, $currentUserId);
                 $model->toggleProjectLike($projectId, $currentUserId);
+                if (!$wasLiked) {
+                    $this->notifyOwner($ownerId, $currentUserId, 'new_like', 'Nouveau like',
+                        $this->actorName() . ' a aimé votre projet « ' . (string) ($project->title ?? '') . ' ».',
+                        'Projets/detail/' . $projectId);
+                }
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(['ok' => true, 'liked' => !$wasLiked, 'count' => $model->getProjectLikesCount($projectId)]);
+                    return;
+                }
+                $this->redirect('Projets/detail/' . $projectId);
+            }
+
+            if ($action === 'toggle_follow') {
+                $result = $model->toggleProjectFollow($projectId, $currentUserId);
+                if ($result === 'followed') {
+                    $this->notifyOwner($ownerId, $currentUserId, 'new_follow', 'Nouvel abonné',
+                        $this->actorName() . ' suit désormais votre projet « ' . (string) ($project->title ?? '') . ' ».',
+                        'Projets/detail/' . $projectId);
+                }
+                if ($isAjax) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode(['ok' => true, 'following' => $result === 'followed', 'count' => $model->getProjectFollowersCount($projectId)]);
+                    return;
+                }
+                if ($result === 'followed') {
+                    $model->set_flash('Vous suivez désormais ce projet. Vous serez informé de ses actualités.', 'success');
+                } elseif ($result === 'unfollowed') {
+                    $model->set_flash('Vous ne suivez plus ce projet.', 'info');
+                }
                 $this->redirect('Projets/detail/' . $projectId);
             }
 
@@ -413,6 +545,9 @@ class Projets extends Controller
                     $model->set_flash('Destinataire introuvable.', 'danger');
                 } elseif ($model->sendProjectMessage($projectId, $currentUserId, $receiverId, $message)) {
                     $model->set_flash('Message envoye avec succes.', 'success');
+                    $this->notifyOwner($receiverId, $currentUserId, 'new_message', 'Nouveau message',
+                        $this->actorName() . ' vous a écrit à propos de « ' . (string) ($project->title ?? '') . ' ».',
+                        'Homes/messages_recus');
                 } else {
                     $model->set_flash('Impossible d envoyer le message.', 'danger');
                 }
@@ -427,6 +562,8 @@ class Projets extends Controller
         $data[ 'reviews' ] = $model->getProjectReviews( $projectId );
         $data[ 'likesCount' ] = $model->getProjectLikesCount( $projectId );
         $data[ 'userHasLiked' ] = $currentUserId > 0 ? $model->hasUserLikedProject( $projectId, $currentUserId ) : false;
+        $data[ 'followersCount' ] = $model->getProjectFollowersCount( $projectId );
+        $data[ 'userIsFollowing' ] = $currentUserId > 0 ? $model->userIsFollowingProject( $projectId, $currentUserId ) : false;
         $data[ 'conversation' ] = ($currentUserId > 0 && $ownerId > 0 && $currentUserId !== $ownerId)
             ? $model->getConversationForProject( $projectId, $currentUserId, $ownerId )
             : [];
@@ -458,6 +595,14 @@ class Projets extends Controller
             echo json_encode(['ok' => false, 'message' => 'Question ou projet invalide.']);
             return;
         }
+
+        if (!RateLimiter::allow('ai_project', 15, 60)) {
+            http_response_code(429);
+            echo json_encode(['ok' => false, 'message' => 'Trop de requetes vers l assistant. Patientez quelques instants avant de reessayer.']);
+            return;
+        }
+
+        $message = mb_substr($message, 0, 1200);
 
         $model = new Projet();
         $project = $model->getProjectDetailEnhanced($projectId);

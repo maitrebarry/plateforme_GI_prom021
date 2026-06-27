@@ -28,6 +28,20 @@ $publicNavItems = [
             </div>
 
             <div class="header-right flx-align">
+                <div class="ds-color-picker me-2">
+                    <button type="button" class="ds-theme-toggle" data-color-toggle title="Couleur du thème" aria-label="Choisir la couleur du thème">
+                        <i class="bx bx-palette"></i>
+                    </button>
+                    <div class="ds-color-menu" data-color-menu>
+                        <button type="button" class="ds-color-swatch" data-color-value="green" style="--sw:#157f5a" title="Vert" aria-label="Vert"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="blue" style="--sw:#1d59b8" title="Bleu" aria-label="Bleu"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="orange" style="--sw:#cf5410" title="Orange" aria-label="Orange"></button>
+                        <button type="button" class="ds-color-swatch" data-color-value="violet" style="--sw:#6236c4" title="Violet" aria-label="Violet"></button>
+                    </div>
+                </div>
+                <button type="button" class="ds-theme-toggle me-2" data-theme-toggle title="Basculer mode clair / sombre" aria-label="Basculer entre mode clair et sombre">
+                    <i class="bx bx-moon"></i>
+                </button>
                 <?php if (!isset($_SESSION['user_id'])): ?>
                 <div class="header-right__inner public-header-actions gap-2 flx-align d-lg-flex d-none">
                     <a href="<?= ROOT ?>/Homes/login" class="public-login-link">Connexion</a>
@@ -66,7 +80,7 @@ $publicNavItems = [
                                 </a>
                             </li>
                             <li class="sidebar-list__item">
-                                <a href="<?= ROOT ?>/Logins/logout" class="sidebar-list__link">
+                                <a href="<?= ROOT ?>/Logins/logout" data-logout class="sidebar-list__link">
                                     <span class="sidebar-list__icon">
                                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon13.svg" alt="" class="icon">
                                         <img src="<?= ROOT ?>/assets/images/icons/sidebar-icon-active13.svg" alt="" class="icon icon-active">

@@ -1,4 +1,4 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Detail projet administrateur']); ?>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Détail projet administrateur']); ?>
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
@@ -10,319 +10,161 @@ $reviews = $reviews ?? [];
 $avgRating = (float) ($reviewSummary->average_rating ?? 0);
 $totalReviews = (int) ($reviewSummary->total_reviews ?? 0);
 $adminStatus = (string) ($project->statut_admin ?? 'en_attente');
-$statusBadgeClass = 'bg-warning text-dark';
-if ($adminStatus === 'valide') {
-    $statusBadgeClass = 'bg-success';
-} elseif ($adminStatus === 'rejete') {
-    $statusBadgeClass = 'bg-danger';
-}
+$stCls = $adminStatus === 'valide' ? 'valide' : ($adminStatus === 'rejete' ? 'rejete' : 'pending');
+$pid = (int) ($project->id ?? 0);
+$author = trim((string) (($project->nom ?? '') . ' ' . ($project->prenom ?? '')));
+if ($author === '') { $author = 'Auteur inconnu'; }
+$csrf = (string) ($_SESSION['csrf_token'] ?? '');
+$metricCards = [
+    ['Likes', (int) ($metrics['likes'] ?? 0), 'bxs-heart', 'danger'],
+    ['Avis', (int) ($metrics['reviews'] ?? 0), 'bxs-message-square-detail', 'brand'],
+    ['Messages', (int) ($metrics['messages'] ?? 0), 'bx-mail-send', 'blue'],
+    ['Note', number_format($avgRating, 1), 'bxs-star', 'accent'],
+    ['Images', (int) ($metrics['images'] ?? 0), 'bx-images', 'brand'],
+    ['Docs', (int) ($metrics['files'] ?? 0), 'bx-file', 'slate'],
+];
 ?>
-<style>
-:root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #94a3b8;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --bg-light: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
 
-body {
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.common-card {
-    border: none;
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    background: #ffffff;
-    margin-bottom: 24px;
-}
-
-.common-card h5 {
-    font-weight: 800;
-    color: var(--text-main);
-    border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 1rem;
-    margin-bottom: 1.25rem;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f8fafc;
-}
-
-.detail-item:last-child {
-    border-bottom: none;
-}
-
-.detail-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #f1f5f9;
-    font-size: 1rem;
-}
-
-.badge {
-    padding: 0.6em 1.25em;
-    border-radius: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-}
-
-.btn {
-    font-weight: 700;
-    border-radius: 12px;
-    padding: 0.8rem 1.5rem;
-    transition: all 0.3s;
-}
-
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; }
-.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; color: white; }
-.btn-danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: none; }
-
-.indicator-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f8fafc;
-}
-
-.review-item {
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 1.25rem;
-    border: 1px solid #f1f5f9;
-}
-
-.header-back-btn {
-    width: 45px;
-    height: 45px;
-    background: white;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.header-back-btn:hover {
-    transform: translateX(-5px);
-    background: #f8fafc;
-}
-</style>
 <section class="dashboard">
     <div class="dashboard__inner d-flex">
         <?php $this->view('Partials/dashboard-sidebar'); ?>
         <div class="dashboard-body">
             <?php $this->view('Partials/dashboard-nav'); ?>
-            <div class="dashboard-body__content p-4">
+            <div class="dashboard-body__content p-3 p-lg-4">
                 <?php $this->view('set_flash'); ?>
 
-                <!-- HEADER WITH ACTIONS -->
-                <div class="card common-card mb-4 border-0" style="background: transparent; box-shadow: none;">
-                    <div class="card-body p-0 d-flex flex-wrap justify-content-between align-items-center gap-4">
-                        <div class="d-flex align-items-center gap-3">
-                            <a href="<?= ROOT ?>/Admins/dashboard" class="header-back-btn">
-                                ⬅️
-                            </a>
-                            <div>
-                                <h3 class="mb-0 fw-800 text-primary"><?= htmlspecialchars($project->title ?? 'Détails du Projet') ?></h3>
-                                <p class="text-muted small mb-0">par <strong><?= htmlspecialchars(trim((string) (($project->nom ?? '') . ' ' . ($project->prenom ?? ''))) ?: 'Auteur inconnu') ?></strong></p>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 flex-wrap">
-                            <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="d-inline">
-                                <button class="btn btn-success rounded-pill px-4 shadow-sm" type="submit" name="validate_project">✅ Valider</button>
-                            </form>
-                            <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="d-inline">
-                                <button class="btn btn-warning rounded-pill px-4 shadow-sm" type="submit" name="set_pending_project">⌛ Attente</button>
-                            </form>
-                            <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="d-inline" onsubmit="return confirm('Rejeter ce projet ?');">
-                                <button class="btn btn-danger rounded-pill px-4 shadow-sm" type="submit" name="reject_project">❌ Rejeter</button>
-                            </form>
-                        </div>
+                <style>
+                    .apd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+                    .apd-head__l { display: flex; align-items: center; gap: 12px; }
+                    .adm-back { width: 42px; height: 42px; border-radius: 12px; background: var(--ds-surface); border: 1px solid var(--ds-border); display: inline-flex; align-items: center; justify-content: center; color: var(--ds-ink); text-decoration: none; font-size: 1.2rem; flex-shrink: 0; transition: all var(--ds-transition); }
+                    .adm-back:hover { background: var(--ds-brand-50); color: var(--ds-brand-700); }
+                    .apd-head h1 { font-family: var(--ds-font-heading); font-size: 1.3rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; line-height: 1.2; }
+                    .apd-head p { color: var(--ds-muted); font-size: .85rem; margin: 2px 0 0; }
+                    .apd-mod { display: flex; gap: 8px; flex-wrap: wrap; }
+                    .apd-modbtn { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .84rem; padding: 9px 16px; border-radius: var(--ds-radius-pill); border: 0; cursor: pointer; color: #fff; }
+                    .apd-modbtn--ok { background: #1f8a4d; } .apd-modbtn--wait { background: var(--ds-accent); color: #3d2900; } .apd-modbtn--no { background: var(--ds-danger); }
+
+                    .apd-metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 22px; }
+                    .apd-metric { position: relative; overflow: hidden; background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 13px; text-align: center; box-shadow: var(--ds-shadow-sm); }
+                    .apd-metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+                    .apd-metric--brand::before { background: var(--ds-brand-500); } .apd-metric--brand i { color: var(--ds-brand-600); }
+                    .apd-metric--danger::before { background: var(--ds-danger); } .apd-metric--danger i { color: var(--ds-danger); }
+                    .apd-metric--blue::before { background: #1d59b8; } .apd-metric--blue i { color: #1d59b8; }
+                    .apd-metric--accent::before { background: var(--ds-accent); } .apd-metric--accent i { color: #8a6310; }
+                    .apd-metric--slate::before { background: #64748b; } .apd-metric--slate i { color: var(--ds-muted); }
+                    .apd-metric i { font-size: 1.3rem; }
+                    .apd-metric__v { font-family: var(--ds-font-heading); font-size: 1.4rem; font-weight: 800; color: var(--ds-ink-strong); line-height: 1; margin-top: 4px; }
+                    .apd-metric__l { color: var(--ds-muted); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin-top: 3px; }
+
+                    .apd-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); padding: 20px; margin-bottom: 20px; }
+                    .apd-card h2 { display: flex; align-items: center; gap: 8px; font-family: var(--ds-font-heading); font-size: 1.05rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--ds-border); }
+                    .apd-card h2 i { color: var(--ds-brand-600); }
+                    .apd-desc { color: var(--ds-ink); line-height: 1.8; font-size: .96rem; }
+                    .apd-row { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-bottom: 1px solid var(--ds-border); }
+                    .apd-row:last-child { border-bottom: 0; }
+                    .apd-row__ico { width: 32px; height: 32px; border-radius: 9px; background: var(--ds-brand-50); color: var(--ds-brand-600); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+                    .apd-row small { color: var(--ds-muted); font-size: .74rem; display: block; }
+                    .apd-row strong, .apd-row a { color: var(--ds-ink-strong); font-size: .9rem; word-break: break-word; }
+                    .apd-row a { color: var(--ds-brand-600); text-decoration: none; }
+                    .apd-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+                    .apd-gallery img { width: 100%; height: 150px; object-fit: cover; border-radius: var(--ds-radius); }
+                    .apd-doc { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border: 1px solid var(--ds-border); border-radius: var(--ds-radius); text-decoration: none; color: var(--ds-ink); transition: all var(--ds-transition); }
+                    .apd-doc + .apd-doc { margin-top: 8px; }
+                    .apd-doc:hover { border-color: var(--ds-brand-300); background: var(--ds-brand-50); }
+                    .apd-doc i { color: var(--ds-brand-600); font-size: 1.4rem; }
+                    .apd-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 12px; border-radius: var(--ds-radius-pill); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+                    .apd-pill--pending { background: var(--ds-accent-soft); color: #8a6310; } .apd-pill--valide { background: #e4f3ea; color: #11703a; } .apd-pill--rejete { background: var(--ds-danger-soft); color: #a3322e; }
+                    .apd-rating { display: flex; align-items: center; justify-content: space-between; background: var(--ds-surface-2); border-radius: var(--ds-radius); padding: 14px 16px; margin-bottom: 16px; }
+                    .apd-rating__big { font-family: var(--ds-font-heading); font-size: 2rem; font-weight: 800; color: var(--ds-ink-strong); line-height: 1; }
+                    .apd-stars { color: var(--ds-accent); font-size: 1.1rem; }
+                    .apd-review { background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 13px; }
+                    .apd-review + .apd-review { margin-top: 10px; }
+                    .apd-review__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+                    .apd-review__who { font-weight: 700; color: var(--ds-ink-strong); font-size: .85rem; }
+                    .apd-empty { text-align: center; color: var(--ds-muted); padding: 22px; border: 1px dashed var(--ds-border-strong); border-radius: var(--ds-radius); }
+                    .apd-rejbanner { display: flex; align-items: flex-start; gap: 11px; background: var(--ds-danger-soft); border: 1px solid var(--ds-danger); border-radius: var(--ds-radius); padding: 14px 16px; margin-bottom: 20px; color: #a3322e; font-size: .9rem; line-height: 1.5; }
+                    .apd-rejbanner i { font-size: 1.4rem; flex-shrink: 0; }
+
+                    @media (min-width: 768px) { .apd-metrics { grid-template-columns: repeat(6, minmax(0,1fr)); } .apd-head h1 { font-size: 1.5rem; } }
+                </style>
+
+                <div class="apd-head">
+                    <div class="apd-head__l">
+                        <a href="<?= ROOT ?>/Admins/projects_management" class="adm-back"><i class='bx bx-left-arrow-alt'></i></a>
+                        <div><h1><?= htmlspecialchars($project->title ?? 'Détails du projet') ?></h1><p>par <strong><?= htmlspecialchars($author) ?></strong> · <span class="apd-pill apd-pill--<?= $stCls ?>"><?= htmlspecialchars($adminStatus) ?></span></p></div>
+                    </div>
+                    <div class="apd-mod">
+                        <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= $pid ?>"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>"><button class="apd-modbtn apd-modbtn--ok" type="submit" name="validate_project"><i class='bx bx-check'></i> Valider</button></form>
+                        <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= $pid ?>"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>"><button class="apd-modbtn apd-modbtn--wait" type="submit" name="set_pending_project"><i class='bx bx-time'></i> Attente</button></form>
+                        <form method="POST" action="<?= ROOT ?>/Admins/project_detail/<?= $pid ?>" onsubmit="var r=prompt('Motif du rejet (communiqué à l\'étudiant, optionnel) :', this.reject_reason.value); if(r===null){return false;} this.reject_reason.value=r; return true;"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>"><input type="hidden" name="reject_reason" value="<?= htmlspecialchars((string) ($project->reject_reason ?? '')) ?>"><button class="apd-modbtn apd-modbtn--no" type="submit" name="reject_project"><i class='bx bx-x'></i> Rejeter</button></form>
                     </div>
                 </div>
 
-                <!-- QUICK METRICS ROW -->
-                <div class="row gy-4 mb-4">
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-primary"><div class="card-body p-1"><p class="small text-muted mb-1">LIKES</p><h4 class="mb-0">❤️ <?= (int) ($metrics['likes'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-success"><div class="card-body p-1"><p class="small text-muted mb-1">AVIS</p><h4 class="mb-0">💬 <?= (int) ($metrics['reviews'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-secondary"><div class="card-body p-1"><p class="small text-muted mb-1">MSGS</p><h4 class="mb-0">📩 <?= (int) ($metrics['messages'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-warning"><div class="card-body p-1"><p class="small text-muted mb-1">NOTE</p><h4 class="mb-0">⭐ <?= number_format($avgRating, 1) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-info"><div class="card-body p-1"><p class="small text-muted mb-1">IMG</p><h4 class="mb-0">🖼️ <?= (int) ($metrics['images'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <div class="card common-card h-100 text-center py-3 border-top border-5 border-dark"><div class="card-body p-1"><p class="small text-muted mb-1">DOCS</p><h4 class="mb-0">📄 <?= (int) ($metrics['files'] ?? 0) ?></h4></div></div>
-                    </div>
+                <?php if ($stCls === 'rejete' && !empty($project->reject_reason)): ?>
+                    <div class="apd-rejbanner"><i class='bx bx-message-square-x'></i><div><strong>Motif du rejet communiqué à l'étudiant :</strong><br><?= htmlspecialchars((string) $project->reject_reason) ?></div></div>
+                <?php endif; ?>
+
+                <div class="apd-metrics">
+                    <?php foreach ($metricCards as $m): ?>
+                        <div class="apd-metric apd-metric--<?= $m[3] ?>"><i class='bx <?= $m[2] ?>'></i><div class="apd-metric__v"><?= $m[1] ?></div><div class="apd-metric__l"><?= htmlspecialchars($m[0]) ?></div></div>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="row gy-4">
-                    <!-- MAIN COLUMN -->
+                <div class="row gy-0">
                     <div class="col-xl-8">
-                        <div class="card common-card mb-4 min-vh-25">
-                            <div class="card-body">
-                                <h5>📝 Description du Projet</h5>
-                                <div class="text-muted" style="line-height:2; font-size: 1.05rem;">
-                                    <?= nl2br((string) ($project->description ?? 'Aucune description fournie.')) ?>
-                                </div>
-                            </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bx-detail'></i> Description</h2>
+                            <div class="apd-desc"><?= nl2br(htmlspecialchars((string) ($project->description ?? 'Aucune description fournie.'), ENT_QUOTES, 'UTF-8')) ?></div>
                         </div>
 
-                        <div class="card common-card mb-4">
-                            <div class="card-body">
-                                <h5>💻 Technologies & Vidéo</h5>
-                                <div class="detail-item">
-                                    <div class="detail-icon">⚙️</div>
-                                    <div><strong>Technologies:</strong> <?= htmlspecialchars((string) ($project->technologies ?? 'Non précisées')) ?></div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">🎬</div>
-                                    <div><strong>Lien Vidéo:</strong> 
-                                        <?php if (!empty($project->video)): ?>
-                                            <a href="<?= htmlspecialchars((string) $project->video) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-primary fw-bold"><?= htmlspecialchars((string) $project->video) ?> 🔗</a>
-                                        <?php else: ?>
-                                            <span class="text-muted">Aucune vidéo</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bx-code-alt'></i> Technologies &amp; vidéo</h2>
+                            <div class="apd-row"><span class="apd-row__ico"><i class='bx bx-chip'></i></span><div><small>Technologies</small><strong><?= htmlspecialchars((string) ($project->technologies ?? 'Non précisées')) ?></strong></div></div>
+                            <div class="apd-row"><span class="apd-row__ico"><i class='bx bxl-youtube'></i></span><div><small>Lien vidéo</small><?php if (!empty($project->video)): ?><a href="<?= htmlspecialchars((string) $project->video) ?>" target="_blank" rel="noopener"><?= htmlspecialchars((string) $project->video) ?></a><?php else: ?><strong class="text-muted">Aucune vidéo</strong><?php endif; ?></div></div>
                         </div>
 
-                        <div class="card common-card mb-4">
-                            <div class="card-body">
-                                <h5>🖼️ Galerie d'Images</h5>
-                                <?php if (!empty($images)): ?>
-                                    <div class="row g-3">
-                                        <?php foreach ($images as $image): ?>
-                                            <div class="col-md-4">
-                                                <img src="<?= ROOT_IMG ?>/uploads/projects/images/<?= rawurlencode((string) ($image->image ?? '')) ?>" alt="Project Image" class="img-fluid shadow-sm hover-lift" style="height:200px; width:100%; object-fit:cover; border-radius:18px;">
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="text-center py-4 bg-light rounded-4 border border-dashed"><p class="text-muted mb-0">Aucune image disponible.</p></div>
-                                <?php endif; ?>
-                            </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bx-images'></i> Galerie d'images</h2>
+                            <?php if (!empty($images)): ?>
+                                <div class="apd-gallery">
+                                    <?php foreach ($images as $image): ?><img src="<?= ROOT_IMG ?>/uploads/projects/images/<?= rawurlencode((string) ($image->image ?? '')) ?>" alt="" loading="lazy"><?php endforeach; ?>
+                                </div>
+                            <?php else: ?><div class="apd-empty">Aucune image disponible.</div><?php endif; ?>
                         </div>
 
-                        <div class="card common-card">
-                            <div class="card-body">
-                                <h5>📄 Documents Joints</h5>
-                                <?php if (!empty($files)): ?>
-                                    <div class="d-flex flex-column gap-2">
-                                        <?php foreach ($files as $file): ?>
-                                            <a href="<?= ROOT_IMG ?>/uploads/projects/files/<?= rawurlencode((string) ($file->fichier ?? '')) ?>" target="_blank" class="btn btn-light text-start d-flex align-items-center gap-3 rounded-4 p-3 border-0 transition-2">
-                                                <span class="fs-4">📄</span>
-                                                <div class="flex-grow-1">
-                                                    <div class="fw-bold text-dark"><?= htmlspecialchars((string) ($file->fichier ?? 'Document')) ?></div>
-                                                    <small class="text-muted">Cliquez pour consulter</small>
-                                                </div>
-                                            </a>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <p class="text-muted mb-0">Aucun fichier disponible.</p>
-                                <?php endif; ?>
-                            </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bx-folder'></i> Documents joints</h2>
+                            <?php if (!empty($files)): ?>
+                                <?php foreach ($files as $file): ?>
+                                    <a href="<?= ROOT_IMG ?>/uploads/projects/files/<?= rawurlencode((string) ($file->fichier ?? '')) ?>" target="_blank" rel="noopener" class="apd-doc"><i class='bx bx-file'></i><div><div style="font-weight:700;color:var(--ds-ink-strong)"><?= htmlspecialchars((string) ($file->fichier ?? 'Document')) ?></div><small style="color:var(--ds-muted)">Cliquez pour consulter</small></div></a>
+                                <?php endforeach; ?>
+                            <?php else: ?><div class="apd-empty">Aucun fichier disponible.</div><?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- SIDEBAR -->
                     <div class="col-xl-4">
-                        <div class="card common-card">
-                            <div class="card-body">
-                                <h5>ℹ️ Meta Informations</h5>
-                                <div class="detail-item">
-                                    <div class="detail-icon">🏷️</div>
-                                    <div>
-                                        <div class="small text-muted">Statut Admin</div>
-                                        <span class="badge <?= $statusBadgeClass ?> bg-opacity-10 text-<?= str_replace('bg-', '', explode(' ', $statusBadgeClass)[0]) ?> px-3"><?= htmlspecialchars($adminStatus) ?></span>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">🎓</div>
-                                    <div>
-                                        <div class="small text-muted">Université / Filière</div>
-                                        <strong><?= htmlspecialchars((string) ($project->universite ?? '')) ?></strong><br>
-                                        <span class="text-muted small"><?= htmlspecialchars((string) ($project->filiere ?? 'N/A')) ?></span>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">✉️</div>
-                                    <div>
-                                        <div class="small text-muted">Email de l'auteur</div>
-                                        <a href="mailto:<?= htmlspecialchars((string) ($project->email ?? '')) ?>" class="text-decoration-none"><?= htmlspecialchars((string) ($project->email ?? '')) ?></a>
-                                    </div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-icon">📅</div>
-                                    <div>
-                                        <div class="small text-muted">Publié le</div>
-                                        <strong><?= !empty($project->created_at) ? htmlspecialchars(date('d F Y à H:i', strtotime((string) $project->created_at))) : '-' ?></strong>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bx-info-circle'></i> Méta-informations</h2>
+                            <div class="apd-row"><span class="apd-row__ico"><i class='bx bx-buildings'></i></span><div><small>Université / Filière</small><strong><?= htmlspecialchars((string) ($project->universite ?? '—')) ?></strong><br><small><?= htmlspecialchars((string) ($project->filiere ?? 'N/A')) ?></small></div></div>
+                            <div class="apd-row"><span class="apd-row__ico"><i class='bx bx-at'></i></span><div><small>Email de l'auteur</small><a href="mailto:<?= htmlspecialchars((string) ($project->email ?? '')) ?>"><?= htmlspecialchars((string) ($project->email ?? '—')) ?></a></div></div>
+                            <div class="apd-row"><span class="apd-row__ico"><i class='bx bx-calendar'></i></span><div><small>Publié le</small><strong><?= !empty($project->created_at) ? htmlspecialchars(date('d/m/Y à H:i', strtotime((string) $project->created_at))) : '—' ?></strong></div></div>
                         </div>
 
-                        <div class="card common-card">
-                            <div class="card-body">
-                                <h5>⭐ Avis des Visiteurs</h5>
-                                <div class="d-flex align-items-center justify-content-between mb-4 bg-light p-3 rounded-4">
-                                    <div class="text-center">
-                                        <div class="h2 fw-800 mb-0"><?= number_format($avgRating, 1) ?></div>
-                                        <div class="small text-muted">sur 5</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="text-warning h5 mb-0"><?= str_repeat('★', floor($avgRating)) . (fmod($avgRating, 1) >= 0.5 ? '½' : '') ?></div>
-                                        <div class="small text-muted"><?= $totalReviews ?> avis au total</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex flex-column gap-3">
-                                    <?php if (!empty($reviews)): ?>
-                                        <?php foreach (array_slice($reviews, 0, 5) as $review): ?>
-                                            <div class="review-item">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <strong class="small"><?= htmlspecialchars(trim((string) (($review->nom ?? '') . ' ' . ($review->prenom ?? ''))) ?: 'Visiteur') ?></strong>
-                                                    <div class="text-warning small"><?= str_repeat('★', max(0, (int) ($review->rating ?? 0))) ?></div>
-                                                </div>
-                                                <p class="mb-0 text-muted small" style="line-height: 1.6"><?= htmlspecialchars((string) ($review->review ?? '')) ?></p>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <p class="text-muted text-center py-3">Aucun avis pour le moment.</p>
-                                    <?php endif; ?>
-                                </div>
+                        <div class="apd-card">
+                            <h2><i class='bx bxs-star'></i> Avis des visiteurs</h2>
+                            <div class="apd-rating">
+                                <div><div class="apd-rating__big"><?= number_format($avgRating, 1) ?></div><small style="color:var(--ds-muted)">sur 5</small></div>
+                                <div class="text-end"><div class="apd-stars"><?php for ($i = 1; $i <= 5; $i++): ?><i class='bx <?= $i <= round($avgRating) ? 'bxs-star' : 'bx-star' ?>'></i><?php endfor; ?></div><small style="color:var(--ds-muted)"><?= $totalReviews ?> avis</small></div>
                             </div>
+                            <?php if (!empty($reviews)): ?>
+                                <?php foreach (array_slice($reviews, 0, 5) as $review): ?>
+                                    <?php $rWho = trim((string) (($review->nom ?? '') . ' ' . ($review->prenom ?? ''))); if ($rWho === '') { $rWho = 'Visiteur'; } ?>
+                                    <div class="apd-review">
+                                        <div class="apd-review__head"><span class="apd-review__who"><?= htmlspecialchars($rWho) ?></span><span class="apd-stars" style="font-size:.85rem"><?php for ($i = 1; $i <= 5; $i++): ?><i class='bx <?= $i <= (int) ($review->rating ?? 0) ? 'bxs-star' : 'bx-star' ?>'></i><?php endfor; ?></span></div>
+                                        <p class="mb-0" style="color:var(--ds-ink);font-size:.85rem;line-height:1.5"><?= htmlspecialchars((string) ($review->review ?? '')) ?></p>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?><div class="apd-empty">Aucun avis pour le moment.</div><?php endif; ?>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,1082 @@
+/* =====================================================================
+   NGAKODON — DESIGN SYSTEM UNIFIE
+   Direction : "Vert NGAKODON" (aligne sur le logo : couleurs du Mali).
+   Vert emeraude primaire + accent or + rouge pour les alertes.
+   Cible professionnelle, moderne, douce pour les yeux, coherente.
+   Source unique de verite. Charge EN DERNIER (voir Partials/head) pour
+   primer sur main.css (template dpmarket) et public-professional.css.
+   ===================================================================== */
+
+:root {
+    /* --- Marque : vert emeraude (logo NGAKODON) --- */
+    --ds-brand-50:  #e9f5ef;
+    --ds-brand-100: #d2ebe0;
+    --ds-brand-200: #a6d7c2;
+    --ds-brand-300: #6fbd9d;
+    --ds-brand-400: #3a9e78;
+    --ds-brand-500: #1f8a64;
+    --ds-brand-600: #157f5a;   /* PRIMAIRE */
+    --ds-brand-700: #0f6647;   /* hover / fonce */
+    --ds-brand-800: #0a4d35;
+    --ds-brand-900: #073527;
+    --ds-brand-rgb: 21, 127, 90;   /* #157f5a en composantes RGB, pour les rgba() */
+
+    /* --- Accent or (logo : a doser, notes & mises en avant) --- */
+    --ds-accent:      #e0a82e;
+    --ds-accent-600:  #c8901a;
+    --ds-accent-soft: #fbf0d8;
+
+    /* --- Neutres (ardoise legerement verte) --- */
+    --ds-ink:        #14211c;  /* texte principal */
+    --ds-ink-strong: #0c1713;  /* titres */
+    --ds-muted:      #5f6b66;  /* texte secondaire */
+    --ds-muted-soft: #8b958f;  /* hints */
+    --ds-border:     #e6ece9;
+    --ds-border-strong: #cfd8d3;
+    --ds-surface:    #ffffff;  /* cartes */
+    --ds-surface-2:  #f1f5f3;  /* surfaces alternees */
+    --ds-bg:         #f6f9f7;  /* fond de page */
+    --ds-footer:     #0a2c20;  /* pied de page (vert profond) */
+
+    /* --- Semantique --- */
+    --ds-success: #16a34a;
+    --ds-warning: #e08c0a;
+    --ds-danger:  #d6453f;     /* rouge du logo */
+    --ds-info:    var(--ds-brand-600);
+
+    --ds-success-soft: #e7f6ed;
+    --ds-warning-soft: #fdf1dd;
+    --ds-danger-soft:  #fdeceb;
+
+    /* --- Typographie --- */
+    --ds-font-sans:    'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --ds-font-heading: 'Sora', 'Manrope', system-ui, sans-serif;
+
+    /* --- Rayons (genereux = moderne) --- */
+    --ds-radius-sm:   10px;
+    --ds-radius:      14px;
+    --ds-radius-lg:   18px;
+    --ds-radius-xl:   24px;
+    --ds-radius-pill: 999px;
+
+    /* --- Ombres (douces, en couches) --- */
+    --ds-shadow-sm: 0 1px 2px rgba(10, 35, 27, .05);
+    --ds-shadow:    0 4px 14px rgba(10, 35, 27, .08);
+    --ds-shadow-md: 0 10px 26px rgba(10, 35, 27, .10);
+    --ds-shadow-lg: 0 22px 44px rgba(10, 35, 27, .12);
+    --ds-ring:      0 0 0 4px rgba(var(--ds-brand-rgb), .18);
+
+    /* --- Transition standard --- */
+    --ds-transition: .2s cubic-bezier(.4, 0, .2, 1);
+
+    /* --- Mise en page --- */
+    --ds-container: 1200px;
+
+    /* Ponts vers les variables eparpillees dans les vues (indigo dashboards,
+       teal detail, terracotta public). En les redefinissant ici, les pages
+       non encore migrees heritent deja de la palette unifiee. */
+    --primary-color: var(--ds-brand-600);
+    --primary-dark:  var(--ds-brand-700);
+    --primary-light: var(--ds-brand-400);
+    --pd-primary:    var(--ds-brand-600);
+    --pd-primary-dark: var(--ds-brand-700);
+    --public-accent: var(--ds-brand-600);
+    --public-accent-dark: var(--ds-brand-700);
+    --public-green:  var(--ds-brand-800);
+}
+
+/* ===================== COULEURS DE THEME (choix utilisateur) =====================
+   On surcharge l'echelle de marque via [data-color] sur <html>. Les variables
+   pont (--primary-color, --pd-primary, --public-accent...) referencent
+   var(--ds-brand-*) => elles suivent automatiquement la couleur choisie.
+   Vert = defaut (:root). Fonctionne avec le mode clair ET sombre. */
+
+html[data-color="blue"] {
+    --ds-brand-50:  #eaf1fc;
+    --ds-brand-100: #d2e3f9;
+    --ds-brand-200: #a7c8f1;
+    --ds-brand-300: #72a3e6;
+    --ds-brand-400: #4380d8;
+    --ds-brand-500: #2767c9;
+    --ds-brand-600: #1d59b8;
+    --ds-brand-700: #174a98;
+    --ds-brand-800: #143c78;
+    --ds-brand-900: #0f2b54;
+    --ds-footer:    #0c2342;
+    --ds-brand-rgb: 29, 89, 184;
+}
+
+html[data-color="orange"] {
+    --ds-brand-50:  #fdf0e8;
+    --ds-brand-100: #fbdcc9;
+    --ds-brand-200: #f6b994;
+    --ds-brand-300: #ef8f56;
+    --ds-brand-400: #e86a2a;
+    --ds-brand-500: #d9550f;
+    --ds-brand-600: #cf5410;
+    --ds-brand-700: #a8420c;
+    --ds-brand-800: #82340d;
+    --ds-brand-900: #57230b;
+    --ds-footer:    #3d1908;
+    --ds-brand-rgb: 207, 84, 16;
+}
+
+html[data-color="violet"] {
+    --ds-brand-50:  #f1edfd;
+    --ds-brand-100: #e3d9fb;
+    --ds-brand-200: #c7b3f5;
+    --ds-brand-300: #a587ec;
+    --ds-brand-400: #875fe0;
+    --ds-brand-500: #6f44d4;
+    --ds-brand-600: #6236c4;
+    --ds-brand-700: #4f2aa0;
+    --ds-brand-800: #3e2280;
+    --ds-brand-900: #2a1857;
+    --ds-footer:    #221248;
+    --ds-brand-rgb: 98, 54, 196;
+}
+
+/* ============================ BASE ============================ */
+
+body {
+    font-family: var(--ds-font-sans);
+    color: var(--ds-ink);
+}
+
+h1, h2, h3, h4, h5, h6,
+.fw-800 {
+    font-family: var(--ds-font-heading);
+    color: var(--ds-ink-strong);
+}
+
+a {
+    color: var(--ds-brand-600);
+    text-decoration: none;
+    transition: color var(--ds-transition);
+}
+a:hover {
+    color: var(--ds-brand-700);
+}
+
+::selection {
+    background: var(--ds-brand-100);
+    color: var(--ds-brand-800);
+}
+
+/* ===================== MAPPAGE DES CLASSES DE MARQUE =====================
+   On reroute les classes Bootstrap/dpmarket vers les tokens.
+   !important necessaire car main.css / public-professional.css les fixent. */
+
+.text-primary { color: var(--ds-brand-600) !important; }
+.bg-primary   { background-color: var(--ds-brand-600) !important; }
+.border-primary { border-color: var(--ds-brand-600) !important; }
+
+.btn-primary,
+.btn.btn-primary {
+    background-color: var(--ds-brand-600) !important;
+    border-color: var(--ds-brand-600) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    transition: all var(--ds-transition);
+}
+.btn-primary:hover,
+.btn.btn-primary:hover,
+.btn-primary:focus,
+.btn.btn-primary:focus {
+    background-color: var(--ds-brand-700) !important;
+    border-color: var(--ds-brand-700) !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--ds-brand-600) !important;
+    border-color: var(--ds-brand-300) !important;
+    background: transparent !important;
+}
+.btn-outline-primary:hover {
+    background: var(--ds-brand-600) !important;
+    border-color: var(--ds-brand-600) !important;
+    color: #fff !important;
+}
+
+.btn-success { background-color: var(--ds-success) !important; border-color: var(--ds-success) !important; }
+.btn-danger  { background-color: var(--ds-danger)  !important; border-color: var(--ds-danger)  !important; }
+.btn-warning { background-color: var(--ds-warning) !important; border-color: var(--ds-warning) !important; color: #fff !important; }
+
+/* Liens et boutons du header public */
+.nav-menu__link:hover,
+.nav-menu__link.active {
+    color: var(--ds-brand-600) !important;
+}
+.public-login-link {
+    color: var(--ds-ink) !important;
+    font-weight: 600;
+}
+.public-login-link:hover {
+    color: var(--ds-brand-600) !important;
+}
+.public-register-btn,
+.public-register-btn.btn-primary {
+    background: var(--ds-brand-600) !important;
+    border-color: var(--ds-brand-600) !important;
+    color: #fff !important;
+}
+.public-register-btn:hover {
+    background: var(--ds-brand-700) !important;
+}
+
+/* ===================== COMPOSANTS MODERNES REUTILISABLES =====================
+   A utiliser lors de la migration des pages (auth, dashboards, accueil...). */
+
+.ds-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    font-family: var(--ds-font-sans);
+    font-weight: 700;
+    font-size: .95rem;
+    padding: .72rem 1.4rem;
+    border-radius: var(--ds-radius-pill);
+    border: 1px solid transparent;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: all var(--ds-transition);
+    text-decoration: none;
+}
+.ds-btn:focus-visible { outline: none; box-shadow: var(--ds-ring); }
+.ds-btn--primary { background: var(--ds-brand-600); color: #fff; }
+.ds-btn--primary:hover { background: var(--ds-brand-700); color: #fff; transform: translateY(-1px); box-shadow: var(--ds-shadow); }
+.ds-btn--ghost { background: var(--ds-brand-50); color: var(--ds-brand-700); }
+.ds-btn--ghost:hover { background: var(--ds-brand-100); color: var(--ds-brand-800); }
+.ds-btn--outline { background: transparent; color: var(--ds-ink); border-color: var(--ds-border-strong); }
+.ds-btn--outline:hover { border-color: var(--ds-brand-400); color: var(--ds-brand-700); }
+.ds-btn--block { width: 100%; }
+
+.ds-card {
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-sm);
+}
+.ds-card--hover { transition: transform var(--ds-transition), box-shadow var(--ds-transition); }
+.ds-card--hover:hover { transform: translateY(-4px); box-shadow: var(--ds-shadow-md); }
+
+.ds-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .28rem .72rem;
+    border-radius: var(--ds-radius-pill);
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1;
+    background: var(--ds-brand-50);
+    color: var(--ds-brand-700);
+}
+.ds-badge--gold    { background: var(--ds-accent-soft); color: #8a6310; }
+.ds-badge--success { background: var(--ds-success-soft); color: #11703a; }
+.ds-badge--warning { background: var(--ds-warning-soft); color: #9a6206; }
+.ds-badge--danger  { background: var(--ds-danger-soft);  color: #a3322e; }
+.ds-badge--neutral { background: var(--ds-surface-2); color: var(--ds-muted); }
+
+.ds-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .7rem;
+    border-radius: var(--ds-radius-pill);
+    font-size: .8rem;
+    font-weight: 600;
+    background: var(--ds-surface-2);
+    color: var(--ds-ink);
+    border: 1px solid var(--ds-border);
+}
+
+.ds-input,
+.ds-textarea,
+.ds-select {
+    width: 100%;
+    font-family: var(--ds-font-sans);
+    font-size: .95rem;
+    color: var(--ds-ink);
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border-strong);
+    border-radius: var(--ds-radius);
+    padding: .7rem .9rem;
+    transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+}
+.ds-input:focus,
+.ds-textarea:focus,
+.ds-select:focus {
+    outline: none;
+    border-color: var(--ds-brand-400);
+    box-shadow: var(--ds-ring);
+}
+
+.ds-label {
+    display: block;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--ds-ink);
+    margin-bottom: .4rem;
+}
+
+/* ============================ HEADER ============================ */
+
+.header .nav-menu__link {
+    font-family: var(--ds-font-sans);
+    font-weight: 600;
+    color: var(--ds-ink);
+}
+
+/* ============================ FOOTER ============================
+   Remplace l'ancien CSS inline du partial footer.
+   Identite : vert profond + accent or (echo du logo NGAKODON). */
+
+.modern-footer {
+    background-color: var(--ds-footer);
+    position: relative;
+    overflow: hidden;
+    color: #e7f0eb;
+    font-family: var(--ds-font-sans);
+    padding-top: 80px;
+    z-index: 10;
+    border-top: 3px solid var(--ds-brand-600);
+}
+
+.modern-footer::before {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(224, 168, 46, .16) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.modern-footer::after {
+    content: "";
+    position: absolute;
+    bottom: -200px;
+    left: -150px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(7, 53, 39, .9) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.modern-footer .container-two {
+    position: relative;
+    z-index: 2;
+}
+
+.modern-footer .footer-item__logo img {
+    max-width: 180px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .35));
+}
+
+.modern-footer .footer-item__desc {
+    color: rgba(231, 240, 235, .68);
+    line-height: 1.8;
+    font-size: 1rem;
+    max-width: 350px;
+}
+
+.modern-footer .footer-item__title {
+    color: #ffffff;
+    font-family: var(--ds-font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    position: relative;
+    display: inline-block;
+}
+
+.modern-footer .footer-item__title::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 30px;
+    height: 3px;
+    background: var(--ds-accent);
+    border-radius: 2px;
+    transition: width .3s ease;
+}
+
+.modern-footer .footer-item:hover .footer-item__title::after {
+    width: 50px;
+}
+
+.modern-footer .footer-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modern-footer .footer-menu__item {
+    margin-bottom: 16px;
+}
+
+.modern-footer .footer-menu__link {
+    color: rgba(231, 240, 235, .72);
+    text-decoration: none;
+    font-size: 1.05rem;
+    transition: all .3s cubic-bezier(.16, 1, .3, 1);
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+.modern-footer .footer-menu__link::before {
+    content: '\2192';
+    font-family: monospace;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all .3s ease;
+    color: var(--ds-accent);
+    display: inline-block;
+    width: 0;
+    overflow: hidden;
+}
+
+.modern-footer .footer-menu__link:hover {
+    color: #ffffff;
+    transform: translateX(5px);
+}
+
+.modern-footer .footer-menu__link:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+    width: 20px;
+    margin-right: 4px;
+}
+
+.modern-bottom-footer {
+    background-color: #071d15;
+    padding: 24px 0;
+    margin-top: 60px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.modern-bottom-footer__text {
+    color: rgba(231, 240, 235, .55);
+    margin: 0;
+    font-size: .95rem;
+    text-align: center;
+    width: 100%;
+}
+
+.modern-bottom-footer__text span {
+    color: var(--ds-accent);
+    font-weight: 600;
+}
+
+/* ============================ AUTH (login / register) ============================
+   Layout partage par login.view.php et register.view.php (fini la duplication). */
+
+@keyframes ds-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+
+.ds-auth {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 92px 18px 56px;
+    background: linear-gradient(140deg, var(--ds-brand-50) 0%, var(--ds-bg) 58%);
+}
+
+.ds-auth__card {
+    width: 100%;
+    max-width: 1040px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-xl);
+    box-shadow: var(--ds-shadow-lg);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.ds-auth__panel {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--ds-brand-600) 0%, var(--ds-brand-800) 100%);
+    color: #fff;
+    padding: 48px 42px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.ds-auth__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, .10) 0, transparent 24%),
+        radial-gradient(circle at 82% 42%, rgba(255, 255, 255, .08) 0, transparent 26%),
+        radial-gradient(circle at 50% 88%, rgba(224, 168, 46, .16) 0, transparent 30%);
+    pointer-events: none;
+}
+
+.ds-auth__panel > * { position: relative; z-index: 1; }
+
+.ds-auth__badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .24);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: var(--ds-radius-pill);
+    margin-bottom: 24px;
+}
+
+.ds-auth__illus {
+    max-width: 240px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 26px;
+    animation: ds-float 3.4s ease-in-out infinite;
+}
+
+.ds-auth__panel h2 { color: #fff; font-size: 1.7rem; margin: 0 0 12px; }
+.ds-auth__panel p { color: rgba(255, 255, 255, .86); font-size: .98rem; line-height: 1.65; margin: 0 0 8px; }
+
+.ds-auth__features {
+    list-style: none;
+    padding: 0;
+    margin: 18px auto 0;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    text-align: left;
+}
+.ds-auth__features li { display: flex; align-items: center; gap: 11px; font-size: .93rem; color: rgba(255, 255, 255, .94); }
+.ds-auth__features i { color: var(--ds-accent); font-size: 1.15rem; flex-shrink: 0; }
+
+.ds-auth__stats { display: flex; gap: 28px; justify-content: center; margin-top: 28px; }
+.ds-auth__stat b { display: block; font-family: var(--ds-font-heading); font-size: 1.5rem; line-height: 1.1; color: #fff; }
+.ds-auth__stat span { font-size: .76rem; color: rgba(255, 255, 255, .78); }
+
+.ds-auth__body { padding: 46px 42px; }
+.ds-auth__body h3 { font-size: 1.55rem; margin: 0 0 6px; }
+.ds-auth__sub { color: var(--ds-muted); font-size: .92rem; margin: 0 0 26px; }
+
+.ds-auth__field { position: relative; }
+.ds-auth__field > i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ds-muted-soft);
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+.ds-auth__field .ds-input { padding-left: 42px; }
+
+.ds-auth__row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.ds-auth__link { font-size: .85rem; font-weight: 600; color: var(--ds-brand-600); }
+.ds-auth__link:hover { color: var(--ds-brand-700); }
+
+.ds-auth__alt {
+    text-align: center;
+    margin: 22px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--ds-border);
+    color: var(--ds-muted);
+    font-size: .9rem;
+}
+.ds-auth__alt a { font-weight: 700; }
+
+@media (max-width: 860px) {
+    .ds-auth { padding: 84px 14px 40px; }
+    .ds-auth__card { grid-template-columns: 1fr; max-width: 460px; }
+    .ds-auth__panel { display: none; }
+    .ds-auth__body { padding: 32px 24px; }
+    .ds-auth__row { grid-template-columns: 1fr; }
+}
+
+/* ============================ BASCULE DE THEME ============================ */
+
+.ds-theme-toggle {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1.5px solid var(--ds-brand-200);
+    background: var(--ds-brand-50);
+    color: var(--ds-brand-700);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all var(--ds-transition);
+    flex-shrink: 0;
+}
+.ds-theme-toggle:hover {
+    background: var(--ds-brand-600);
+    color: #fff;
+    border-color: var(--ds-brand-600);
+    transform: translateY(-1px);
+}
+
+/* Variante "pilule" avec libelle, pour le header (impossible a manquer) */
+.ds-theme-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: var(--ds-radius-pill);
+    border: 1.5px solid var(--ds-brand-300);
+    background: var(--ds-brand-50);
+    color: var(--ds-brand-700);
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--ds-transition);
+    flex-shrink: 0;
+}
+.ds-theme-pill:hover {
+    background: var(--ds-brand-600);
+    color: #fff;
+    border-color: var(--ds-brand-600);
+    transform: translateY(-1px);
+}
+.ds-theme-pill i { font-size: 1.15rem; }
+
+/* Selecteur de COULEUR de theme (bouton palette + popover de pastilles) */
+.ds-color-picker { position: relative; display: inline-flex; }
+.ds-color-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 12px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius);
+    box-shadow: var(--ds-shadow-md);
+    z-index: 1200;
+}
+.ds-color-menu.is-open { display: grid; }
+.ds-color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--sw, #157f5a);
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform .15s ease;
+}
+.ds-color-swatch:hover { transform: scale(1.12); }
+.ds-color-swatch.is-active {
+    border-color: var(--ds-surface);
+    box-shadow: 0 0 0 2px var(--sw, #157f5a);
+}
+/* Rangee de pastilles en ligne (footer, menu mobile) */
+.ds-color-swatches { display: inline-flex; gap: 8px; align-items: center; }
+
+/* Bascule en pied de page (sur fond fonce) */
+.footer-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .16);
+    color: rgba(231, 240, 235, .85);
+    font-size: .85rem;
+    font-weight: 600;
+    padding: 7px 15px;
+    border-radius: var(--ds-radius-pill);
+    cursor: pointer;
+    transition: all var(--ds-transition);
+}
+.footer-theme-toggle:hover { background: rgba(255, 255, 255, .15); color: #fff; }
+
+/* Transition douce a la bascule (sans flash au chargement : l'attribut
+   data-theme est pose en amont, donc aucune transition ne se declenche). */
+body,
+.card, .common-card, .ds-card, .modern-card, .form-card,
+.form-control, .form-select, .ds-input, .ds-select,
+.dashboard-nav, .dashboard-sidebar, .header {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+}
+
+/* ============================ THEME SOMBRE ============================
+   html[data-theme="dark"] a une specificite > :root : on surcharge donc
+   aussi les variables locales redefinies par les pages (--bg-light, etc.). */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Neutres sombres */
+    --ds-ink: #e6efea;
+    --ds-ink-strong: #f4f8f6;
+    --ds-muted: #9aaca4;
+    --ds-muted-soft: #6d7c74;
+    --ds-border: #29382f;
+    --ds-border-strong: #3a4d43;
+    --ds-surface: #161f1b;
+    --ds-surface-2: #1e2a25;
+    --ds-bg: #0f1714;
+    --ds-footer: #0a120f;
+
+    /* La marque suit la couleur choisie (data-color). Fonds doux neutralises. */
+    --ds-brand-50:  #1e2a25;
+    --ds-brand-100: #243430;
+
+    /* Variables locales des pages : nuance CLAIRE de la marque active
+       (brand-400/300) pour rester lisible sur fond sombre. */
+    --primary-color: var(--ds-brand-400);
+    --primary-hover:  var(--ds-brand-300);
+    --primary-light:  var(--ds-brand-300);
+    --bg-light:   #0f1714;
+    --text-main:  #e6efea;
+    --text-muted: #9aaca4;
+    --card-shadow: 0 12px 30px rgba(0, 0, 0, .5);
+    --pd-primary:       var(--ds-brand-400);
+    --pd-primary-light: var(--ds-brand-300);
+    --pd-primary-bg:    #1e2a25;
+    --public-ink:    #e6efea;
+    --public-muted:  #9aaca4;
+    --public-paper:  #0f1714;
+    --public-card:   #161f1b;
+    --public-soft:   #1e2a25;
+    --public-border: #29382f;
+}
+
+html[data-theme="dark"] body { background-color: var(--ds-bg); color: var(--ds-ink); }
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .common-card,
+html[data-theme="dark"] .ds-card,
+html[data-theme="dark"] .modern-card,
+html[data-theme="dark"] .form-card,
+html[data-theme="dark"] .review-item,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .stat-pill {
+    background-color: var(--ds-surface) !important;
+    color: var(--ds-ink);
+    border-color: var(--ds-border) !important;
+}
+
+html[data-theme="dark"] .dashboard-body__content,
+html[data-theme="dark"] .ds-auth { background-color: var(--ds-bg) !important; }
+
+/* Ecran de chargement (loader-mask) : sinon flash blanc plein ecran au chargement en mode sombre. */
+html[data-theme="dark"] .loader-mask { background-color: var(--ds-bg) !important; }
+
+html[data-theme="dark"] .header,
+html[data-theme="dark"] .dashboard-nav,
+html[data-theme="dark"] .dashboard-sidebar,
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bottom-footer-two {
+    background-color: var(--ds-surface) !important;
+    color: var(--ds-ink);
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .ds-input,
+html[data-theme="dark"] .ds-select,
+html[data-theme="dark"] .ds-textarea,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="email"],
+html[data-theme="dark"] input[type="password"],
+html[data-theme="dark"] input[type="search"],
+html[data-theme="dark"] input[type="url"],
+html[data-theme="dark"] input[type="date"] {
+    background-color: var(--ds-surface-2) !important;
+    color: var(--ds-ink) !important;
+    border-color: var(--ds-border-strong) !important;
+}
+html[data-theme="dark"] ::placeholder { color: var(--ds-muted-soft) !important; opacity: 1; }
+
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary { color: var(--ds-muted) !important; }
+
+html[data-theme="dark"] .text-primary,
+html[data-theme="dark"] a:not(.btn):not(.ds-btn):not(.nav-menu__link):not(.footer-menu__link):not(.sidebar-list__link) {
+    color: var(--ds-brand-300) !important;
+}
+
+html[data-theme="dark"] .table { color: var(--ds-ink); border-color: var(--ds-border); }
+html[data-theme="dark"] .table > :not(caption) > * > * {
+    background-color: var(--ds-surface) !important;
+    color: var(--ds-ink);
+    border-color: var(--ds-border) !important;
+}
+html[data-theme="dark"] .table tbody tr:hover > * { background-color: var(--ds-surface-2) !important; }
+
+html[data-theme="dark"] hr,
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end { border-color: var(--ds-border) !important; }
+
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] .bg-gray-seven,
+html[data-theme="dark"] .bg-rgba-primary { background-color: var(--ds-surface-2) !important; }
+
+html[data-theme="dark"] .ds-badge { background: rgba(148, 163, 184, .14); color: var(--ds-brand-300); }
+html[data-theme="dark"] .ds-chip { background: var(--ds-surface-2); color: var(--ds-ink); border-color: var(--ds-border); }
+html[data-theme="dark"] .ds-btn--ghost { background: rgba(148, 163, 184, .12); color: var(--ds-brand-300); }
+html[data-theme="dark"] .ds-theme-toggle,
+html[data-theme="dark"] .ds-theme-pill {
+    background: var(--ds-surface-2);
+    color: var(--ds-brand-300);
+    border-color: var(--ds-border-strong);
+}
+html[data-theme="dark"] .ds-theme-toggle:hover,
+html[data-theme="dark"] .ds-theme-pill:hover {
+    background: var(--ds-brand-700);
+    color: #fff;
+    border-color: var(--ds-brand-700);
+}
+
+/* ============================ NAVIGATION MOBILE (barre du bas) ============================
+   Affichee uniquement < 992px sur les pages publiques. Suit couleur + theme. */
+.nk-bottomnav { display: none; }
+
+@media (max-width: 991px) {
+    .nk-bottomnav {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        align-items: center;
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 1100;
+        background: var(--ds-surface);
+        border-top: 1px solid var(--ds-border);
+        box-shadow: 0 -6px 24px rgba(10, 35, 27, .10);
+        padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    }
+    .nk-bottomnav__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 6px 2px;
+        color: var(--ds-muted);
+        font-size: .66rem;
+        font-weight: 600;
+        text-decoration: none;
+        position: relative;
+        transition: color var(--ds-transition);
+    }
+    .nk-bottomnav__item i { font-size: 1.45rem; line-height: 1; }
+    .nk-bottomnav__item.is-active { color: var(--ds-brand-600); }
+    .nk-bottomnav__item.is-active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 22px;
+        height: 3px;
+        border-radius: 0 0 3px 3px;
+        background: var(--ds-brand-600);
+    }
+    .nk-bottomnav__fab {
+        justify-self: center;
+        transform: translateY(-16px);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--ds-brand-600);
+        color: #fff;
+        border: 4px solid var(--ds-surface);
+        box-shadow: var(--ds-shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background var(--ds-transition), transform var(--ds-transition);
+    }
+    .nk-bottomnav__fab i { font-size: 1.65rem; }
+    .nk-bottomnav__fab:active { transform: translateY(-16px) scale(.94); }
+
+    /* Laisse la place a la barre + remonte le bouton du chatbot au-dessus d'elle */
+    body.public-site { padding-bottom: 66px; }
+    .nk-chatbot__toggle { display: none !important; }
+}
+
+/* ============================ CATALOGUE PROJETS — extras partages (accueil + liste) ============================ */
+.project-results-shell.is-loading { opacity: .55; pointer-events: none; transition: opacity .2s; }
+
+/* Badges automatiques sur les cartes (Nouveau / Populaire) */
+.project-badges { position: absolute; bottom: 10px; left: 10px; z-index: 2; display: flex; gap: 6px; }
+.project-badge { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 800; padding: 4px 9px; border-radius: var(--ds-radius-pill); color: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+.project-badge i { font-size: .82rem; }
+.project-badge.is-new { background: var(--ds-brand-600); }
+.project-badge.is-hot { background: linear-gradient(135deg, #f0772e, var(--ds-danger)); }
+
+/* Bascule grille / liste */
+.pl-view { display: inline-flex; border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius); overflow: hidden; flex-shrink: 0; }
+.pl-view__btn { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; background: var(--ds-surface); color: var(--ds-muted); border: 0; cursor: pointer; font-size: 1.25rem; transition: background var(--ds-transition), color var(--ds-transition); }
+.pl-view__btn + .pl-view__btn { border-left: 1px solid var(--ds-border); }
+.pl-view__btn.is-active { background: var(--ds-brand-600); color: #fff; }
+
+/* Vue LISTE : les cartes du partial passent en lignes horizontales */
+.project-results-shell.is-list .row > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
+.project-results-shell.is-list .project-card-modern { flex-direction: row; }
+.project-results-shell.is-list .project-visual { width: 250px; flex-shrink: 0; }
+.project-results-shell.is-list .project-carousel,
+.project-results-shell.is-list .project-carousel .slick-list,
+.project-results-shell.is-list .project-carousel .slick-track,
+.project-results-shell.is-list .project-carousel .slick-slide,
+.project-results-shell.is-list .project-carousel .slick-slide > div,
+.project-results-shell.is-list .project-slide { height: 100%; }
+.project-results-shell.is-list .project-slide img { height: 100%; min-height: 200px; object-fit: cover; }
+.project-results-shell.is-list .project-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.project-card-modern { cursor: pointer; }
+.pl-loadmore-wrap { display: none; text-align: center; margin-top: 22px; }
+.pl-loadmore { display: inline-flex; align-items: center; gap: 8px; background: var(--ds-surface); border: 1px solid var(--ds-brand-300); color: var(--ds-brand-700); font-weight: 700; font-size: .95rem; padding: 13px 28px; border-radius: var(--ds-radius-pill); cursor: pointer; transition: all var(--ds-transition); }
+.pl-loadmore:hover { background: var(--ds-brand-600); color: #fff; border-color: var(--ds-brand-600); }
+.pl-loadmore.is-loading { opacity: .55; pointer-events: none; }
+.pl-loadmore.is-loading i { animation: nk-spin .8s linear infinite; }
+@keyframes nk-spin { to { transform: rotate(360deg); } }
+
+/* Feuille de filtres (bottom-sheet) — affichee uniquement sur mobile */
+.pl-sheet-trigger { display: none; }
+.pl-sheet { position: fixed; inset: 0; z-index: 1200; visibility: hidden; opacity: 0; transition: opacity .25s ease, visibility .25s ease; }
+.pl-sheet.is-open { visibility: visible; opacity: 1; }
+.pl-sheet__backdrop { position: absolute; inset: 0; background: rgba(8, 20, 16, .5); }
+.pl-sheet__panel { position: absolute; left: 0; right: 0; bottom: 0; background: var(--ds-surface); border-radius: 22px 22px 0 0; padding: 8px 20px calc(22px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform .3s cubic-bezier(.2,.8,.2,1); max-height: 86vh; overflow-y: auto; }
+.pl-sheet.is-open .pl-sheet__panel { transform: translateY(0); }
+.pl-sheet__handle { width: 42px; height: 5px; border-radius: 3px; background: var(--ds-border-strong); margin: 8px auto 14px; }
+.pl-sheet__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.pl-sheet__head h3 { font-family: var(--ds-font-heading); font-size: 1.15rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; }
+.pl-sheet__x { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--ds-surface-2); color: var(--ds-ink); font-size: 1.3rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.pl-sheet__group { margin-bottom: 20px; }
+.pl-sheet__label { display: block; font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--ds-muted); margin-bottom: 10px; }
+.pl-sheet__options { display: flex; flex-direction: column; gap: 8px; }
+.pl-sheet__opt { display: flex; align-items: center; justify-content: space-between; background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 13px 16px; font-weight: 600; font-size: .95rem; color: var(--ds-ink); cursor: pointer; }
+.pl-sheet__opt i { opacity: 0; color: var(--ds-brand-600); font-size: 1.3rem; }
+.pl-sheet__opt.is-active { border-color: var(--ds-brand-400); background: var(--ds-brand-50); color: var(--ds-brand-700); }
+.pl-sheet__opt.is-active i { opacity: 1; }
+.pl-sheet__chips { display: flex; gap: 10px; }
+.pl-sheet__chip { flex: 1; background: var(--ds-surface-2); border: 1px solid var(--ds-border); border-radius: var(--ds-radius); padding: 13px 0; font-weight: 700; color: var(--ds-ink); cursor: pointer; }
+.pl-sheet__chip.is-active { border-color: var(--ds-brand-400); background: var(--ds-brand-50); color: var(--ds-brand-700); }
+.pl-sheet__apply { width: 100%; background: var(--ds-brand-600); color: #fff; border: 0; border-radius: var(--ds-radius-pill); padding: 14px; font-weight: 700; font-size: .98rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+@media (max-width: 600px) {
+    /* Sur mobile, la bascule grille/liste est redondante (toujours une carte
+       verticale) : on la masque pour alleger les controles. */
+    .pl-view { display: none !important; }
+    /* Filtres deplaces dans la feuille : on masque les selects inline, on montre le declencheur. */
+    .pl-toolbar__right .pl-field { display: none; }
+    .pl-sheet-trigger { display: inline-flex; align-items: center; gap: 7px; background: var(--ds-surface); border: 1px solid var(--ds-border-strong); color: var(--ds-ink); font-weight: 700; font-size: .86rem; padding: 9px 16px; border-radius: var(--ds-radius-pill); cursor: pointer; }
+    .pl-sheet-trigger i { color: var(--ds-brand-600); font-size: 1.05rem; }
+    /* « Charger plus » remplace la pagination numerotee sur mobile. */
+    .pl-loadmore-wrap.has-more { display: block; }
+    .project-pagination-wrap { display: none; }
+    /* Mobile : la vue liste reprend une CARTE VERTICALE riche (image pleine
+       largeur en haut + contenu complet) — parcours plus visuel et tappable
+       qu'une rangee horizontale comprimee. */
+    .project-results-shell.is-list .project-card-modern { flex-direction: column; }
+    .project-results-shell.is-list .project-visual { width: 100%; height: 195px; flex-shrink: 0; }
+    .project-results-shell.is-list .project-carousel,
+    .project-results-shell.is-list .project-carousel .slick-list,
+    .project-results-shell.is-list .project-carousel .slick-track,
+    .project-results-shell.is-list .project-carousel .slick-slide,
+    .project-results-shell.is-list .project-carousel .slick-slide > div,
+    .project-results-shell.is-list .project-slide { height: 195px; }
+    .project-results-shell.is-list .project-slide img { height: 195px; min-height: 195px; object-fit: cover; }
+    .project-results-shell.is-list .project-body { padding: 15px; }
+    .project-results-shell.is-list .project-meta { display: flex; }
+    .project-results-shell.is-list .tech-list { display: flex; }
+    .project-results-shell.is-list .project-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .project-results-shell.is-list .project-image-count { display: inline-flex !important; }
+    .project-results-shell.is-list .project-carousel .slick-prev,
+    .project-results-shell.is-list .project-carousel .slick-next { display: none !important; }
+}
+
+/* =========================================================
+   TABLES RESPONSIVES (mobile-first) — sur petit ecran, chaque
+   ligne de tableau admin devient une CARTE empilee (plus de
+   scroll horizontal). Marquage dans les vues :
+     <td data-label="Auteur">…</td>   -> ligne "label : valeur"
+     <td class="is-cardtitle">…</td>  -> entete de carte
+     <td class="is-cardaction">…</td> -> bouton pleine largeur
+     <td class="is-cardcheck">…</td>  -> masquee sur mobile
+   ========================================================= */
+@media (max-width: 640px) {
+    .adm-table, .usr-table, .st-table { min-width: 0 !important; display: block !important; }
+    .adm-table thead, .usr-table thead, .st-table thead { display: none !important; }
+    .adm-table tbody, .usr-table tbody, .st-table tbody { display: block !important; }
+    .adm-table tr, .usr-table tr, .st-table tr {
+        display: block !important; margin-bottom: 14px; padding: 4px 15px;
+        border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg);
+        background: var(--ds-surface); box-shadow: var(--ds-shadow-sm);
+    }
+    .adm-table tbody tr:hover, .usr-table tbody tr:hover, .st-table tbody tr:hover { background: var(--ds-surface) !important; }
+    .adm-table td, .usr-table td, .st-table td {
+        display: flex !important; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 10px 0 !important; text-align: right; min-width: 0;
+        border: 0 !important; border-bottom: 1px solid var(--ds-border) !important;
+    }
+    .adm-table tr td:last-child, .usr-table tr td:last-child, .st-table tr td:last-child { border-bottom: 0 !important; }
+    .adm-table td::before, .usr-table td::before, .st-table td::before {
+        content: attr(data-label); flex-shrink: 0; text-align: left;
+        font-weight: 700; font-size: .73rem; text-transform: uppercase; letter-spacing: .02em; color: var(--ds-muted);
+    }
+    .adm-table td.is-cardtitle, .usr-table td.is-cardtitle, .st-table td.is-cardtitle {
+        display: block !important; text-align: left; padding: 13px 0 9px !important;
+        font-family: var(--ds-font-heading); font-weight: 800; font-size: 1.02rem; color: var(--ds-ink-strong);
+    }
+    .adm-table td.is-cardtitle::before, .usr-table td.is-cardtitle::before, .st-table td.is-cardtitle::before { content: none; }
+    .adm-table td.is-cardaction, .usr-table td.is-cardaction { display: block !important; padding: 12px 0 8px !important; }
+    .adm-table td.is-cardaction::before, .usr-table td.is-cardaction::before { content: none; }
+    .adm-table td.is-cardaction > *, .usr-table td.is-cardaction > * { display: flex !important; flex-wrap: wrap; gap: 8px; width: 100%; justify-content: center; }
+    .adm-table td.is-cardaction .adm-detail-btn, .usr-table td.is-cardaction .usr-act { flex: 1; justify-content: center; }
+    .adm-table td.is-cardcheck, .usr-table td.is-cardcheck { display: none !important; }
+    .adm-table td > input, .adm-table td > select, .usr-table td > input, .usr-table td > select { flex: 1 1 auto; min-width: 0; }
+    .adm-table td:empty, .usr-table td:empty, .st-table td:empty { display: none !important; }
+}
+
+/* =========================================================
+   LOGO EN-TETE — corrige la taille mobile heritee du template
+   (main.css imposait `.logo img{max-width:16px}` <767px = minuscule).
+   ========================================================= */
+.header .logo { display: flex; align-items: center; }
+.header .logo .link { display: inline-flex; align-items: center; line-height: 0; }
+.header .logo img { height: 52px; width: auto; max-width: none; object-fit: contain; }
+@media (max-width: 767px) {
+    .header .logo img { height: 46px; width: auto; max-width: none; }
+}
+
+/* =========================================================
+   CONNEXION SOCIALE — boutons Google / Facebook / GitHub
+   ========================================================= */
+.nk-social { margin-top: 18px; }
+.nk-social__sep { display: flex; align-items: center; gap: 12px; color: var(--ds-muted); font-size: .8rem; margin-bottom: 14px; }
+.nk-social__sep::before, .nk-social__sep::after { content: ''; flex: 1; height: 1px; background: var(--ds-border); }
+.nk-social__btns { display: flex; gap: 10px; }
+.nk-social__btn { flex: 1; min-width: 0; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 6px; border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius); background: var(--ds-surface); color: var(--ds-ink); font-weight: 700; font-size: .84rem; text-decoration: none; cursor: pointer; transition: all var(--ds-transition); }
+.nk-social__btn i { font-size: 1.3rem; }
+.nk-social__btn--google i { color: #ea4335; }
+.nk-social__btn--facebook i { color: #1877f2; }
+.nk-social__btn--github i { color: var(--ds-ink-strong); }
+.nk-social__btn:hover { border-color: var(--ds-brand-300); background: var(--ds-surface-2); transform: translateY(-1px); box-shadow: var(--ds-shadow-sm); }
+@media (max-width: 430px) { .nk-social__btn span { display: none; } .nk-social__btn { padding: 12px; } }

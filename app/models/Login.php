@@ -32,6 +32,8 @@ class Login extends Model
         // vérifier mot de passe
         if(password_verify($password, $utilisateur->password))
         {
+            // Anti-fixation de session : nouvel ID apres authentification reussie.
+            session_regenerate_id(true);
 
             $_SESSION['user_id'] = $utilisateur->user_id;
             $_SESSION['nom'] = $utilisateur->nom;

@@ -1,0 +1,22 @@
+# Securite a la racine du projet.
+# L'application est servie via /public (voir public/.htaccess).
+# Les medias restent accessibles via /uploads. Ce fichier bloque l'acces
+# direct au code source, aux dumps SQL et aux fichiers internes.
+
+# Pas de listing de repertoire.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloquer l'acces direct aux dossiers internes (code, documentation/dumps).
+    RewriteRule ^(app|docs)(/|$) - [F,L]
+
+    # Bloquer les fichiers caches (.git, .env, .gitignore, etc.) sauf .well-known.
+    RewriteRule (^|/)\.(?!well-known)[^/]+ - [F,L]
+</IfModule>
+
+# Bloquer le telechargement direct de fichiers sensibles par extension.
+<FilesMatch "\.(sql|md|sample|bak|log|ini|sh|lock)$">
+    Require all denied
+</FilesMatch>

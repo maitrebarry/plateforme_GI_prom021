@@ -111,6 +111,13 @@ class Homes extends Controller
             return;
         }
 
+        if (!RateLimiter::allow('ai_home', 15, 60)) {
+            http_response_code(429);
+            echo json_encode(['ok' => false, 'message' => 'Trop de requetes vers l assistant. Patientez quelques instants avant de reessayer.']);
+            return;
+        }
+
+        $message = mb_substr($message, 0, 1200);
         $history = json_decode((string) ($_POST['history'] ?? '[]'), true);
         $history = is_array($history) ? $history : [];
 
@@ -707,19 +714,21 @@ class Homes extends Controller
         $categoryId = isset($_GET['category']) && $_GET['category'] !== '' ? (int) $_GET['category'] : null;
         $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 5;
-        $listing = $projectModel->getHomepageProjectsPaginated($search, $categoryId, $page, $perPage);
+        $sort = trim((string) ($_GET['sort'] ?? ''));
+        $listing = $projectModel->getHomepageProjectsPaginated($search, $categoryId, $page, $perPage, $sort);
 
         return [
             'projects' => $listing['projects'],
             'projectCategories' => $projectModel->getAvailableCategories(),
             'projectSearch' => $search,
             'selectedCategoryId' => $categoryId,
+            'projectSort' => $sort !== '' ? $sort : 'recent',
             'projectCount' => (int) ($listing['total'] ?? 0),
             'featuredProject' => $listing['projects'][0] ?? null,
             'currentPage' => (int) ($listing['page'] ?? 1),
             'perPage' => (int) ($listing['perPage'] ?? 5),
             'totalPages' => (int) ($listing['totalPages'] ?? 1),
-            'topLikedProjects' => $projectModel->getTopLikedProjects(3),
+            'topLikedProjects' => $projectModel->getMostAppreciatedProjects(3),
             'presentationStats' => $projectModel->getPresentationStats(),
             'aiQuery' => $aiQuery,
             'aiRecommendedProjects' => $projectModel->getGuidedProjectRecommendations($aiQuery, 3),

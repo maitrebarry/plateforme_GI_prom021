@@ -10,223 +10,128 @@ $perPage = (int) ($perPage ?? 10);
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $totalItems = max(0, (int) ($totalItems ?? count($projects ?? [])));
 $paginationQuery = (string) ($paginationQuery ?? '');
+$platStats = [
+    ['Abonnés', (int) ($projectPlatformStats['follows'] ?? 0), 'bxs-bell', 'brand'],
+    ['Likes', (int) ($projectPlatformStats['likes'] ?? 0), 'bxs-heart', 'danger'],
+    ['Avis', (int) ($projectPlatformStats['reviews'] ?? 0), 'bxs-message-square-detail', 'blue'],
+    ['Messages', (int) ($projectPlatformStats['messages'] ?? 0), 'bx-mail-send', 'blue'],
+    ['Note moyenne', number_format((float) ($projectPlatformStats['average_rating'] ?? 0), 1) . '/5', 'bxs-star', 'accent'],
+];
 ?>
-<style>
-:root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #94a3b8;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #0ea5e9;
-    --bg-light: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
 
-body {
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.dashboard-body {
-    background-color: var(--bg-light);
-    min-height: 100vh;
-}
-
-.common-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    background: #ffffff;
-    transition: all 0.3s;
-}
-
-.common-card:hover {
-    transform: translateY(-5px);
-}
-
-.common-card p {
-    color: var(--text-muted);
-    font-weight: 700;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-}
-
-.common-card h4 {
-    font-weight: 800;
-    font-size: 1.75rem;
-    margin: 0;
-}
-
-.stat-icon {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    font-size: 2.5rem;
-    opacity: 0.1;
-}
-
-.admin-table-card .table thead th {
-    background: #f8fafc !important;
-    color: #1e293b;
-    font-size: 0.75rem;
-    font-weight: 800;
-    padding: 1.25rem 1rem;
-    border: none;
-    text-transform: uppercase;
-}
-
-.admin-table-card .table tbody td {
-    padding: 1.25rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-weight: 600;
-    color: #0f172a;
-    vertical-align: middle;
-}
-
-.badge {
-    padding: 0.6em 1em;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-.btn {
-    font-weight: 700;
-    border-radius: 10px;
-    transition: all 0.2s;
-}
-
-.btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; }
-.btn-outline-secondary { border: 2px solid #e2e8f0; color: #64748b; }
-
-.metric-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 700;
-}
-
-.rating-stars {
-    color: #f59e0b;
-    font-weight: 800;
-}
-</style>
 <section class="dashboard">
     <div class="dashboard__inner d-flex">
         <?php $this->view('Partials/dashboard-sidebar'); ?>
         <div class="dashboard-body">
             <?php $this->view('Partials/dashboard-nav'); ?>
-            <div class="dashboard-body__content p-4">
+            <div class="dashboard-body__content p-3 p-lg-4">
                 <?php $this->view('set_flash'); ?>
 
-                <div class="card common-card mb-4 border-0" style="background: transparent; box-shadow: none;">
-                    <div class="card-body p-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <a href="<?= ROOT ?>/Admins/dashboard" class="btn btn-light rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;" title="Retour au Dashboard">
-                                ⬅️
-                            </a>
-                            <div>
-                                <h3 class="mb-0 fw-800">🏆 Projets suivis</h3>
-                                <p class="text-muted small mb-0">Analyse détaillée de l'activité</p>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                             <form method="GET" action="<?= ROOT ?>/Admins/most_followed_projects" class="d-flex gap-2">
-                                <select name="per_page" class="form-select form-select-sm border-0 shadow-sm rounded-pill px-3" style="width: auto;">
-                                    <option value="10" <?= $perPage === 10 ? 'selected' : '' ?>>10 / page</option>
-                                    <option value="20" <?= $perPage === 20 ? 'selected' : '' ?>>20 / page</option>
-                                    <option value="50" <?= $perPage === 50 ? 'selected' : '' ?>>50 / page</option>
-                                </select>
-                                <button class="btn btn-primary btn-sm rounded-pill px-3" type="submit">Actualiser</button>
-                            </form>
-                        </div>
+                <style>
+                    .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+                    .adm-head__l { display: flex; align-items: center; gap: 12px; }
+                    .adm-back { width: 42px; height: 42px; border-radius: 12px; background: var(--ds-surface); border: 1px solid var(--ds-border); display: inline-flex; align-items: center; justify-content: center; color: var(--ds-ink); text-decoration: none; font-size: 1.2rem; transition: all var(--ds-transition); }
+                    .adm-back:hover { background: var(--ds-brand-50); color: var(--ds-brand-700); }
+                    .adm-head h1 { display: flex; align-items: center; gap: 8px; font-family: var(--ds-font-heading); font-size: 1.35rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; }
+                    .adm-head h1 i { color: var(--ds-brand-600); }
+                    .adm-pp { display: flex; gap: 8px; }
+                    .adm-pp select { border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-pill); padding: 8px 14px; font-size: .85rem; color: var(--ds-ink); background: var(--ds-surface); }
+                    .adm-pp button { background: var(--ds-brand-600); color: #fff; font-weight: 700; font-size: .85rem; border: 0; border-radius: var(--ds-radius-pill); padding: 8px 16px; cursor: pointer; }
+
+                    .adm-stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; margin-bottom: 22px; }
+                    .adm-stat { position: relative; overflow: hidden; background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); padding: 15px; box-shadow: var(--ds-shadow-sm); }
+                    .adm-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+                    .adm-stat--danger::before { background: var(--ds-danger); } .adm-stat--danger .adm-stat__icon { background: var(--ds-danger-soft); color: var(--ds-danger); }
+                    .adm-stat--brand::before { background: var(--ds-brand-500); } .adm-stat--brand .adm-stat__icon { background: var(--ds-brand-50); color: var(--ds-brand-600); }
+                    .adm-stat--blue::before { background: #1d59b8; } .adm-stat--blue .adm-stat__icon { background: #e3effb; color: #1d59b8; }
+                    .adm-stat--accent::before { background: var(--ds-accent); } .adm-stat--accent .adm-stat__icon { background: var(--ds-accent-soft); color: #8a6310; }
+                    .adm-stat__icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 8px; }
+                    .adm-stat__value { font-family: var(--ds-font-heading); font-size: 1.6rem; font-weight: 800; color: var(--ds-ink-strong); line-height: 1; }
+                    .adm-stat__label { color: var(--ds-muted); font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin-top: 5px; }
+
+                    .adm-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); padding: 20px; }
+                    .adm-card__title { display: flex; align-items: center; gap: 8px; font-family: var(--ds-font-heading); font-size: 1.08rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0 0 14px; }
+                    .adm-card__title i { color: var(--ds-brand-600); }
+                    .adm-table-wrap { overflow-x: auto; }
+                    .adm-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+                    .adm-table thead th { text-align: left; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ds-muted); padding: 11px 12px; border-bottom: 2px solid var(--ds-border); white-space: nowrap; }
+                    .adm-table tbody td { padding: 12px; border-bottom: 1px solid var(--ds-border); color: var(--ds-ink); font-size: .88rem; font-weight: 600; vertical-align: middle; }
+                    .adm-table tbody tr:hover { background: var(--ds-surface-2); }
+                    .adm-table .t-title { font-family: var(--ds-font-heading); font-weight: 800; color: var(--ds-ink-strong); }
+                    .adm-rank { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: var(--ds-surface-2); color: var(--ds-muted); font-weight: 800; font-size: .8rem; }
+                    .adm-pill { display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: var(--ds-radius-pill); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
+                    .adm-pill--cat { background: var(--ds-surface-2); color: var(--ds-muted); }
+                    .adm-pill--pending { background: var(--ds-accent-soft); color: #8a6310; }
+                    .adm-pill--valide { background: #e4f3ea; color: #11703a; }
+                    .adm-pill--rejete { background: var(--ds-danger-soft); color: #a3322e; }
+                    .adm-metric { font-weight: 700; white-space: nowrap; }
+                    .adm-metric .bxs-heart { color: var(--ds-danger); } .adm-metric .bxs-star { color: var(--ds-accent); } .adm-metric .bx { color: var(--ds-brand-600); vertical-align: -1px; }
+                    .adm-detail-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--ds-brand-600); color: #fff; font-weight: 700; font-size: .78rem; padding: 6px 13px; border-radius: var(--ds-radius-pill); text-decoration: none; }
+                    .adm-detail-btn:hover { background: var(--ds-brand-700); color: #fff; }
+                    .adm-empty { text-align: center; color: var(--ds-muted); padding: 28px; }
+
+                    .admin-pagination-wrap { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
+                    .admin-pagination-summary { color: var(--ds-muted); font-size: .85rem; font-weight: 600; }
+                    .admin-pagination { display: flex; gap: 6px; flex-wrap: wrap; }
+                    .page-link-nav { min-width: 40px; height: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--ds-radius); border: 1px solid var(--ds-border); background: var(--ds-surface); color: var(--ds-ink); text-decoration: none; font-weight: 700; font-size: .9rem; transition: all var(--ds-transition); }
+                    .page-link-nav:hover:not(.is-disabled) { border-color: var(--ds-brand-300); color: var(--ds-brand-700); }
+                    .page-link-nav.is-active { background: var(--ds-brand-600); border-color: var(--ds-brand-600); color: #fff; }
+                    .page-link-nav.is-disabled { pointer-events: none; opacity: .4; }
+
+                    @media (min-width: 768px) { .adm-stats { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+                </style>
+
+                <div class="adm-head">
+                    <div class="adm-head__l">
+                        <a href="<?= ROOT ?>/Admins/dashboard" class="adm-back"><i class='bx bx-left-arrow-alt'></i></a>
+                        <h1><i class='bx bx-trophy'></i> Projets les plus suivis</h1>
                     </div>
+                    <form method="GET" action="<?= ROOT ?>/Admins/most_followed_projects" class="adm-pp">
+                        <select name="per_page"><?php foreach ([10, 20, 50] as $pp): ?><option value="<?= $pp ?>" <?= $perPage === $pp ? 'selected' : '' ?>><?= $pp ?> / page</option><?php endforeach; ?></select>
+                        <button type="submit"><i class='bx bx-refresh'></i> Actualiser</button>
+                    </form>
                 </div>
 
-                <div class="row gy-4 mb-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card border-top border-5 border-primary"><div class="card-body"><p class="mb-1">Total Likes</p><h4>❤️ <?= (int) ($projectPlatformStats['likes'] ?? 0) ?></h4><div class="stat-icon">❤️</div></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card border-top border-5 border-success"><div class="card-body"><p class="mb-1">Total Avis</p><h4>💬 <?= (int) ($projectPlatformStats['reviews'] ?? 0) ?></h4><div class="stat-icon">💬</div></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card border-top border-5 border-secondary"><div class="card-body"><p class="mb-1">Total Messages</p><h4>📩 <?= (int) ($projectPlatformStats['messages'] ?? 0) ?></h4><div class="stat-icon">📩</div></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card border-top border-5 border-warning"><div class="card-body"><p class="mb-1">Note platforme</p><h4>⭐ <?= number_format((float) ($projectPlatformStats['average_rating'] ?? 0), 1) ?>/5</h4><div class="stat-icon">⭐</div></div></div>
-                    </div>
+                <div class="adm-stats">
+                    <?php foreach ($platStats as $s): ?>
+                        <div class="adm-stat adm-stat--<?= $s[3] ?>"><span class="adm-stat__icon"><i class='bx <?= $s[2] ?>'></i></span><div class="adm-stat__value"><?= $s[1] ?></div><div class="adm-stat__label"><?= htmlspecialchars($s[0]) ?></div></div>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="card common-card admin-table-card">
-                    <div class="card-body">
-                        <h5 class="mb-3">Classement des projets suivis</h5>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Titre</th>
-                                        <th>Auteur</th>
-                                        <th>Categorie</th>
-                                        <th>Statut</th>
-                                        <th>Likes</th>
-                                        <th>Avis</th>
-                                        <th>Messages</th>
-                                        <th>Note</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($projects)): ?>
-                                        <?php foreach ($projects as $index => $project): ?>
-                                            <?php
-                                            $status = (string) ($project->statut ?? 'en_attente');
-                                            $badgeClass = 'bg-warning text-dark';
-                                            if ($status === 'valide') {
-                                                $badgeClass = 'bg-success';
-                                            } elseif ($status === 'rejete') {
-                                                $badgeClass = 'bg-danger';
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td class="fw-bold text-muted">#<?= (($currentPage - 1) * $perPage) + $index + 1 ?></td>
-                                                <td class="fw-bold text-primary"><?= htmlspecialchars((string) ($project->title ?? 'Projet')) ?></td>
-                                                <td><span class="text-muted">par</span> <?= htmlspecialchars((string) ($project->auteur ?? '-')) ?></td>
-                                                <td><span class="badge bg-secondary bg-opacity-10 text-secondary"><?= htmlspecialchars((string) ($project->categorie ?? '-')) ?></span></td>
-                                                <td><span class="badge <?= $badgeClass ?> bg-opacity-10 text-<?= str_replace('bg-', '', explode(' ', $badgeClass)[0]) ?>"><?= htmlspecialchars($status) ?></span></td>
-                                                <td><span class="metric-badge">❤️ <?= (int) ($project->likes_count ?? 0) ?></span></td>
-                                                <td><span class="metric-badge">💬 <?= (int) ($project->reviews_count ?? 0) ?></span></td>
-                                                <td><span class="metric-badge">📩 <?= (int) ($project->messages_count ?? 0) ?></span></td>
-                                                <td><span class="rating-stars">⭐ <?= number_format((float) ($project->average_rating ?? 0), 1) ?></span></td>
-                                                <td>
-                                                    <a href="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="btn btn-primary btn-sm rounded-pill">Details</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr><td colspan="10" class="text-center text-muted">Aucun projet suivi disponible.</td></tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php $this->view('Partials/admin-pagination', [
-                            'currentPage' => $currentPage,
-                            'perPage' => $perPage,
-                            'totalPages' => $totalPages,
-                            'totalItems' => $totalItems,
-                            'basePath' => 'Admins/most_followed_projects',
-                            'queryString' => $paginationQuery,
-                            'itemLabel' => 'projet(s)',
-                        ]); ?>
+                <div class="adm-card">
+                    <h2 class="adm-card__title"><i class='bx bx-list-ol'></i> Classement des projets</h2>
+                    <div class="adm-table-wrap">
+                        <table class="adm-table">
+                            <thead><tr><th>#</th><th>Titre</th><th>Auteur</th><th>Catégorie</th><th>Statut</th><th>Abonnés</th><th>Likes</th><th>Avis</th><th>Msg</th><th>Note</th><th></th></tr></thead>
+                            <tbody>
+                                <?php if (!empty($projects)): ?>
+                                    <?php foreach ($projects as $index => $project): ?>
+                                        <?php $st = (string) ($project->statut ?? 'en_attente'); $stCls = $st === 'valide' ? 'valide' : ($st === 'rejete' ? 'rejete' : 'pending'); ?>
+                                        <tr>
+                                            <td data-label="Rang"><span class="adm-rank"><?= (($currentPage - 1) * $perPage) + $index + 1 ?></span></td>
+                                            <td class="t-title is-cardtitle"><?= htmlspecialchars((string) ($project->title ?? 'Projet')) ?></td>
+                                            <td data-label="Auteur"><?= htmlspecialchars((string) ($project->auteur ?? '-')) ?></td>
+                                            <td data-label="Catégorie"><span class="adm-pill adm-pill--cat"><?= htmlspecialchars((string) ($project->categorie ?? '-')) ?></span></td>
+                                            <td data-label="Statut"><span class="adm-pill adm-pill--<?= $stCls ?>"><?= htmlspecialchars($st) ?></span></td>
+                                            <td data-label="Abonnés"><span class="adm-metric" style="font-weight:800;color:var(--ds-brand-700)"><i class='bx bxs-bell'></i> <?= (int) ($project->follows_count ?? 0) ?></span></td>
+                                            <td data-label="Likes"><span class="adm-metric"><i class='bx bxs-heart'></i> <?= (int) ($project->likes_count ?? 0) ?></span></td>
+                                            <td data-label="Avis"><span class="adm-metric"><i class='bx bxs-message-square-detail'></i> <?= (int) ($project->reviews_count ?? 0) ?></span></td>
+                                            <td data-label="Msg"><span class="adm-metric"><i class='bx bx-mail-send'></i> <?= (int) ($project->messages_count ?? 0) ?></span></td>
+                                            <td data-label="Note"><span class="adm-metric"><i class='bx bxs-star'></i> <?= number_format((float) ($project->average_rating ?? 0), 1) ?></span></td>
+                                            <td class="is-cardaction"><a href="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="adm-detail-btn"><i class='bx bx-show'></i> Détail</a></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="11" class="adm-empty">Aucun projet suivi disponible.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
+                    <?php $this->view('Partials/admin-pagination', [
+                        'currentPage' => $currentPage, 'perPage' => $perPage, 'totalPages' => $totalPages,
+                        'totalItems' => $totalItems, 'basePath' => 'Admins/most_followed_projects',
+                        'queryString' => $paginationQuery, 'itemLabel' => 'projet(s)',
+                    ]); ?>
                 </div>
             </div>
             <?php $this->view('Partials/dashboard-footer'); ?>

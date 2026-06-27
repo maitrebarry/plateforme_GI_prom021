@@ -2,218 +2,34 @@
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
-<style>
-:root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #94a3b8;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #0ea5e9;
-    --bg-light: #f1f5f9;
-    --glass-bg: rgba(255, 255, 255, 0.8);
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --card-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-body {
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.dashboard-body {
-    background-color: var(--bg-light);
-    min-height: 100vh;
-    padding-bottom: 3rem;
-}
-
-.dashboard-body__content {
-    animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.common-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #ffffff;
-    overflow: hidden;
-    position: relative;
-}
-
-.common-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--card-hover-shadow);
-}
-
-.common-card .card-body {
-    padding: 1.75rem;
-    z-index: 1;
-    position: relative;
-}
-
-.common-card p {
-    color: var(--text-muted);
-    font-weight: 700;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.75rem;
-}
-
-.common-card h4 {
-    color: var(--text-main);
-    font-weight: 800;
-    font-size: 2rem;
-    margin: 0;
-}
-
-/* Stat Icon Backdrop */
-.stat-icon {
-    position: absolute;
-    right: 1.5rem;
-    bottom: 1rem;
-    font-size: 3rem;
-    opacity: 0.1;
-    transition: all 0.3s;
-}
-
-.common-card:hover .stat-icon {
-    opacity: 0.2;
-    transform: scale(1.1) rotate(-10deg);
-}
-
-.stat-card-users { border-top: 5px solid var(--primary-color); }
-.stat-card-projects { border-top: 5px solid var(--success-color); }
-.stat-card-pending { border-top: 5px solid var(--warning-color); }
-.stat-card-messages { border-top: 5px solid var(--secondary-color); }
-.stat-card-categories { border-top: 5px solid var(--info-color); }
-.stat-card-validated { border-top: 5px solid var(--success-color); }
-.stat-card-rejected { border-top: 5px solid var(--danger-color); }
-
-.quick-links-bar {
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    margin: 2rem 0;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.admin-table-card h5 {
-    font-weight: 800;
-    font-size: 1.25rem;
-    color: var(--text-main);
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #f1f5f9;
-}
-
-.table {
-    --bs-table-hover-bg: #f8fafc;
-}
-
-.table thead th {
-    background: #f8fafc !important;
-    color: #1e293b; /* Darker header color for visibility */
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 1.25rem 1rem;
-    border: none;
-    text-transform: uppercase;
-}
-
-.table tbody td {
-    padding: 1.25rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-weight: 600; /* Bolder text for better visibility */
-    color: #0f172a; /* Explicit very dark color */
-    vertical-align: middle;
-}
-
-.table tbody tr:hover {
-    background-color: #f8fafc;
-}
-
-.badge {
-    padding: 0.6em 1em;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    font-weight: 700;
-    border-radius: 12px;
-    transition: all 0.3s;
-    border: none;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    filter: brightness(1.1);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.btn-info { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; }
-.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-.btn-secondary { background: #64748b; color: white; }
-
-.btn-outline-primary {
-    border: 2px solid var(--primary-color);
-    background: var(--primary-color);
-    color: white;
-}
-
-.leaderboard-table thead th {
-    background: linear-gradient(to right, #f8fafc, #ffffff) !important;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-.leaderboard-table tbody tr {
-    transition: all 0.2s;
-}
-
-.leaderboard-table tbody tr:hover {
-    background-color: #f1f5f9;
-    transform: scale(1.005);
-}
-
-.metric-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.rating-stars {
-    color: #f59e0b;
-    font-weight: 800;
-}
-
-.project-title-cell {
-    font-weight: 800;
-    color: var(--primary-color);
-}
-</style>
 <?php
+$dashboardStats = $dashboardStats ?? [];
 $projectPlatformStats = $projectPlatformStats ?? [];
+$pendingProjects = $pendingProjects ?? [];
 $mostFollowedProjects = $mostFollowedProjects ?? [];
+$mainStats = [
+    ['Utilisateurs', (int) ($dashboardStats['users'] ?? 0), 'bx-group', 'brand'],
+    ['Projets', (int) ($dashboardStats['projects'] ?? 0), 'bx-folder', 'blue'],
+    ['En attente', (int) ($dashboardStats['pending'] ?? 0), 'bx-time-five', 'accent'],
+    ['Validés', (int) ($dashboardStats['validated'] ?? 0), 'bx-check-circle', 'success'],
+    ['Rejetés', (int) ($dashboardStats['rejected'] ?? 0), 'bx-x-circle', 'danger'],
+    ['Catégories', (int) ($dashboardStats['categories'] ?? 0), 'bx-category', 'brand'],
+    ['Messages', (int) ($dashboardStats['messages'] ?? 0), 'bx-envelope', 'slate'],
+];
+$platStats = [
+    ['Likes', (int) ($projectPlatformStats['likes'] ?? 0), 'bxs-heart', 'danger'],
+    ['Avis', (int) ($projectPlatformStats['reviews'] ?? 0), 'bxs-message-square-detail', 'brand'],
+    ['Messages projets', (int) ($projectPlatformStats['messages'] ?? 0), 'bx-mail-send', 'blue'],
+    ['Note moyenne', number_format((float) ($projectPlatformStats['average_rating'] ?? 0), 1) . '/5', 'bxs-star', 'accent'],
+];
+$quickLinks = [
+    ['Gestion des projets', 'Admins/projects_management', 'bx-folder-open'],
+    ['Plus suivis', 'Admins/most_followed_projects', 'bx-trophy'],
+    ['Statistiques', 'Admins/statistics', 'bx-bar-chart-alt-2'],
+    ['Utilisateurs', 'Admins/users_management', 'bx-group'],
+    ['Catégories', 'Admins/categories', 'bx-category'],
+    ['Messages', 'Admins/messages', 'bx-envelope'],
+];
 ?>
 
 <section class="dashboard">
@@ -223,169 +39,153 @@ $mostFollowedProjects = $mostFollowedProjects ?? [];
             <?php $this->view('Partials/dashboard-nav'); ?>
             <?php $this->view('Partials/alerts', ['flashMessages' => $flashMessages ?? [], 'notifications' => $notifications ?? []]); ?>
 
-            <div class="dashboard-body__content p-4">
-                <div class="row gy-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card stat-card-users">
-                            <div class="card-body">
-                                <p class="mb-1">Utilisateurs inscrits</p>
-                                <h4><?= (int) ($dashboardStats['users'] ?? 0) ?></h4>
-                                <div class="stat-icon">👥</div>
-                            </div>
+            <div class="dashboard-body__content p-3 p-lg-4">
+                <style>
+                    .adm-hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--ds-brand-700), var(--ds-brand-800)); border-radius: var(--ds-radius-xl); padding: 26px; color: #fff; margin-bottom: 22px; }
+                    .adm-hero::before { content: ''; position: absolute; top: -70px; right: -50px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(224,168,46,.2), transparent 70%); }
+                    .adm-hero__row { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+                    .adm-hero h1 { font-family: var(--ds-font-heading); font-weight: 800; font-size: 1.6rem; color: #fff; margin: 0 0 6px; }
+                    .adm-hero p { color: rgba(231,240,235,.82); font-size: .95rem; margin: 0; }
+                    .adm-hbtn { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: .88rem; padding: 10px 16px; border-radius: var(--ds-radius-pill); text-decoration: none; transition: all var(--ds-transition); }
+                    .adm-hbtn--gold { background: var(--ds-accent); color: #3d2900; } .adm-hbtn--gold:hover { background: #f0b53e; color: #3d2900; }
+                    .adm-hbtn--glass { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.22); } .adm-hbtn--glass:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+                    .adm-stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; margin-bottom: 16px; }
+                    .adm-stat { position: relative; overflow: hidden; background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); padding: 15px; box-shadow: var(--ds-shadow-sm); }
+                    .adm-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+                    .adm-stat--brand::before { background: var(--ds-brand-500); } .adm-stat--brand .adm-stat__icon { background: var(--ds-brand-50); color: var(--ds-brand-600); }
+                    .adm-stat--blue::before { background: #1d59b8; } .adm-stat--blue .adm-stat__icon { background: #e3effb; color: #1d59b8; }
+                    .adm-stat--accent::before { background: var(--ds-accent); } .adm-stat--accent .adm-stat__icon { background: var(--ds-accent-soft); color: #8a6310; }
+                    .adm-stat--success::before { background: #1f8a4d; } .adm-stat--success .adm-stat__icon { background: #e4f3ea; color: #11703a; }
+                    .adm-stat--danger::before { background: var(--ds-danger); } .adm-stat--danger .adm-stat__icon { background: var(--ds-danger-soft); color: var(--ds-danger); }
+                    .adm-stat--slate::before { background: #64748b; } .adm-stat--slate .adm-stat__icon { background: var(--ds-surface-2); color: var(--ds-muted); }
+                    .adm-stat__icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 8px; }
+                    .adm-stat__value { font-family: var(--ds-font-heading); font-size: 1.6rem; font-weight: 800; color: var(--ds-ink-strong); line-height: 1; }
+                    .adm-stat__label { color: var(--ds-muted); font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin-top: 5px; }
+                    .adm-subtitle { color: var(--ds-muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin: 6px 0 12px; }
+
+                    .adm-quick { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 24px; }
+                    .adm-quick a { display: inline-flex; align-items: center; gap: 7px; background: var(--ds-surface); border: 1px solid var(--ds-border); color: var(--ds-ink); font-weight: 700; font-size: .85rem; padding: 10px 16px; border-radius: var(--ds-radius-pill); text-decoration: none; transition: all var(--ds-transition); }
+                    .adm-quick a:hover { background: var(--ds-brand-600); color: #fff; border-color: var(--ds-brand-600); }
+                    .adm-quick a i { color: var(--ds-brand-600); } .adm-quick a:hover i { color: #fff; }
+
+                    .adm-card { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); padding: 20px; margin-bottom: 22px; }
+                    .adm-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+                    .adm-card__title { display: flex; align-items: center; gap: 8px; font-family: var(--ds-font-heading); font-size: 1.08rem; font-weight: 800; color: var(--ds-ink-strong); margin: 0; }
+                    .adm-card__title i { color: var(--ds-brand-600); }
+                    .adm-link { display: inline-flex; align-items: center; gap: 5px; color: var(--ds-brand-600); font-weight: 700; font-size: .82rem; text-decoration: none; }
+                    .adm-link:hover { color: var(--ds-brand-700); }
+
+                    .adm-table-wrap { overflow-x: auto; }
+                    .adm-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+                    .adm-table thead th { text-align: left; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ds-muted); padding: 10px 12px; border-bottom: 2px solid var(--ds-border); white-space: nowrap; }
+                    .adm-table tbody td { padding: 12px; border-bottom: 1px solid var(--ds-border); color: var(--ds-ink); font-size: .88rem; font-weight: 600; vertical-align: middle; }
+                    .adm-table tbody tr:hover { background: var(--ds-surface-2); }
+                    .adm-table .t-title { font-family: var(--ds-font-heading); font-weight: 800; color: var(--ds-ink-strong); }
+                    .adm-pill { display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: var(--ds-radius-pill); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
+                    .adm-pill--cat { background: var(--ds-surface-2); color: var(--ds-muted); }
+                    .adm-pill--pending { background: var(--ds-accent-soft); color: #8a6310; }
+                    .adm-pill--valide { background: #e4f3ea; color: #11703a; }
+                    .adm-pill--rejete { background: var(--ds-danger-soft); color: #a3322e; }
+                    .adm-metric { font-weight: 700; white-space: nowrap; }
+                    .adm-metric .bxs-heart { color: var(--ds-danger); } .adm-metric .bxs-star { color: var(--ds-accent); } .adm-metric .bx { color: var(--ds-brand-600); vertical-align: -1px; }
+                    .adm-detail-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--ds-brand-600); color: #fff; font-weight: 700; font-size: .78rem; padding: 6px 13px; border-radius: var(--ds-radius-pill); text-decoration: none; }
+                    .adm-detail-btn:hover { background: var(--ds-brand-700); color: #fff; }
+                    .adm-empty { text-align: center; color: var(--ds-muted); padding: 28px; }
+
+                    @media (min-width: 768px) { .adm-hero { padding: 32px; } .adm-hero h1 { font-size: 1.95rem; } .adm-stats { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+                </style>
+
+                <div class="adm-hero">
+                    <div class="adm-hero__row">
+                        <div>
+                            <h1>Administration NGAKODON</h1>
+                            <p>Pilotez les projets, les utilisateurs, les catégories et le contenu de la plateforme.</p>
                         </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card stat-card-projects">
-                            <div class="card-body">
-                                <p class="mb-1">Projets publies</p>
-                                <h4><?= (int) ($dashboardStats['projects'] ?? 0) ?></h4>
-                                <div class="stat-icon">📁</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card stat-card-pending">
-                            <div class="card-body">
-                                <p class="mb-1">Projets en attente</p>
-                                <h4><?= (int) ($dashboardStats['pending'] ?? 0) ?></h4>
-                                <div class="stat-icon">⏳</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card stat-card-messages">
-                            <div class="card-body">
-                                <p class="mb-1">Messages / Contact</p>
-                                <h4><?= (int) ($dashboardStats['messages'] ?? 0) ?></h4>
-                                <div class="stat-icon">✉️</div>
-                            </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="<?= ROOT ?>/Admins/projects_management?status=en_attente" class="adm-hbtn adm-hbtn--gold"><i class='bx bx-time-five'></i> Projets en attente</a>
+                            <a href="<?= ROOT ?>/Homes/index" class="adm-hbtn adm-hbtn--glass"><i class='bx bx-link-external'></i> Voir le site</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="row gy-4 mt-1">
-                    <div class="col-xl-4 col-md-6">
-                        <div class="card common-card stat-card-categories"><div class="card-body"><p class="mb-1">Categories</p><h4><?= (int) ($dashboardStats['categories'] ?? 0) ?></h4><div class="stat-icon">🏷️</div></div></div>
-                    </div>
-                    <div class="col-xl-4 col-md-6">
-                        <div class="card common-card stat-card-validated"><div class="card-body"><p class="mb-1">Projets valides</p><h4 class="text-success"><?= (int) ($dashboardStats['validated'] ?? 0) ?></h4><div class="stat-icon">✅</div></div></div>
-                    </div>
-                    <div class="col-xl-4 col-md-6">
-                        <div class="card common-card stat-card-rejected"><div class="card-body"><p class="mb-1">Projets rejetes</p><h4 class="text-danger"><?= (int) ($dashboardStats['rejected'] ?? 0) ?></h4><div class="stat-icon">❌</div></div></div>
-                    </div>
+                <div class="adm-stats">
+                    <?php foreach ($mainStats as $s): ?>
+                        <div class="adm-stat adm-stat--<?= $s[3] ?>"><span class="adm-stat__icon"><i class='bx <?= $s[2] ?>'></i></span><div class="adm-stat__value"><?= $s[1] ?></div><div class="adm-stat__label"><?= htmlspecialchars($s[0]) ?></div></div>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="quick-links-bar d-flex flex-wrap gap-2 mt-4">
-                    <a href="<?= ROOT ?>/Admins/projects_management" class="btn btn-success">Gestion des projets</a>
-                    <a href="<?= ROOT ?>/Admins/most_followed_projects" class="btn btn-info">Projets les plus suivis</a>
-                    <a href="<?= ROOT ?>/Admins/statistics" class="btn btn-secondary">Statistiques</a>
-                    <a href="<?= ROOT ?>/Admins/users_management" class="btn btn-warning">Gestion des utilisateurs</a>
-                    <a href="<?= ROOT ?>/Admins/categories" class="btn btn-outline-primary">Gestion des categories</a>
-                    <a href="<?= ROOT ?>/Admins/messages" class="btn btn-secondary">Messages / Contact</a>
+                <div class="adm-subtitle">Engagement de la plateforme</div>
+                <div class="adm-stats">
+                    <?php foreach ($platStats as $s): ?>
+                        <div class="adm-stat adm-stat--<?= $s[3] ?>"><span class="adm-stat__icon"><i class='bx <?= $s[2] ?>'></i></span><div class="adm-stat__value"><?= $s[1] ?></div><div class="adm-stat__label"><?= htmlspecialchars($s[0]) ?></div></div>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="row gy-4 mt-2">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card"><div class="card-body"><p class="mb-1">Likes projets</p><h4>❤️ <?= (int) ($projectPlatformStats['likes'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card"><div class="card-body"><p class="mb-1">Avis projets</p><h4>💬 <?= (int) ($projectPlatformStats['reviews'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card"><div class="card-body"><p class="mb-1">Messages projets</p><h4>📩 <?= (int) ($projectPlatformStats['messages'] ?? 0) ?></h4></div></div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card common-card"><div class="card-body"><p class="mb-1">Note moyenne</p><h4>⭐ <?= number_format((float) ($projectPlatformStats['average_rating'] ?? 0), 1) ?>/5</h4></div></div>
-                    </div>
+                <div class="adm-quick">
+                    <?php foreach ($quickLinks as $q): ?>
+                        <a href="<?= ROOT ?>/<?= $q[1] ?>"><i class='bx <?= $q[2] ?>'></i> <?= htmlspecialchars($q[0]) ?></a>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="card common-card mt-4 admin-table-card">
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-                            <h5 class="m-0">⏳ Projets en attente de validation</h5>
-                            <a href="<?= ROOT ?>/Admins/projects_management?status=en_attente" class="btn btn-sm btn-outline-primary">Ouvrir dans gestion des projets</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr><th>#</th><th>🚀 Titre</th><th>👤 Auteur</th><th>🏷️ Categorie</th><th>📅 Date</th><th>Statut</th></tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($pendingProjects)): ?>
-                                        <?php foreach ($pendingProjects as $project): ?>
-                                            <tr>
-                                                <td><?= (int) ($project->id ?? 0) ?></td>
-                                                <td><?= htmlspecialchars($project->title ?? 'Projet') ?></td>
-                                                <td><?= htmlspecialchars($project->auteur ?? '-') ?></td>
-                                                <td><?= htmlspecialchars($project->categorie ?? '-') ?></td>
-                                                <td><?= htmlspecialchars(date('Y-m-d', strtotime((string)($project->created_at ?? 'now')))) ?></td>
-                                                <td><span class="badge bg-warning bg-opacity-10 text-warning"><?= htmlspecialchars($project->statut ?? 'en_attente') ?></span></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
+                <div class="adm-card">
+                    <div class="adm-card__head">
+                        <h2 class="adm-card__title"><i class='bx bx-time-five'></i> Projets en attente de validation</h2>
+                        <a href="<?= ROOT ?>/Admins/projects_management?status=en_attente" class="adm-link">Ouvrir dans la gestion <i class='bx bx-right-arrow-alt'></i></a>
+                    </div>
+                    <div class="adm-table-wrap">
+                        <table class="adm-table">
+                            <thead><tr><th>#</th><th>Titre</th><th>Auteur</th><th>Catégorie</th><th>Date</th><th>Statut</th></tr></thead>
+                            <tbody>
+                                <?php if (!empty($pendingProjects)): ?>
+                                    <?php foreach ($pendingProjects as $project): ?>
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted">Aucun projet en attente.</td>
+                                            <td data-label="N°"><?= (int) ($project->id ?? 0) ?></td>
+                                            <td class="t-title is-cardtitle"><?= htmlspecialchars($project->title ?? 'Projet') ?></td>
+                                            <td data-label="Auteur"><?= htmlspecialchars($project->auteur ?? '-') ?></td>
+                                            <td data-label="Catégorie"><span class="adm-pill adm-pill--cat"><?= htmlspecialchars($project->categorie ?? '-') ?></span></td>
+                                            <td data-label="Date"><?= htmlspecialchars(date('Y-m-d', strtotime((string) ($project->created_at ?? 'now')))) ?></td>
+                                            <td data-label="Statut"><span class="adm-pill adm-pill--pending"><?= htmlspecialchars($project->statut ?? 'en_attente') ?></span></td>
                                         </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="6" class="adm-empty">Aucun projet en attente.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="card common-card mt-5 admin-table-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="m-0">🏆 Projets les plus suivis (Leaderboard)</h5>
-                            <a href="<?= ROOT ?>/Admins/most_followed_projects" class="btn btn-sm btn-outline-primary">Voir tout les projets</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table leaderboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>🚀 Titre</th>
-                                        <th>👤 Auteur</th>
-                                        <th>🏷️ Categorie</th>
-                                        <th>Status</th>
-                                        <th>❤️ Likes</th>
-                                        <th>💬 Avis</th>
-                                        <th>📩 Msg</th>
-                                        <th>⭐ Note</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($mostFollowedProjects)): ?>
-                                        <?php foreach ($mostFollowedProjects as $project): ?>
-                                            <?php
-                                            $status = (string) ($project->statut ?? 'en_attente');
-                                            $badgeClass = 'bg-warning text-dark';
-                                            if ($status === 'valide') {
-                                                $badgeClass = 'bg-success';
-                                            } elseif ($status === 'rejete') {
-                                                $badgeClass = 'bg-danger';
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td class="project-title-cell"><?= htmlspecialchars((string) ($project->title ?? 'Projet')) ?></td>
-                                                <td><span class="text-muted">par</span> <?= htmlspecialchars((string) ($project->auteur ?? '-')) ?></td>
-                                                <td><span class="badge bg-secondary bg-opacity-10 text-secondary"><?= htmlspecialchars((string) ($project->categorie ?? '-')) ?></span></td>
-                                                <td><span class="badge <?= $badgeClass ?> bg-opacity-10 text-<?= str_replace('bg-', '', explode(' ', $badgeClass)[0]) ?>"><?= htmlspecialchars($status) ?></span></td>
-                                                <td><span class="metric-badge">❤️ <?= (int) ($project->likes_count ?? 0) ?></span></td>
-                                                <td><span class="metric-badge">💬 <?= (int) ($project->reviews_count ?? 0) ?></span></td>
-                                                <td><span class="metric-badge">📩 <?= (int) ($project->messages_count ?? 0) ?></span></td>
-                                                <td><span class="rating-stars">⭐ <?= number_format((float) ($project->average_rating ?? 0), 1) ?></span></td>
-                                                <td><a href="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="btn btn-primary btn-sm rounded-pill">Details</a></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
+                <div class="adm-card">
+                    <div class="adm-card__head">
+                        <h2 class="adm-card__title"><i class='bx bx-trophy'></i> Projets les plus suivis</h2>
+                        <a href="<?= ROOT ?>/Admins/most_followed_projects" class="adm-link">Voir tout <i class='bx bx-right-arrow-alt'></i></a>
+                    </div>
+                    <div class="adm-table-wrap">
+                        <table class="adm-table">
+                            <thead><tr><th>Titre</th><th>Auteur</th><th>Catégorie</th><th>Statut</th><th>Abonnés</th><th>Likes</th><th>Avis</th><th>Msg</th><th>Note</th><th></th></tr></thead>
+                            <tbody>
+                                <?php if (!empty($mostFollowedProjects)): ?>
+                                    <?php foreach ($mostFollowedProjects as $project): ?>
+                                        <?php $st = (string) ($project->statut ?? 'en_attente'); $stCls = $st === 'valide' ? 'valide' : ($st === 'rejete' ? 'rejete' : 'pending'); ?>
                                         <tr>
-                                            <td colspan="9" class="text-center text-muted py-5">Aucune statistique projet disponible.</td>
+                                            <td class="t-title is-cardtitle"><?= htmlspecialchars((string) ($project->title ?? 'Projet')) ?></td>
+                                            <td data-label="Auteur"><?= htmlspecialchars((string) ($project->auteur ?? '-')) ?></td>
+                                            <td data-label="Catégorie"><span class="adm-pill adm-pill--cat"><?= htmlspecialchars((string) ($project->categorie ?? '-')) ?></span></td>
+                                            <td data-label="Statut"><span class="adm-pill adm-pill--<?= $stCls ?>"><?= htmlspecialchars($st) ?></span></td>
+                                            <td data-label="Abonnés"><span class="adm-metric" style="font-weight:800;color:var(--ds-brand-700)"><i class='bx bxs-bell'></i> <?= (int) ($project->follows_count ?? 0) ?></span></td>
+                                            <td data-label="Likes"><span class="adm-metric"><i class='bx bxs-heart'></i> <?= (int) ($project->likes_count ?? 0) ?></span></td>
+                                            <td data-label="Avis"><span class="adm-metric"><i class='bx bxs-message-square-detail'></i> <?= (int) ($project->reviews_count ?? 0) ?></span></td>
+                                            <td data-label="Msg"><span class="adm-metric"><i class='bx bx-mail-send'></i> <?= (int) ($project->messages_count ?? 0) ?></span></td>
+                                            <td data-label="Note"><span class="adm-metric"><i class='bx bxs-star'></i> <?= number_format((float) ($project->average_rating ?? 0), 1) ?></span></td>
+                                            <td class="is-cardaction"><a href="<?= ROOT ?>/Admins/project_detail/<?= (int) ($project->id ?? 0) ?>" class="adm-detail-btn"><i class='bx bx-show'></i> Détail</a></td>
                                         </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="10" class="adm-empty">Aucune statistique projet disponible.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
