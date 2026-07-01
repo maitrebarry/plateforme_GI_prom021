@@ -7,7 +7,14 @@ RewriteEngine On
     AddType text/javascript .js
 </IfModule>
 
-RewriteBase /plateforme_GI_prom021/public
+# Dans la grande majorite des cas, rien a decommenter ci-dessous : Apache
+# detecte automatiquement le bon prefixe (fonctionne en local, en
+# sous-dossier chez l'hebergeur, ou avec le dossier racine du site pointe
+# directement sur /public). Si votre hebergeur casse le routage (404 sur
+# toutes les pages), decommentez la ligne correspondant a l'URL reelle de
+# ce dossier /public :
+#   RewriteBase /
+#   RewriteBase /plateforme_GI_prom021/public
 
 # Acces au dossier /public nu (sans route) -> accueil de l'app.
 # Sinon Apache tente un listing -> 403 Forbidden (Options -Indexes).

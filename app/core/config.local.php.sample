@@ -1,0 +1,19 @@
+<?php
+/*
+|--------------------------------------------------------------------------
+| Configuration locale (secrets) — hors de Git
+|--------------------------------------------------------------------------
+| Copiez ce fichier en "config.local.php" (meme dossier) et renseignez les
+| identifiants reels de l'hebergeur. "config.local.php" n'est JAMAIS
+| commite (voir .gitignore) : c'est l'endroit ou mettre les vrais secrets
+| en production, notamment sur un hebergement mutualise (ex. LWS) ou l'on
+| ne peut pas toujours definir des variables d'environnement.
+*/
+
+$dbHost = "localhost";               // souvent "localhost" chez LWS
+$dbName = "moncompte_plateforme_gi";
+$dbUser = "moncompte_user";
+$dbPass = "MOT_DE_PASSE_BDD";
+
+// Optionnel : assistant IA (Hugging Face)
+// $hfApiToken = "hf_xxxxxxxx";

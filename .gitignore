@@ -2,6 +2,7 @@
 # Ne jamais versionner. Pour partager le schema, exporter une version
 # SANS les donnees (structure uniquement).
 /docs/*.sql
+/backups/
 
 # Fichiers televerses par les utilisateurs (medias, avatars).
 /uploads/
@@ -12,6 +13,7 @@
 .env
 .env.*
 *.log
+/app/core/config.local.php
 
 # Systeme / editeurs.
 Thumbs.db

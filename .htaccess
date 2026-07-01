@@ -10,7 +10,7 @@ Options -Indexes
     RewriteEngine On
 
     # Bloquer l'acces direct aux dossiers internes (code, documentation/dumps).
-    RewriteRule ^(app|docs)(/|$) - [F,L]
+    RewriteRule ^(app|docs|backups)(/|$) - [F,L]
 
     # Bloquer les fichiers caches (.git, .env, .gitignore, etc.) sauf .well-known.
     RewriteRule (^|/)\.(?!well-known)[^/]+ - [F,L]

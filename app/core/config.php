@@ -40,14 +40,47 @@ if (!defined('ROOT')) {
 
 define( 'APP_NAME', 'NGAKODON' );
 
-define( 'DB_NAME', 'plateforme_gi_promo21' );
-define( 'DBHOST', 'localhost' );
-define( 'DB_USERNAME', 'root' );
-define( 'DB_PASSWORD', '' );
+/*
+|--------------------------------------------------------------------------
+| Base de donnees
+|--------------------------------------------------------------------------
+| En LOCAL (XAMPP) : rien a modifier, les valeurs par defaut suffisent.
+|
+| En PRODUCTION : ne modifiez PAS ce bloc. Definissez les identifiants soit
+| via des VARIABLES D'ENVIRONNEMENT (DB_HOST, DB_NAME, DB_USER,
+| DB_PASSWORD), soit (plus simple sur un hebergement mutualise type LWS) via
+| le fichier app/core/config.local.php (non versionne, voir
+| config.local.php.example).
+*/
+$dbHost = 'localhost';
+$dbName = 'plateforme_gi_promo21';
+$dbUser = 'root';
+$dbPass = '';
+
+$dbHost = getenv('DB_HOST') ?: $dbHost;
+$dbName = getenv('DB_NAME') ?: $dbName;
+$dbUser = getenv('DB_USER') ?: $dbUser;
+if (getenv('DB_PASSWORD') !== false) {
+    $dbPass = getenv('DB_PASSWORD');
+}
+
+$hfApiToken = getenv('HF_API_TOKEN') ?: '';
+$hfModel    = getenv('HF_MODEL') ?: 'Qwen/Qwen2.5-7B-Instruct';
+
+// Surcharge par fichier local (NON versionne, PRIORITAIRE sur l'env).
+$localConfig = __DIR__ . '/config.local.php';
+if (is_readable($localConfig)) {
+    require $localConfig; // peut redefinir $dbHost, $dbName, $dbUser, $dbPass, $hfApiToken, $hfModel
+}
+
+define('DB_NAME', $dbName);
+define('DBHOST', $dbHost);
+define('DB_USERNAME', $dbUser);
+define('DB_PASSWORD', $dbPass);
 
 // Definissez HF_API_TOKEN dans votre environnement local au lieu de le commiter.
-define('HF_API_TOKEN', getenv('HF_API_TOKEN') ?: '');
-define('HF_MODEL', getenv('HF_MODEL') ?: 'Qwen/Qwen2.5-7B-Instruct');
+define('HF_API_TOKEN', $hfApiToken);
+define('HF_MODEL', $hfModel);
 
 /* =========================================================
    CONNEXION SOCIALE (OAuth) — renseignez le client_id / client_secret
