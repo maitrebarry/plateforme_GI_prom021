@@ -56,9 +56,9 @@ class Utilisateur extends Model
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
         $sql = "INSERT INTO users
-            (prenom, nom, email, universite_id, faculte_id, universite, faculte, filiere, autre_etablissement, autre_departement, password)
+            (prenom, nom, email, universite_id, faculte_id, universite, faculte, filiere, autre_etablissement, autre_departement, password, role, statut_compte)
             VALUES
-            (:prenom, :nom, :email, :universite_id, :faculte_id, :universite, :faculte, :filiere, :autre_etablissement, :autre_departement, :password)";
+            (:prenom, :nom, :email, :universite_id, :faculte_id, :universite, :faculte, :filiere, :autre_etablissement, :autre_departement, :password, :role, :statut_compte)";
 
     $params = [
         ":prenom" => $data['prenom'],
@@ -71,7 +71,9 @@ class Utilisateur extends Model
         ":filiere" => $data['filiere'],
         ":autre_etablissement" => $data['autre_etablissement'],
         ":autre_departement" => $data['autre_departement'],
-        ":password" => $password
+        ":password" => $password,
+        ":role" => "etudiant",
+        ":statut_compte" => "bloque"
     ];
 
     return $this->insertion_update_simples($sql, $params);

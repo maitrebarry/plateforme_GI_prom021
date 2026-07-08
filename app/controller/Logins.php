@@ -120,12 +120,15 @@ class Logins extends Controller
             $pass   = $model->bcript_hash_password(bin2hex(random_bytes(9)));
             $model->insertion_update_simples(
                 "INSERT INTO users (nom, prenom, email, password, role, statut_compte) VALUES (?,?,?,?,?,?)",
-                [$nom, $prenom, $email, $pass, 'etudiant', 'actif']
+                [$nom, $prenom, $email, $pass, 'etudiant', 'bloque']
             );
             $user = $model->FetchSelectWhere("*", "users", "email = ?", [$email]);
         }
         if (!$user) { $model->set_flash("Création du compte impossible.", "danger"); $this->redirect("Logins/index"); }
-        if (($user->statut_compte ?? 'actif') !== 'actif') { $model->set_flash("Votre compte est bloqué.", "warning"); $this->redirect("Logins/index"); }
+        if (($user->statut_compte ?? 'actif') !== 'actif') {
+            $model->set_flash("Votre compte est en attente de validation par un administrateur.", "warning");
+            $this->redirect("Logins/index");
+        }
 
         session_regenerate_id(true);
         $_SESSION['user_id']    = $user->user_id;

@@ -25,7 +25,10 @@ class Login extends Model
         }
 
         if (($utilisateur->statut_compte ?? 'actif') !== 'actif') {
-            $this->set_flash("Votre compte est bloqué. Veuillez contacter l'administrateur.", "warning");
+            $message = (($utilisateur->role ?? '') === 'etudiant')
+                ? "Votre compte est en attente de validation par un administrateur."
+                : "Votre compte est bloqué. Veuillez contacter l'administrateur.";
+            $this->set_flash($message, "warning");
             return false;
         }
 

@@ -5,6 +5,33 @@ class Homes extends Controller
     private const DER_ALLOWED_UPLOAD_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png'];
     private const DER_MAX_FILE_SIZE = 5242880;
 
+    private function clearAuthenticatedSession(): void
+    {
+        foreach (['user_id', 'nom', 'prenom', 'email', 'universite', 'faculte', 'filiere', 'role', 'contact', 'image'] as $key) {
+            unset($_SESSION[$key]);
+        }
+    }
+
+    private function guardActiveAccount(): void
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            return;
+        }
+
+        $utilisateur = new Utilisateur();
+        $currentUser = $utilisateur->findById($userId);
+
+        if (!$currentUser || (($currentUser->statut_compte ?? 'actif') !== 'actif')) {
+            $this->clearAuthenticatedSession();
+            $_SESSION['notification'] = [
+                'type' => 'warning',
+                'message' => 'Votre compte est en attente de validation par un administrateur.',
+            ];
+            $this->redirect('Logins/index');
+        }
+    }
+
     private function guardDer(): void
     {
         $role = strtolower((string)($_SESSION['role'] ?? ''));
@@ -137,6 +164,8 @@ class Homes extends Controller
             $this->redirect('Homes/login');
         }
 
+        $this->guardActiveAccount();
+
         $role = strtolower((string)($_SESSION['role'] ?? 'etudiant'));
 
         if ($role === 'admin') {
@@ -152,6 +181,16 @@ class Homes extends Controller
 
     public function student_dashboard(): void
     {
+        if (!isset($_SESSION['user_id'])) {
+            $_SESSION['notification'] = [
+                'type' => 'info',
+                'message' => 'Veuillez vous connecter pour accéder à votre espace.',
+            ];
+            $this->redirect('Homes/login');
+        }
+
+        $this->guardActiveAccount();
+
         $role = strtolower((string)($_SESSION['role'] ?? ''));
         if ($role !== 'etudiant') {
             $this->redirect('Homes/dashboard');

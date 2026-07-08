@@ -163,7 +163,7 @@ class Utilisateurs extends Controller
             $insert = $utilisateur->save_utilisateur($data);
 
             if ($insert) {
-                $utilisateur->set_flash("Compte cree avec succes", "success");
+                $utilisateur->set_flash("Compte cree avec succes. Il sera accessible apres validation par un administrateur.", "success");
             }
         }
 
