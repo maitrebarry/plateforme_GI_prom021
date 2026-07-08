@@ -429,26 +429,40 @@ class Projet extends Model
 
     public function getProjectsByUser( $user_id ) {
 
+        if (!$this->tableExists('projects')) {
+            return [];
+        }
+
+        $hasCategories = $this->tableExists('categories');
+        $hasImages = $this->tableExists('project_images');
+        $adminStatusSql = $this->columnExists('projects', 'admin_status')
+            ? 'p.admin_status'
+            : "'en_attente'";
+        $rejectReasonSql = $this->columnExists('projects', 'reject_reason')
+            ? 'p.reject_reason'
+            : 'NULL';
+        $imageSql = $hasImages
+            ? "(SELECT image FROM project_images WHERE project_id = p.id ORDER BY id ASC LIMIT 1)"
+            : 'NULL';
+        $categorySql = $hasCategories
+            ? "COALESCE(c.nom, 'Sans categorie')"
+            : "'Sans categorie'";
+
         $sql = "SELECT
             p.id,
             p.title,
             p.description,
             p.technologies,
             p.status,
-            p.admin_status,
-            p.reject_reason,
+            {$adminStatusSql} AS admin_status,
+            {$rejectReasonSql} AS reject_reason,
             p.created_at,
-            c.nom as categorie,
-            (
-            SELECT image
-            FROM project_images
-            WHERE project_id = p.id
-            LIMIT 1
-            ) as image
+            {$categorySql} AS categorie,
+            {$imageSql} AS image
 
             FROM projects p
 
-            LEFT JOIN categories c ON c.id = p.category_id
+            " . ($hasCategories ? "LEFT JOIN categories c ON c.id = p.category_id" : "") . "
 
             WHERE p.user_id = ?
 
@@ -567,6 +581,9 @@ class Projet extends Model
         }
 
         $limit = max(1, min(12, $limit));
+        $reviewOrder = $this->columnExists('project_reviews', 'updated_at')
+            ? 'pr.updated_at DESC, pr.created_at DESC'
+            : 'pr.created_at DESC';
         $rows = $this->select_data_table_join_where(
             "SELECT pr.id, pr.rating, pr.review, pr.created_at,
                     p.id AS project_id, p.title AS project_title,
@@ -575,7 +592,7 @@ class Projet extends Model
              INNER JOIN projects p ON p.id = pr.project_id
              LEFT JOIN users u ON u.user_id = pr.user_id
              WHERE p.user_id = ?
-             ORDER BY pr.updated_at DESC, pr.created_at DESC
+             ORDER BY {$reviewOrder}
              LIMIT {$limit}",
             [$ownerId]
         );
@@ -623,8 +640,9 @@ class Projet extends Model
 
         $limit = max(1, min(24, $limit));
         $search = trim($search);
+        $isReadSql = $this->columnExists('project_messages', 'is_read') ? 'pm.is_read' : '1';
         $rows = $this->select_data_table_join_where(
-            "SELECT pm.id, pm.project_id, pm.sender_id, pm.receiver_id, pm.message, pm.is_read, pm.created_at,
+            "SELECT pm.id, pm.project_id, pm.sender_id, pm.receiver_id, pm.message, {$isReadSql} AS is_read, pm.created_at,
                     p.title AS project_title,
                     su.user_id AS sender_user_id, su.prenom AS sender_prenom, su.nom AS sender_nom, su.email AS sender_email, su.contact AS sender_contact, su.image AS sender_image,
                     ru.user_id AS receiver_user_id, ru.prenom AS receiver_prenom, ru.nom AS receiver_nom, ru.email AS receiver_email, ru.contact AS receiver_contact, ru.image AS receiver_image
@@ -749,6 +767,7 @@ class Projet extends Model
             $ownerId <= 0
             || !$this->tableExists('projects')
             || !$this->tableExists('project_messages')
+            || !$this->columnExists('project_messages', 'is_read')
         ) {
             return 0;
         }

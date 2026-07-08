@@ -198,8 +198,34 @@ class Homes extends Controller
 
         $projectModel = new Projet();
         $userId = (int) ($_SESSION['user_id'] ?? 0);
-        $overview = $projectModel->getStudentDashboardOverview($userId, 5);
-        $studentUnreadMessages = $projectModel->getStudentUnreadMessagesCount($userId);
+        try {
+            $overview = $projectModel->getStudentDashboardOverview($userId, 5);
+            $studentUnreadMessages = $projectModel->getStudentUnreadMessagesCount($userId);
+            $studentVisitorReviews = $projectModel->getStudentVisitorReviews($userId, 6);
+            $studentUnreadThreadsPreview = $projectModel->getStudentMessageThreads($userId, 3, null, '', 'unread');
+        } catch (Throwable $e) {
+            error_log('Student dashboard load failed: ' . $e->getMessage());
+            $overview = [
+                'recentProjects' => [],
+                'stats' => [
+                    'mesProjets' => 0,
+                    'enAttente' => 0,
+                    'valides' => 0,
+                    'messages' => 0,
+                    'likes' => 0,
+                    'reviews' => 0,
+                ],
+                'latestProject' => null,
+                'completionRate' => 0,
+            ];
+            $studentUnreadMessages = 0;
+            $studentVisitorReviews = [];
+            $studentUnreadThreadsPreview = [];
+            $_SESSION['notification'] = [
+                'type' => 'warning',
+                'message' => 'Certaines donnees du dashboard sont temporairement indisponibles.',
+            ];
+        }
         $studentName = trim((string) (($_SESSION['prenom'] ?? '') . ' ' . ($_SESSION['nom'] ?? '')));
         $studentName = $studentName !== '' ? $studentName : 'Etudiant';
 
@@ -217,8 +243,8 @@ class Homes extends Controller
         ];
         $data['studentLatestProject'] = $overview['latestProject'] ?? null;
         $data['studentCompletionRate'] = (int) ($overview['completionRate'] ?? 0);
-        $data['studentVisitorReviews'] = $projectModel->getStudentVisitorReviews($userId, 6);
-        $data['studentUnreadThreadsPreview'] = $projectModel->getStudentMessageThreads($userId, 3, null, '', 'unread');
+        $data['studentVisitorReviews'] = $studentVisitorReviews;
+        $data['studentUnreadThreadsPreview'] = $studentUnreadThreadsPreview;
         $data['studentUnreadMessages'] = $studentUnreadMessages;
         $_SESSION['student_unread_messages'] = $studentUnreadMessages;
         $data['studentActions'] = [
