@@ -1,0 +1,50 @@
+name: 🔒 Setup Branch Protection
+
+# Ce workflow applique les règles de protection de la branche main via
+# l'API GitHub.  Il doit être déclenché manuellement par un
+# administrateur du dépôt (ou via l'API Actions).
+#
+# Prérequis : créez un secret de dépôt nommé ADMIN_TOKEN contenant un
+# Personal Access Token (PAT) avec la portée "repo" et les droits
+# d'administration sur ce dépôt.  Le GITHUB_TOKEN standard n'a pas les
+# droits suffisants pour modifier les règles de protection de branche.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protect-main:
+    name: Appliquer la protection de la branche main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configurer la protection de la branche main
+        env:
+          # Utilise le PAT administrateur, pas le GITHUB_TOKEN limité.
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/branches/main/protection \
+            --input - <<'EOF'
+          {
+            "required_status_checks": null,
+            "enforce_admins": false,
+            "required_pull_request_reviews": {
+              "dismiss_stale_reviews": true,
+              "require_code_owner_reviews": true,
+              "required_approving_review_count": 1,
+              "require_last_push_approval": true
+            },
+            "restrictions": null,
+            "allow_force_pushes": false,
+            "allow_deletions": false,
+            "block_creations": false,
+            "required_conversation_resolution": true,
+            "lock_branch": false
+          }
+          EOF
+          echo "✅ Protection de la branche main appliquée avec succès."
