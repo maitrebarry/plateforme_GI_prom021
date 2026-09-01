@@ -448,7 +448,7 @@ class DepartmentPost extends Model
         $posts = $this->select_data_table_join_where(
             "SELECT
                 p.id, p.user_id, p.titre, p.contenu, p.type, p.publication_date, p.created_at, " . ($this->ensureArchivedColumn() ? "p.is_archived," : "0 AS is_archived,") . "
-                COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Responsable DER') AS author_name
+                COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Responsable Scolaire') AS author_name
              FROM department_posts p
              LEFT JOIN users u ON u.user_id = p.user_id
              {$whereSql}
@@ -475,7 +475,7 @@ class DepartmentPost extends Model
         $rows = $this->select_data_table_join_where(
             "SELECT
                 p.id, p.user_id, p.titre, p.contenu, p.type, p.publication_date, p.created_at, " . ($this->ensureArchivedColumn() ? "p.is_archived," : "0 AS is_archived,") . "
-                COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Responsable DER') AS author_name
+                COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Responsable Scolaire') AS author_name
              FROM department_posts p
              LEFT JOIN users u ON u.user_id = p.user_id
              WHERE p.id = ?

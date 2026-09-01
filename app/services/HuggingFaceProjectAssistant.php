@@ -83,10 +83,10 @@ class HuggingFaceProjectAssistant
         $pagePath = (string) ($pageContext['path'] ?? '');
 
         $systemPrompt = "Tu es N'KadonBot, l'assistant conversationnel integre a NGAKODON. "
-            . "Ta mission est d'aider les visiteurs, etudiants, administrateurs et responsables DER a utiliser la plateforme. "
+            . "Ta mission est d'aider les visiteurs, etudiants, administrateurs et responsables scolaires a utiliser la plateforme. "
             . "Tu reponds en francais par defaut, avec un ton clair, professionnel, chaleureux et concis. "
             . "Contexte utilisateur: role actuel = {$role}. Page actuelle = {$pageTitle}. Chemin = {$pagePath}. "
-            . "Fonctionnalites connues: accueil, catalogue des projets, recherche de projets, details de projet, publication et modification de projet, profil, tableau de bord etudiant, messages visiteurs, espace DER, annonces, gestion des utilisateurs, categories, statistiques et administration des projets. "
+            . "Fonctionnalites connues: accueil, catalogue des projets, recherche de projets, details de projet, publication et modification de projet, profil, tableau de bord etudiant, messages visiteurs, espace responsable scolaire, annonces, gestion des utilisateurs, categories, statistiques et administration des projets. "
             . "Regles: donne des etapes pratiques adaptees a la page et au role; reste dans le contexte de la plateforme, des projets etudiants et du departement GI; ne demande jamais de mot de passe, de cle API ou de donnee sensible; si une action exacte n'est pas certaine, propose une demarche prudente.";
 
         $userPrompt = "Historique recent :\n"
@@ -299,11 +299,11 @@ class HuggingFaceProjectAssistant
             $message = "Pour modifier ton profil, ouvre Mon espace puis Profil. Verifie tes informations personnelles, ton universite, ta filiere et ta photo avant d'enregistrer.";
         } elseif (str_contains($question, 'admin') || str_contains($question, 'utilisateur') || str_contains($question, 'categorie')) {
             $message = "Pour l'administration, utilise les menus de gestion des utilisateurs, categories, projets et statistiques. Le mieux est de faire une action a la fois, puis de verifier le resultat dans le tableau de bord.";
-        } elseif (str_contains($question, 'der') || str_contains($question, 'annonce') || str_contains($question, 'departement')) {
-            $message = "Pour l'espace DER, utilise les annonces et publications du departement pour partager les informations officielles avec les etudiants et les visiteurs.";
+        } elseif (str_contains($question, 'responsable scolaire') || str_contains($question, 'annonce') || str_contains($question, 'departement')) {
+            $message = "Pour l'espace responsable scolaire, utilise les annonces et publications pour partager les informations officielles avec les etudiants et les visiteurs.";
         } else {
             $context = ($pageTitle !== '' && $pageTitle !== 'cette page') ? "Je vois que tu es sur {$pageTitle}. " : '';
-            $message = $context . "Je peux t'aider sur la recherche de projets, la publication, le profil, les messages, l'espace DER ou l'administration. Dis-moi simplement ce que tu veux faire.";
+            $message = $context . "Je peux t'aider sur la recherche de projets, la publication, le profil, les messages, l'espace responsable scolaire ou l'administration. Dis-moi simplement ce que tu veux faire.";
         }
 
         return [

@@ -7,7 +7,7 @@ if ($sideName === '') { $sideName = 'Utilisateur'; }
 $sideInitial = strtoupper(mb_substr($sideName, 0, 1));
 $sideImage = basename((string) ($_SESSION['image'] ?? ''));
 $hasSideImg = $sideImage !== '' && $sideImage !== 'default.png';
-$roleLabel = $role === 'admin' ? 'Administrateur' : ($role === 'der' ? 'Responsable DER' : 'Étudiant');
+$roleLabel = $role === 'admin' ? 'Administrateur' : ($role === 'responsable_scolaire' ? 'Responsable Scolaire' : 'Étudiant');
 
 $dsActive = static function (array $keys) use ($cur): string {
     foreach ($keys as $k) {
@@ -25,10 +25,10 @@ if ($role === 'admin') {
         ['Messages / Contact', 'Admins/messages', 'bx-envelope', ['admins/messages', 'message_detail']],
         ['Statistiques', 'Admins/statistics', 'bx-bar-chart-alt-2', ['statistics']],
     ];
-} elseif ($role === 'der') {
+} elseif ($role === 'responsable_scolaire') {
     $navMain = [
         ['Tableau de bord', 'Homes/der_dashboard', 'bx-grid-alt', ['der_dashboard']],
-        ['Publications DER', 'Homes/der_espace', 'bx-news', ['der_espace', 'der_annonces', 'der_publication']],
+        ['Publications', 'Homes/der_espace', 'bx-news', ['der_espace', 'der_annonces', 'der_publication']],
         ['Corbeille', 'Homes/der_corbeille', 'bx-trash', ['der_corbeille', 'der_trash']],
     ];
 } else {

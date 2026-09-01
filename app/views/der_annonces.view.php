@@ -1,4 +1,4 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Espace DER']); ?>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Espace Responsable Scolaire']); ?>
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
@@ -85,7 +85,7 @@ $derStatCards = [
                 <div class="der-hero">
                     <div class="der-hero__row">
                         <div>
-                            <h1>Espace DER — Gestion</h1>
+                            <h1>Espace Responsable Scolaire — Gestion</h1>
                             <p>Ajoutez, modifiez, archivez les publications du département et gérez leurs fichiers.</p>
                         </div>
                         <div class="d-flex gap-2 flex-wrap">

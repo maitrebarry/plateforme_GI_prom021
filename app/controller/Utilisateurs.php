@@ -38,7 +38,7 @@ class Utilisateurs extends Controller
 
         return [
             'search' => trim((string) ($_GET['search'] ?? '')),
-            'role' => in_array($role, ['all', 'admin', 'der', 'etudiant'], true) ? $role : 'all',
+            'role' => in_array($role, ['all', 'admin', 'responsable_scolaire', 'etudiant'], true) ? $role : 'all',
             'status' => in_array($status, ['all', 'actif', 'bloque'], true) ? $status : 'all',
             'universite' => trim((string) ($_GET['universite'] ?? '')),
             'sortBy' => in_array($sortBy, ['name', 'email', 'role', 'university', 'status'], true) ? $sortBy : 'name',
@@ -274,28 +274,39 @@ class Utilisateurs extends Controller
                 return;
             }
 
-            $universiteId = isset($_POST['universite_id']) && $_POST['universite_id'] !== '' ? (int) $_POST['universite_id'] : null;
-            $faculteId = isset($_POST['faculte_id']) && $_POST['faculte_id'] !== '' ? (int) $_POST['faculte_id'] : null;
+            $role = trim((string) ($_POST['role'] ?? ''));
+            $universiteId = null;
+            $faculteId = null;
+            $universiteNom = null;
+            $faculteNom = null;
 
-            if (($universiteId ?? 0) <= 0) {
-                $utilisateur->set_flash("Veuillez selectionner une universite.", "danger");
-                $this->redirectUserList();
-                return;
-            }
+            if ($role !== 'responsable_scolaire') {
+                $universiteId = isset($_POST['universite_id']) && $_POST['universite_id'] !== '' ? (int) $_POST['universite_id'] : null;
+                $faculteId = isset($_POST['faculte_id']) && $_POST['faculte_id'] !== '' ? (int) $_POST['faculte_id'] : null;
 
-            if (($faculteId ?? 0) <= 0) {
-                $utilisateur->set_flash("Veuillez selectionner une faculte ou un institut.", "danger");
-                $this->redirectUserList();
-                return;
-            }
+                if (($universiteId ?? 0) <= 0) {
+                    $utilisateur->set_flash("Veuillez selectionner une universite.", "danger");
+                    $this->redirectUserList();
+                    return;
+                }
 
-            $universite = $universiteModel->getUniversiteById($universiteId);
-            $faculte = $faculteModel->getFaculteByIdAndUniversite($faculteId, $universiteId);
+                if (($faculteId ?? 0) <= 0) {
+                    $utilisateur->set_flash("Veuillez selectionner une faculte ou un institut.", "danger");
+                    $this->redirectUserList();
+                    return;
+                }
 
-            if (!$universite || !$faculte) {
-                $utilisateur->set_flash("Universite ou faculte invalide.", "danger");
-                $this->redirectUserList();
-                return;
+                $universite = $universiteModel->getUniversiteById($universiteId);
+                $faculte = $faculteModel->getFaculteByIdAndUniversite($faculteId, $universiteId);
+
+                if (!$universite || !$faculte) {
+                    $utilisateur->set_flash("Universite ou faculte invalide.", "danger");
+                    $this->redirectUserList();
+                    return;
+                }
+
+                $universiteNom = $universite->nom_universite;
+                $faculteNom = $faculte->nom_faculte;
             }
 
             $data = [
@@ -304,9 +315,9 @@ class Utilisateurs extends Controller
                 "email" => $_POST['email'],
                 "universite_id" => $universiteId,
                 "faculte_id" => $faculteId,
-                "universite" => $universite->nom_universite,
-                "faculte" => $faculte->nom_faculte,
-                "role" => $_POST['role'],
+                "universite" => $universiteNom,
+                "faculte" => $faculteNom,
+                "role" => $role,
                 "contact" => $this->normalizeContact($_POST['contact_utilisateur']),
                 "password" => $_POST['password']
             ];
@@ -388,7 +399,7 @@ class Utilisateurs extends Controller
                 COUNT(*) AS total_users,
                 SUM(CASE WHEN role = 'etudiant' THEN 1 ELSE 0 END) AS student_users,
                 SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) AS admin_users,
-                SUM(CASE WHEN role = 'der' THEN 1 ELSE 0 END) AS der_users,
+                SUM(CASE WHEN role = 'responsable_scolaire' THEN 1 ELSE 0 END) AS responsable_scolaire_users,
                 SUM(CASE WHEN COALESCE(statut_compte, 'actif') = 'bloque' THEN 1 ELSE 0 END) AS blocked_users
              FROM users {$whereSql}",
             $params
@@ -397,7 +408,7 @@ class Utilisateurs extends Controller
             'total_users' => 0,
             'student_users' => 0,
             'admin_users' => 0,
-            'der_users' => 0,
+            'responsable_scolaire_users' => 0,
             'blocked_users' => 0,
         ];
 

@@ -191,7 +191,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 </style>
 
 <div class="der-results-header">
-    <h6><i class='bx bx-news'></i> Publications DER</h6>
+    <h6><i class='bx bx-news'></i> Publications</h6>
     <span class="der-count-pill"><?= $totalItems ?> élément<?= $totalItems > 1 ? 's' : '' ?></span>
 </div>
 
@@ -221,7 +221,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 
             <div class="der-post-meta">
                 <span><i class="bx bx-calendar"></i><?= htmlspecialchars((string) ($post->publication_date ?? '')) ?></span>
-                <span><i class="bx bx-user"></i><?= htmlspecialchars((string) ($post->author_name ?? 'Responsable DER')) ?></span>
+                <span><i class="bx bx-user"></i><?= htmlspecialchars((string) ($post->author_name ?? 'Responsable Scolaire')) ?></span>
                 <span><i class="bx bx-time-five"></i>Ajouté le <?= htmlspecialchars(!empty($post->created_at) ? date('d/m/Y', strtotime((string) $post->created_at)) : '') ?></span>
             </div>
 
@@ -302,7 +302,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
                         </form>
                     <?php endif; ?>
                 <?php else: ?>
-                    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="d-inline" onsubmit="return confirm('Archiver cette publication DER ?');">
+                    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="d-inline" onsubmit="return confirm('Archiver cette publication ?');">
                         <input type="hidden" name="return_query" value="<?= htmlspecialchars($paginationQuery) ?>">
                         <input type="hidden" name="post_id" value="<?= (int) ($post->id ?? 0) ?>">
                         <button type="submit" name="delete_der_post" class="btn-action-sm btn-action-sm--danger">
@@ -325,7 +325,7 @@ $detailReturnBasePath = (string) ($detailReturnBasePath ?? 'Homes/der_espace');
 <?php else: ?>
     <div class="der-empty">
         <i class="bx bx-file-blank"></i>
-        Aucune publication DER ne correspond aux filtres.
+        Aucune publication ne correspond aux filtres.
     </div>
 <?php endif; ?>
 

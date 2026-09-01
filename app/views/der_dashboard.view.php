@@ -1,4 +1,4 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Dashboard DER']); ?>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Dashboard Responsable Scolaire']); ?>
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
@@ -89,7 +89,7 @@ $derTypeColor = ['annonce' => 'ann', 'information' => 'info', 'evenement' => 'ev
                 <div class="der-hero">
                     <div class="der-hero__row">
                         <div>
-                            <h1>Dashboard DER</h1>
+                            <h1>Dashboard Responsable Scolaire</h1>
                             <p>Suivi des publications, annonces et contenus officiels du département.</p>
                         </div>
                         <div class="der-hero__cta">
@@ -126,7 +126,7 @@ $derTypeColor = ['annonce' => 'ann', 'information' => 'info', 'evenement' => 'ev
                                 </div>
                                 <div class="der-pub__meta">
                                     <span><i class='bx bx-calendar'></i><?= htmlspecialchars((string) ($post->publication_date ?? '')) ?></span>
-                                    <span><i class='bx bx-user'></i><?= htmlspecialchars((string) ($post->author_name ?? 'Responsable DER')) ?></span>
+                                    <span><i class='bx bx-user'></i><?= htmlspecialchars((string) ($post->author_name ?? 'Responsable Scolaire')) ?></span>
                                 </div>
                                 <p class="der-pub__text"><?= nl2br(htmlspecialchars(mb_strimwidth((string) ($post->contenu ?? ''), 0, 220, '…'))) ?></p>
                                 <?php if (!empty($post->files ?? [])): ?>
@@ -143,13 +143,13 @@ $derTypeColor = ['annonce' => 'ann', 'information' => 'info', 'evenement' => 'ev
                                     <form method="POST" action="<?= ROOT ?>/Homes/der_espace" class="d-inline">
                                         <input type="hidden" name="post_id" value="<?= (int) ($post->id ?? 0) ?>">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
-                                        <button type="submit" name="delete_der_post" class="der-act der-act--del" onclick="return confirm('Archiver cette publication DER ?');"><i class='bx bx-archive-in'></i> Archiver</button>
+                                        <button type="submit" name="delete_der_post" class="der-act der-act--del" onclick="return confirm('Archiver cette publication ?');"><i class='bx bx-archive-in'></i> Archiver</button>
                                     </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="der-empty"><i class='bx bx-file-blank'></i><p class="mb-0">Aucune publication DER pour le moment.</p></div>
+                        <div class="der-empty"><i class='bx bx-file-blank'></i><p class="mb-0">Aucune publication pour le moment.</p></div>
                     <?php endif; ?>
                 </div>
             </div>

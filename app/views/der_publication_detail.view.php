@@ -1,4 +1,4 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Détail publication DER']); ?>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Détail publication']); ?>
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
@@ -75,7 +75,7 @@ $tm = $typeMeta[$postType] ?? [ucfirst($postType), 'bx-bookmark', 'info'];
                         <h1 class="dpd-title"><?= htmlspecialchars((string) ($post->titre ?? 'Publication')) ?></h1>
                         <div class="dpd-meta">
                             <span><i class='bx bx-calendar'></i> <?= htmlspecialchars((string) ($post->publication_date ?? '')) ?></span>
-                            <span><i class='bx bx-user-circle'></i> <?= htmlspecialchars((string) ($post->author_name ?? 'Responsable DER')) ?></span>
+                            <span><i class='bx bx-user-circle'></i> <?= htmlspecialchars((string) ($post->author_name ?? 'Responsable Scolaire')) ?></span>
                         </div>
                         <div class="dpd-content"><?= nl2br(htmlspecialchars((string) ($post->contenu ?? ''))) ?></div>
 

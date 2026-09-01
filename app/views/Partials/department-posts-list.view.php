@@ -47,7 +47,7 @@ if (!function_exists('department_post_file_is_image')) {
                     <div class="department-post-meta">
                         <span><?= htmlspecialchars((string) ($item->publication_date ?? '')) ?></span>
                         <span><?= htmlspecialchars(ucfirst((string) ($item->type ?? 'publication'))) ?></span>
-                        <span><?= htmlspecialchars((string) ($item->author_name ?? 'Responsable DER')) ?></span>
+                        <span><?= htmlspecialchars((string) ($item->author_name ?? 'Responsable Scolaire')) ?></span>
                     </div>
                     <div class="mb-3"><?= nl2br(htmlspecialchars((string) ($item->contenu ?? ''))) ?></div>
                     <?php if (!empty($documentFiles)): ?>
@@ -80,5 +80,5 @@ if (!function_exists('department_post_file_is_image')) {
         'itemLabel' => 'publication(s)',
     ]); ?>
 <?php else: ?>
-    <p class="text-muted mb-0">Aucune publication du DER n'est encore visible sur le site.</p>
+    <p class="text-muted mb-0">Aucune publication du responsable scolaire n'est encore visible sur le site.</p>
 <?php endif; ?>

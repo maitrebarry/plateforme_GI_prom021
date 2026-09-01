@@ -35,10 +35,10 @@ class Homes extends Controller
     private function guardDer(): void
     {
         $role = strtolower((string)($_SESSION['role'] ?? ''));
-        if ($role !== 'der') {
+        if ($role !== 'responsable_scolaire') {
             $_SESSION['notification'] = [
                 'type' => 'warning',
-                'message' => 'Acces reserve au responsable DER.',
+                'message' => 'Acces reserve au responsable scolaire.',
             ];
             $this->redirect('Homes/dashboard');
         }
@@ -172,7 +172,7 @@ class Homes extends Controller
             $this->redirect('Admins/dashboard');
         }
 
-        if ($role === 'der') {
+        if ($role === 'responsable_scolaire') {
             $this->redirect('Homes/der_dashboard');
         }
 
@@ -276,10 +276,10 @@ class Homes extends Controller
     public function der_dashboard(): void
     {
         $role = strtolower((string)($_SESSION['role'] ?? ''));
-        if ($role !== 'der') {
+        if ($role !== 'responsable_scolaire') {
             $_SESSION['notification'] = [
                 'type' => 'warning',
-                'message' => 'Accès réservé au responsable DER.',
+                'message' => 'Accès réservé au responsable scolaire.',
             ];
             $this->redirect('Homes/dashboard');
         }
@@ -287,7 +287,7 @@ class Homes extends Controller
         $postModel = new DepartmentPost();
 
         $data = $this->baseViewData();
-        $data['pageTitle'] = 'Dashboard DER';
+        $data['pageTitle'] = 'Dashboard Responsable Scolaire';
         $data['derStats'] = $postModel->getDashboardStats();
         $latestPage = $postModel->getPostsPaginated('active', 'all', '', '', '', 'date', 'desc', 1, 5);
         $data['latestPublications'] = $latestPage['items'];
@@ -385,10 +385,10 @@ class Homes extends Controller
     public function der_espace(): void
     {
         $role = strtolower((string)($_SESSION['role'] ?? ''));
-        if ($role !== 'der') {
+        if ($role !== 'responsable_scolaire') {
             $_SESSION['notification'] = [
                 'type' => 'warning',
-                'message' => 'Accès réservé au responsable DER.',
+                'message' => 'Accès réservé au responsable scolaire.',
             ];
             $this->redirect('Homes/dashboard');
         }
@@ -433,7 +433,7 @@ class Homes extends Controller
             if ($postModel->createPost($userId, $title, $content, $type, $publicationDate, $uploadedFiles)) {
                 $_SESSION['notification'] = [
                     'type' => 'success',
-                    'message' => 'Publication DER enregistrée avec succès' . (!empty($uploadedFiles) ? ' avec ses fichiers.' : '.'),
+                    'message' => 'Publication enregistrée avec succès' . (!empty($uploadedFiles) ? ' avec ses fichiers.' : '.'),
                 ];
             } else {
                 $this->cleanupUploadedDepartmentFiles($uploadedFiles);
@@ -461,7 +461,7 @@ class Homes extends Controller
             } elseif ($postModel->updatePost($postId, $title, $content, $type, $publicationDate)) {
                 $_SESSION['notification'] = [
                     'type' => 'success',
-                    'message' => 'Publication DER mise a jour avec succes.',
+                    'message' => 'Publication mise a jour avec succes.',
                 ];
             } else {
                 $_SESSION['notification'] = [
@@ -480,7 +480,7 @@ class Homes extends Controller
             if ($deleted) {
                 $_SESSION['notification'] = [
                     'type' => 'success',
-                    'message' => 'Publication DER archivee avec succes.',
+                    'message' => 'Publication archivee avec succes.',
                 ];
             } else {
                 $_SESSION['notification'] = [
@@ -499,7 +499,7 @@ class Homes extends Controller
             $_SESSION['notification'] = [
                 'type' => $restored ? 'success' : 'danger',
                 'message' => $restored
-                    ? 'Publication DER restauree avec succes.'
+                    ? 'Publication restauree avec succes.'
                     : 'Impossible de restaurer cette publication.',
             ];
 
@@ -519,7 +519,7 @@ class Homes extends Controller
 
                 $_SESSION['notification'] = [
                     'type' => 'success',
-                    'message' => 'Fichier DER supprime avec succes.',
+                    'message' => 'Fichier supprime avec succes.',
                 ];
             } else {
                 $_SESSION['notification'] = [
@@ -538,7 +538,7 @@ class Homes extends Controller
             if ($postId <= 0) {
                 $_SESSION['notification'] = [
                     'type' => 'danger',
-                    'message' => 'Publication DER introuvable.',
+                    'message' => 'Publication introuvable.',
                 ];
             } elseif (!empty($uploadErrors)) {
                 $_SESSION['notification'] = [
@@ -574,7 +574,7 @@ class Homes extends Controller
         );
 
         $data = $this->baseViewData();
-        $data['pageTitle'] = 'Espace DER - Gestion des publications';
+        $data['pageTitle'] = 'Espace Responsable Scolaire - Gestion des publications';
         $data['derStats'] = $postModel->getDashboardStats();
         $data['derPosts'] = $postsPage['items'];
         $data['derAllowedTypes'] = $postModel->getAllowedTypes();
@@ -619,13 +619,13 @@ class Homes extends Controller
         if (!$post) {
             $_SESSION['notification'] = [
                 'type' => 'danger',
-                'message' => 'Publication DER introuvable.',
+                'message' => 'Publication introuvable.',
             ];
             $this->redirect('Homes/der_espace');
         }
 
         $data = $this->baseViewData();
-        $data['pageTitle'] = 'Detail publication DER';
+        $data['pageTitle'] = 'Detail publication';
         $data['post'] = $post;
         if ($returnQuery !== '' && str_contains($returnQuery, 'Homes/')) {
             $data['returnUrl'] = ROOT . '/' . ltrim($returnQuery, '/');
@@ -652,7 +652,7 @@ class Homes extends Controller
             $_SESSION['notification'] = [
                 'type' => $restored ? 'success' : 'danger',
                 'message' => $restored
-                    ? 'Publication DER restauree avec succes.'
+                    ? 'Publication restauree avec succes.'
                     : 'Impossible de restaurer cette publication.',
             ];
 
@@ -676,7 +676,7 @@ class Homes extends Controller
             $_SESSION['notification'] = [
                 'type' => $deleted ? 'success' : 'danger',
                 'message' => $deleted
-                    ? 'Publication DER supprimee definitivement.'
+                    ? 'Publication supprimee definitivement.'
                     : 'Impossible de supprimer definitivement cette publication.',
             ];
 
@@ -696,7 +696,7 @@ class Homes extends Controller
         );
 
         $data = $this->baseViewData();
-        $data['pageTitle'] = 'Corbeille DER';
+        $data['pageTitle'] = 'Corbeille des publications';
         $data['derStats'] = $postModel->getDashboardStats();
         $data['derPosts'] = $postsPage['items'];
         $data['derAllowedTypes'] = $postModel->getAllowedTypes();
@@ -1045,7 +1045,7 @@ class Homes extends Controller
     {
         return match ($role) {
             'admin' => 'Dashboard administrateur',
-            'der' => 'Dashboard DER',
+            'responsable_scolaire' => 'Dashboard Responsable Scolaire',
             default => 'Dashboard étudiant',
         };
     }

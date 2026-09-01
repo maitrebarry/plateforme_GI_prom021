@@ -1,6 +1,6 @@
 <?php
 $role = strtolower((string) ($_SESSION['role'] ?? 'etudiant'));
-$navTitle = $role === 'admin' ? 'Administration' : ($role === 'der' ? 'Espace DER' : 'Espace étudiant');
+$navTitle = $role === 'admin' ? 'Administration' : ($role === 'responsable_scolaire' ? 'Espace Responsable Scolaire' : 'Espace étudiant');
 $navName = trim((string) (($_SESSION['prenom'] ?? '') . ' ' . ($_SESSION['nom'] ?? '')));
 if ($navName === '') { $navName = 'Utilisateur'; }
 $navInitial = strtoupper(mb_substr($navName, 0, 1));
@@ -133,7 +133,7 @@ $navNotifIcon = static function (string $type): array {
                 <span class="dsnav__pava"><?php if ($hasNavImg): ?><img src="<?= ROOT ?>/image_profile/<?= htmlspecialchars($navImage) ?>" alt=""><?php else: ?><?= htmlspecialchars($navInitial) ?><?php endif; ?></span>
             </button>
             <div class="dsnav__menu">
-                <div class="dsnav__mhead"><b><?= htmlspecialchars($navName) ?></b><span><?= htmlspecialchars($role === 'admin' ? 'Administrateur' : ($role === 'der' ? 'Responsable DER' : 'Étudiant')) ?></span></div>
+                <div class="dsnav__mhead"><b><?= htmlspecialchars($navName) ?></b><span><?= htmlspecialchars($role === 'admin' ? 'Administrateur' : ($role === 'responsable_scolaire' ? 'Responsable Scolaire' : 'Étudiant')) ?></span></div>
                 <a href="<?= ROOT ?>/Profiles/appercu" class="dsnav__mlink"><i class='bx bx-user'></i> Mon profil</a>
                 <a href="<?= ROOT ?>/Homes/index" class="dsnav__mlink"><i class='bx bx-globe'></i> Retour au site</a>
                 <a href="<?= ROOT ?>/Logins/logout" data-logout class="dsnav__mlink dsnav__mlink--out"><i class='bx bx-log-out'></i> Déconnexion</a>

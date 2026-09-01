@@ -1,4 +1,4 @@
-<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Corbeille DER']); ?>
+<?php $this->view('Partials/head', ['pageTitle' => $pageTitle ?? 'Corbeille des publications']); ?>
 <body>
 <?php $this->view('Partials/global-shell'); ?>
 <?php $this->view('Partials/mobile-menu'); ?>
@@ -49,7 +49,7 @@ $paginationQuery = (string) ($paginationQuery ?? '');
                 <div class="der-hero">
                     <div class="der-hero__row">
                         <div>
-                            <h1><i class='bx bx-trash'></i> Corbeille DER</h1>
+                            <h1><i class='bx bx-trash'></i> Corbeille des publications</h1>
                             <p>Retrouvez et restaurez vos publications archivées, ou supprimez-les définitivement.</p>
                         </div>
                         <div class="d-flex gap-2 flex-wrap align-items-center">

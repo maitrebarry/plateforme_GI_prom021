@@ -15,15 +15,16 @@ $perPage = (int) ($perPage ?? 10);
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $totalItems = max(0, (int) ($totalItems ?? count($liste ?? [])));
 $paginationQuery = (string) ($paginationQuery ?? '');
-$userStats = $userStats ?? (object) ['total_users' => 0, 'student_users' => 0, 'admin_users' => 0, 'der_users' => 0, 'blocked_users' => 0];
+$userStats = $userStats ?? (object) ['total_users' => 0, 'student_users' => 0, 'admin_users' => 0, 'responsable_scolaire_users' => 0, 'blocked_users' => 0];
 $csrf = (string) ($_SESSION['csrf_token'] ?? '');
 $usrStatCards = [
     ['Total', (int) ($userStats->total_users ?? 0), 'bx-group', 'brand'],
     ['Étudiants', (int) ($userStats->student_users ?? 0), 'bx-user', 'blue'],
     ['Admins', (int) ($userStats->admin_users ?? 0), 'bx-shield', 'accent'],
-    ['DER', (int) ($userStats->der_users ?? 0), 'bx-id-card', 'success'],
+    ['Resp. scolaires', (int) ($userStats->responsable_scolaire_users ?? 0), 'bx-id-card', 'success'],
     ['Bloqués', (int) ($userStats->blocked_users ?? 0), 'bx-block', 'danger'],
 ];
+$usrRoleLabels = ['etudiant' => 'Étudiant', 'admin' => 'Admin', 'responsable_scolaire' => 'Responsable Scolaire'];
 ?>
 
 <section class="dashboard">
@@ -74,7 +75,7 @@ $usrStatCards = [
                     .usr-ava { width: 32px; height: 32px; border-radius: 50%; background: var(--ds-brand-100); color: var(--ds-brand-700); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .78rem; flex-shrink: 0; }
                     .usr-affil { color: var(--ds-muted); font-size: .8rem; max-width: 240px; }
                     .usr-pill { display: inline-flex; align-items: center; height: 22px; padding: 0 11px; border-radius: var(--ds-radius-pill); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
-                    .usr-pill--etudiant { background: #e3effb; color: #1d59b8; } .usr-pill--admin { background: var(--ds-accent-soft); color: #8a6310; } .usr-pill--der { background: var(--ds-brand-50); color: var(--ds-brand-700); }
+                    .usr-pill--etudiant { background: #e3effb; color: #1d59b8; } .usr-pill--admin { background: var(--ds-accent-soft); color: #8a6310; } .usr-pill--responsable_scolaire { background: var(--ds-brand-50); color: var(--ds-brand-700); }
                     .usr-pill--actif { background: #e4f3ea; color: #11703a; } .usr-pill--bloque { background: var(--ds-surface-2); color: var(--ds-muted); }
                     .usr-act { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; font-size: .78rem; padding: 6px 13px; border-radius: var(--ds-radius-pill); border: 1px solid var(--ds-border); cursor: pointer; text-decoration: none; }
                     .usr-act--block { background: var(--ds-accent-soft); color: #8a6310; border-color: transparent; }
@@ -122,7 +123,7 @@ $usrStatCards = [
                     <div class="usr-filter">
                         <form method="GET" action="<?= ROOT ?>/Utilisateurs/liste_utilisateur" class="row gy-2 gx-2" id="user-filter-form">
                             <div class="col-md-3 col-12"><input type="text" name="search" value="<?= htmlspecialchars($userSearch) ?>" class="form-control" placeholder="Rechercher nom, email, université…"></div>
-                            <div class="col-md-2 col-6"><select name="role" class="form-select auto-submit-filter"><option value="all" <?= $userRoleFilter === 'all' ? 'selected' : '' ?>>Tous rôles</option><option value="admin" <?= $userRoleFilter === 'admin' ? 'selected' : '' ?>>Admin</option><option value="der" <?= $userRoleFilter === 'der' ? 'selected' : '' ?>>DER</option><option value="etudiant" <?= $userRoleFilter === 'etudiant' ? 'selected' : '' ?>>Étudiant</option></select></div>
+                            <div class="col-md-2 col-6"><select name="role" class="form-select auto-submit-filter"><option value="all" <?= $userRoleFilter === 'all' ? 'selected' : '' ?>>Tous rôles</option><option value="admin" <?= $userRoleFilter === 'admin' ? 'selected' : '' ?>>Admin</option><option value="responsable_scolaire" <?= $userRoleFilter === 'responsable_scolaire' ? 'selected' : '' ?>>Responsable Scolaire</option><option value="etudiant" <?= $userRoleFilter === 'etudiant' ? 'selected' : '' ?>>Étudiant</option></select></div>
                             <div class="col-md-2 col-6"><select name="status" class="form-select auto-submit-filter"><option value="all" <?= $userStatusFilter === 'all' ? 'selected' : '' ?>>Tous statuts</option><option value="actif" <?= $userStatusFilter === 'actif' ? 'selected' : '' ?>>Actif</option><option value="bloque" <?= $userStatusFilter === 'bloque' ? 'selected' : '' ?>>Bloqué</option></select></div>
                             <div class="col-md-2 col-6"><select name="universite" class="form-select auto-submit-filter"><option value="">Toutes universités</option><?php foreach (($universites ?? []) as $u): ?><?php $nu = (string) ($u->nom_universite ?? ''); ?><option value="<?= htmlspecialchars($nu) ?>" <?= $userUniversiteFilter === $nu ? 'selected' : '' ?>><?= htmlspecialchars($nu) ?></option><?php endforeach; ?></select></div>
                             <div class="col-md-1 col-4"><select name="sort_by" class="form-select auto-submit-filter"><option value="name" <?= $userSortBy === 'name' ? 'selected' : '' ?>>Nom</option><option value="email" <?= $userSortBy === 'email' ? 'selected' : '' ?>>Email</option><option value="role" <?= $userSortBy === 'role' ? 'selected' : '' ?>>Rôle</option><option value="university" <?= $userSortBy === 'university' ? 'selected' : '' ?>>Univ.</option><option value="status" <?= $userSortBy === 'status' ? 'selected' : '' ?>>Statut</option></select></div>
@@ -159,7 +160,7 @@ $usrStatCards = [
                                                 <td class="is-cardcheck"><?php if ($isStudent && !$isMe): ?><input type="checkbox" class="user-checkbox usr-check" name="user_ids[]" value="<?= (int) $u->user_id ?>"><?php endif; ?></td>
                                                 <td class="is-cardtitle"><span class="usr-name"><span class="usr-ava"><?= htmlspecialchars(strtoupper(mb_substr($uFull !== '' ? $uFull : 'U', 0, 1))) ?></span><?= htmlspecialchars($uFull !== '' ? $uFull : '—') ?></span></td>
                                                 <td class="text-muted" data-label="Email"><?= htmlspecialchars((string) ($u->email ?? '')) ?></td>
-                                                <td data-label="Rôle"><span class="usr-pill usr-pill--<?= htmlspecialchars($uRole) ?>"><?= htmlspecialchars($uRole) ?></span></td>
+                                                <td data-label="Rôle"><span class="usr-pill usr-pill--<?= htmlspecialchars($uRole) ?>"><?= htmlspecialchars($usrRoleLabels[$uRole] ?? $uRole) ?></span></td>
                                                 <td class="usr-affil" data-label="Affiliation"><?= htmlspecialchars(trim(($u->universite ?? 'N/A') . ' · ' . ($u->faculte ?? 'N/A') . ' · ' . ($u->filiere ?? 'N/A'))) ?></td>
                                                 <td data-label="Statut"><span class="usr-pill usr-pill--<?= $isActive ? 'actif' : 'bloque' ?>"><?= $isActive ? 'Actif' : 'Bloqué' ?></span></td>
                                                 <td class="is-cardaction">
@@ -217,9 +218,11 @@ $usrStatCards = [
                                         <div class="col-sm-6"><label class="form-label">Nom</label><input type="text" name="nom" class="common-input" placeholder="Nom" required></div>
                                         <div class="col-12"><label class="form-label">Email</label><input type="email" name="email" class="common-input" placeholder="exemple@mail.com" required></div>
                                         <div class="col-sm-6"><label class="form-label">Contact</label><input type="tel" name="contact_utilisateur" id="contact_utilisateur" class="common-input" placeholder="76 56 23 17" inputmode="numeric" maxlength="11" pattern="[0-9]{2}(\s?[0-9]{2}){3}" required><small class="text-muted d-block mt-1">8 chiffres (ex : 76562317).</small></div>
-                                        <div class="col-sm-6"><label class="form-label">Université</label><select class="common-input" name="universite_id" id="universite_id_admin" required><option value="">Choisir une université</option><?php foreach (($universites ?? []) as $u): ?><option value="<?= (int) ($u->id_universite ?? 0) ?>"><?= htmlspecialchars((string) ($u->nom_universite ?? '')) ?></option><?php endforeach; ?></select></div>
-                                        <div class="col-sm-6"><label class="form-label">Faculté / Institut</label><select class="common-input" name="faculte_id" id="faculte_id_admin" required disabled><option value="">Sélectionnez d'abord une université</option></select></div>
-                                        <div class="col-sm-6"><label class="form-label">Rôle</label><select name="role" class="common-input" required><option value="admin">Administrateur</option><option value="der">DER</option></select></div>
+                                        <div class="col-12"><div class="row gy-3" id="rs_uni_fields">
+                                            <div class="col-sm-6"><label class="form-label">Université</label><select class="common-input" name="universite_id" id="universite_id_admin" required><option value="">Choisir une université</option><?php foreach (($universites ?? []) as $u): ?><option value="<?= (int) ($u->id_universite ?? 0) ?>"><?= htmlspecialchars((string) ($u->nom_universite ?? '')) ?></option><?php endforeach; ?></select></div>
+                                            <div class="col-sm-6"><label class="form-label">Faculté / Institut</label><select class="common-input" name="faculte_id" id="faculte_id_admin" required disabled><option value="">Sélectionnez d'abord une université</option></select></div>
+                                        </div></div>
+                                        <div class="col-sm-6"><label class="form-label">Rôle</label><select name="role" class="common-input" id="role_admin" required><option value="admin">Administrateur</option><option value="responsable_scolaire">Responsable Scolaire</option></select></div>
                                         <div class="col-sm-6"><label class="form-label">Mot de passe</label><input type="password" name="password" class="common-input" placeholder="Mot de passe" required></div>
                                         <div class="col-12"><label class="form-label">Confirmation</label><input type="password" name="password_confirm" class="common-input" placeholder="Confirmer le mot de passe" required></div>
                                     </div>
@@ -248,6 +251,20 @@ document.addEventListener('DOMContentLoaded', function () {
     var universiteSelect = document.getElementById('universite_id_admin');
     var faculteSelect = document.getElementById('faculte_id_admin');
     var contactInput = document.getElementById('contact_utilisateur');
+    var roleSelectAdmin = document.getElementById('role_admin');
+    var rsUniFields = document.getElementById('rs_uni_fields');
+
+    function toggleRsUniFields() {
+        if (!roleSelectAdmin || !rsUniFields) { return; }
+        var isResponsableScolaire = roleSelectAdmin.value === 'responsable_scolaire';
+        rsUniFields.style.display = isResponsableScolaire ? 'none' : '';
+        if (universiteSelect) { universiteSelect.required = !isResponsableScolaire; }
+        if (faculteSelect) { faculteSelect.required = !isResponsableScolaire; }
+    }
+    if (roleSelectAdmin) {
+        roleSelectAdmin.addEventListener('change', toggleRsUniFields);
+        toggleRsUniFields();
+    }
 
     function formatContact(value) { var d = value.replace(/\D/g, '').slice(0, 8); return d.replace(/(\d{2})(?=\d)/g, '$1 ').trim(); }
     if (contactInput) { contactInput.addEventListener('input', function () { this.value = formatContact(this.value); }); }
