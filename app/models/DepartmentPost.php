@@ -277,9 +277,22 @@ class DepartmentPost extends Model
         return $postId;
     }
 
-    public function attachFiles(int $postId, array $files): void
+    private function postBelongsToOwner(int $postId, int $ownerId): bool
+    {
+        if (!$this->hasTable() || $postId <= 0 || $ownerId <= 0) {
+            return false;
+        }
+
+        return !empty($this->FetchSelectWhere('id', 'department_posts', 'id = ? AND user_id = ?', [$postId, $ownerId]));
+    }
+
+    public function attachFiles(int $postId, array $files, int $ownerId = 0): void
     {
         if (!$this->hasFilesTable() || $postId <= 0) {
+            return;
+        }
+
+        if ($ownerId > 0 && !$this->postBelongsToOwner($postId, $ownerId)) {
             return;
         }
 
@@ -299,7 +312,7 @@ class DepartmentPost extends Model
         }
     }
 
-    public function countByType(string $type): int
+    public function countByType(string $type, int $ownerId = 0): int
     {
         if (!$this->hasTable()) {
             return 0;
@@ -309,19 +322,26 @@ class DepartmentPost extends Model
             return 0;
         }
 
+        $params = [$type];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND user_id = ?';
+            $params[] = $ownerId;
+        }
+
         if ($this->ensureArchivedColumn()) {
             $row = $this->select_data_table_join_where(
-                'SELECT COUNT(*) AS total FROM department_posts WHERE type = ? AND is_archived = 0',
-                [$type]
+                "SELECT COUNT(*) AS total FROM department_posts WHERE type = ? AND is_archived = 0{$ownerClause}",
+                $params
             )[0] ?? (object) ['total' => 0];
         } else {
-            $row = $this->FetchSelectWhere('COUNT(*) AS total', 'department_posts', 'type = ?', [$type]);
+            $row = $this->FetchSelectWhere('COUNT(*) AS total', 'department_posts', "type = ?{$ownerClause}", $params);
         }
 
         return (int)($row->total ?? 0);
     }
 
-    public function getDashboardStats(): array
+    public function getDashboardStats(int $ownerId = 0): array
     {
         $stats = [
             'annonces' => 0,
@@ -347,18 +367,32 @@ class DepartmentPost extends Model
             } elseif ($type === 'opportunite') {
                 $key = 'opportunites';
             }
-            $stats[$key] = $this->countByType($type);
+            $stats[$key] = $this->countByType($type, $ownerId);
             $stats['total'] += $stats[$key];
         }
 
         if ($this->hasFilesTable()) {
-            $row = $this->FetchSelectWhere('COUNT(*) AS total', 'department_post_files', '1=1');
+            if ($ownerId > 0) {
+                $row = $this->select_data_table_join_where(
+                    'SELECT COUNT(*) AS total FROM department_post_files f INNER JOIN department_posts p ON p.id = f.post_id WHERE p.user_id = ?',
+                    [$ownerId]
+                )[0] ?? (object) ['total' => 0];
+            } else {
+                $row = $this->FetchSelectWhere('COUNT(*) AS total', 'department_post_files', '1=1');
+            }
             $stats['files'] = (int) ($row->total ?? 0);
         }
 
         if ($this->ensureArchivedColumn()) {
+            $params = [];
+            $ownerClause = '';
+            if ($ownerId > 0) {
+                $ownerClause = ' AND user_id = ?';
+                $params[] = $ownerId;
+            }
             $row = $this->select_data_table_join_where(
-                'SELECT COUNT(*) AS total FROM department_posts WHERE is_archived = 1'
+                "SELECT COUNT(*) AS total FROM department_posts WHERE is_archived = 1{$ownerClause}",
+                $params
             )[0] ?? (object) ['total' => 0];
             $stats['archived'] = (int) ($row->total ?? 0);
         }
@@ -375,7 +409,8 @@ class DepartmentPost extends Model
         string $sortBy = 'date',
         string $sortDir = 'desc',
         int $page = 1,
-        int $perPage = 10
+        int $perPage = 10,
+        int $ownerId = 0
     ): array
     {
         if (!$this->hasTable()) {
@@ -398,6 +433,11 @@ class DepartmentPost extends Model
         $archiveClause = $this->archivedClause($visibility);
         if ($archiveClause !== '') {
             $clauses[] = $archiveClause;
+        }
+
+        if ($ownerId > 0) {
+            $clauses[] = 'p.user_id = ?';
+            $params[] = $ownerId;
         }
 
         if ($type !== 'all' && in_array($type, self::ALLOWED_TYPES, true)) {
@@ -466,10 +506,17 @@ class DepartmentPost extends Model
         ];
     }
 
-    public function getPostById(int $postId)
+    public function getPostById(int $postId, int $ownerId = 0)
     {
         if (!$this->hasTable() || $postId <= 0) {
             return null;
+        }
+
+        $params = [$postId];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND p.user_id = ?';
+            $params[] = $ownerId;
         }
 
         $rows = $this->select_data_table_join_where(
@@ -478,9 +525,9 @@ class DepartmentPost extends Model
                 COALESCE(CONCAT(u.prenom, ' ', u.nom), 'Responsable Scolaire') AS author_name
              FROM department_posts p
              LEFT JOIN users u ON u.user_id = p.user_id
-             WHERE p.id = ?
+             WHERE p.id = ?{$ownerClause}
              LIMIT 1",
-            [$postId]
+            $params
         );
 
         if (empty($rows)) {
@@ -490,81 +537,130 @@ class DepartmentPost extends Model
         return $this->enrichPosts($rows, (int) ($_SESSION['user_id'] ?? 0))[0] ?? null;
     }
 
-    public function updatePost(int $postId, string $title, string $content, string $type, string $publicationDate): bool
+    public function updatePost(int $postId, string $title, string $content, string $type, string $publicationDate, int $ownerId = 0): bool
     {
         if (!$this->hasTable() || $postId <= 0 || !in_array($type, self::ALLOWED_TYPES, true)) {
             return false;
         }
 
+        $params = [$title, $content, $type, $publicationDate, $postId];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND user_id = ?';
+            $params[] = $ownerId;
+        }
+
         $query = $this->insertion_update_simples(
             "UPDATE department_posts
              SET titre = ?, contenu = ?, type = ?, publication_date = ?
-             WHERE id = ?",
-            [$title, $content, $type, $publicationDate, $postId]
+             WHERE id = ?{$ownerClause}",
+            $params
         );
 
         return $query->rowCount() > 0;
     }
 
-    public function deletePost(int $postId): bool
+    public function deletePost(int $postId, int $ownerId = 0): bool
     {
         if (!$this->hasTable() || $postId <= 0) {
             return false;
         }
 
+        $params = [$postId];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND user_id = ?';
+            $params[] = $ownerId;
+        }
+
         if ($this->ensureArchivedColumn()) {
-            $query = $this->insertion_update_simples('UPDATE department_posts SET is_archived = 1 WHERE id = ?', [$postId]);
+            $query = $this->insertion_update_simples("UPDATE department_posts SET is_archived = 1 WHERE id = ?{$ownerClause}", $params);
             return $query->rowCount() > 0;
         }
 
-        $query = $this->insertion_update_simples('DELETE FROM department_posts WHERE id = ?', [$postId]);
+        $query = $this->insertion_update_simples("DELETE FROM department_posts WHERE id = ?{$ownerClause}", $params);
         return $query->rowCount() > 0;
     }
 
-    public function restorePost(int $postId): bool
+    public function restorePost(int $postId, int $ownerId = 0): bool
     {
         if (!$this->hasTable() || $postId <= 0 || !$this->ensureArchivedColumn()) {
             return false;
         }
 
-        $query = $this->insertion_update_simples('UPDATE department_posts SET is_archived = 0 WHERE id = ?', [$postId]);
+        $params = [$postId];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND user_id = ?';
+            $params[] = $ownerId;
+        }
+
+        $query = $this->insertion_update_simples("UPDATE department_posts SET is_archived = 0 WHERE id = ?{$ownerClause}", $params);
         return $query->rowCount() > 0;
     }
 
-    public function permanentlyDeletePost(int $postId): bool
+    public function permanentlyDeletePost(int $postId, int $ownerId = 0): bool
     {
         if (!$this->hasTable() || $postId <= 0) {
             return false;
         }
 
-        $query = $this->insertion_update_simples('DELETE FROM department_posts WHERE id = ?', [$postId]);
+        $params = [$postId];
+        $ownerClause = '';
+        if ($ownerId > 0) {
+            $ownerClause = ' AND user_id = ?';
+            $params[] = $ownerId;
+        }
+
+        $query = $this->insertion_update_simples("DELETE FROM department_posts WHERE id = ?{$ownerClause}", $params);
         return $query->rowCount() > 0;
     }
 
-    public function getFileById(int $fileId)
+    public function getFileById(int $fileId, int $ownerId = 0)
     {
         if (!$this->hasFilesTable() || $fileId <= 0) {
             return null;
         }
 
-        $rows = $this->select_data_table_join_where(
-            "SELECT id, post_id, original_name, stored_name, file_path, file_type, created_at
-             FROM department_post_files
-             WHERE id = ?
-             LIMIT 1",
-            [$fileId]
-        );
+        if ($ownerId > 0) {
+            $rows = $this->select_data_table_join_where(
+                "SELECT f.id, f.post_id, f.original_name, f.stored_name, f.file_path, f.file_type, f.created_at
+                 FROM department_post_files f
+                 INNER JOIN department_posts p ON p.id = f.post_id
+                 WHERE f.id = ? AND p.user_id = ?
+                 LIMIT 1",
+                [$fileId, $ownerId]
+            );
+        } else {
+            $rows = $this->select_data_table_join_where(
+                "SELECT id, post_id, original_name, stored_name, file_path, file_type, created_at
+                 FROM department_post_files
+                 WHERE id = ?
+                 LIMIT 1",
+                [$fileId]
+            );
+        }
 
         return $rows[0] ?? null;
     }
 
-    public function deleteFile(int $fileId): bool
+    public function deleteFile(int $fileId, int $ownerId = 0): bool
     {
         if (!$this->hasFilesTable() || $fileId <= 0) {
             return false;
         }
 
-        $query = $this->insertion_update_simples('DELETE FROM department_post_files WHERE id = ?', [$fileId]);
+        if ($ownerId > 0) {
+            $query = $this->insertion_update_simples(
+                "DELETE f FROM department_post_files f
+                 INNER JOIN department_posts p ON p.id = f.post_id
+                 WHERE f.id = ? AND p.user_id = ?",
+                [$fileId, $ownerId]
+            );
+        } else {
+            $query = $this->insertion_update_simples('DELETE FROM department_post_files WHERE id = ?', [$fileId]);
+        }
+
         return $query->rowCount() > 0;
     }
 

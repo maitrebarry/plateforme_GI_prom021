@@ -285,11 +285,12 @@ class Homes extends Controller
         }
 
         $postModel = new DepartmentPost();
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
 
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Dashboard Responsable Scolaire';
-        $data['derStats'] = $postModel->getDashboardStats();
-        $latestPage = $postModel->getPostsPaginated('active', 'all', '', '', '', 'date', 'desc', 1, 5);
+        $data['derStats'] = $postModel->getDashboardStats($userId);
+        $latestPage = $postModel->getPostsPaginated('active', 'all', '', '', '', 'date', 'desc', 1, 5, $userId);
         $data['latestPublications'] = $latestPage['items'];
 
         $this->view('der_dashboard', $data);
@@ -396,13 +397,13 @@ class Homes extends Controller
         $postModel = new DepartmentPost();
         $filters = $this->derFilters();
         $pagination = $this->paginationParams();
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
 
         if (isset($_POST['save_der_post'])) {
             $title = trim((string)($_POST['titre'] ?? ''));
             $content = trim((string)($_POST['contenu'] ?? ''));
             $type = trim((string)($_POST['type'] ?? 'information'));
             $publicationDate = trim((string)($_POST['date_publication'] ?? date('Y-m-d')));
-            $userId = (int)($_SESSION['user_id'] ?? 0);
 
             if ($title === '' || $content === '' || $userId <= 0) {
                 $_SESSION['notification'] = [
@@ -458,7 +459,7 @@ class Homes extends Controller
                     'type' => 'danger',
                     'message' => 'Impossible de modifier cette publication. Verifiez les champs.',
                 ];
-            } elseif ($postModel->updatePost($postId, $title, $content, $type, $publicationDate)) {
+            } elseif ($postModel->updatePost($postId, $title, $content, $type, $publicationDate, $userId)) {
                 $_SESSION['notification'] = [
                     'type' => 'success',
                     'message' => 'Publication mise a jour avec succes.',
@@ -475,7 +476,7 @@ class Homes extends Controller
 
         if (isset($_POST['delete_der_post'])) {
             $postId = (int) ($_POST['post_id'] ?? 0);
-            $deleted = $postModel->deletePost($postId);
+            $deleted = $postModel->deletePost($postId, $userId);
 
             if ($deleted) {
                 $_SESSION['notification'] = [
@@ -494,7 +495,7 @@ class Homes extends Controller
 
         if (isset($_POST['restore_der_post'])) {
             $postId = (int) ($_POST['post_id'] ?? 0);
-            $restored = $postModel->restorePost($postId);
+            $restored = $postModel->restorePost($postId, $userId);
 
             $_SESSION['notification'] = [
                 'type' => $restored ? 'success' : 'danger',
@@ -508,8 +509,8 @@ class Homes extends Controller
 
         if (isset($_POST['delete_der_file'])) {
             $fileId = (int) ($_POST['file_id'] ?? 0);
-            $file = $postModel->getFileById($fileId);
-            $deleted = $postModel->deleteFile($fileId);
+            $file = $postModel->getFileById($fileId, $userId);
+            $deleted = $postModel->deleteFile($fileId, $userId);
 
             if ($deleted && $file) {
                 $fullPath = dirname(__DIR__, 2) . '/public/' . ltrim((string) ($file->file_path ?? ''), '/');
@@ -535,7 +536,8 @@ class Homes extends Controller
             $postId = (int) ($_POST['post_id'] ?? 0);
             [$uploadedFiles, $uploadErrors] = $this->handleDepartmentPostUploads($_FILES['fichiers'] ?? []);
 
-            if ($postId <= 0) {
+            if ($postId <= 0 || !$postModel->getPostById($postId, $userId)) {
+                $this->cleanupUploadedDepartmentFiles($uploadedFiles);
                 $_SESSION['notification'] = [
                     'type' => 'danger',
                     'message' => 'Publication introuvable.',
@@ -546,7 +548,7 @@ class Homes extends Controller
                     'message' => implode(' ', $uploadErrors),
                 ];
             } elseif (!empty($uploadedFiles)) {
-                $postModel->attachFiles($postId, $uploadedFiles);
+                $postModel->attachFiles($postId, $uploadedFiles, $userId);
                 $_SESSION['notification'] = [
                     'type' => 'success',
                     'message' => 'Nouveaux fichiers ajoutes a la publication.',
@@ -570,12 +572,13 @@ class Homes extends Controller
             $filters['sortBy'],
             $filters['sortDir'],
             $pagination['page'],
-            $pagination['perPage']
+            $pagination['perPage'],
+            $userId
         );
 
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Espace Responsable Scolaire - Gestion des publications';
-        $data['derStats'] = $postModel->getDashboardStats();
+        $data['derStats'] = $postModel->getDashboardStats($userId);
         $data['derPosts'] = $postsPage['items'];
         $data['derAllowedTypes'] = $postModel->getAllowedTypes();
         $data['derVisibilityFilter'] = $filters['visibility'];
@@ -613,7 +616,8 @@ class Homes extends Controller
 
         $postId = (int) $id;
         $postModel = new DepartmentPost();
-        $post = $postModel->getPostById($postId);
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $post = $postModel->getPostById($postId, $userId);
         $returnQuery = trim((string) ($_GET['return'] ?? ''));
 
         if (!$post) {
@@ -644,10 +648,11 @@ class Homes extends Controller
         $filters = $this->derFilters();
         $pagination = $this->paginationParams();
         $filters['visibility'] = 'archived';
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
 
         if (isset($_POST['restore_der_post'])) {
             $postId = (int) ($_POST['post_id'] ?? 0);
-            $restored = $postModel->restorePost($postId);
+            $restored = $postModel->restorePost($postId, $userId);
 
             $_SESSION['notification'] = [
                 'type' => $restored ? 'success' : 'danger',
@@ -661,8 +666,8 @@ class Homes extends Controller
 
         if (isset($_POST['purge_der_post'])) {
             $postId = (int) ($_POST['post_id'] ?? 0);
-            $post = $postModel->getPostById($postId);
-            $deleted = $postModel->permanentlyDeletePost($postId);
+            $post = $postModel->getPostById($postId, $userId);
+            $deleted = $postModel->permanentlyDeletePost($postId, $userId);
 
             if ($deleted && $post) {
                 foreach ($post->files ?? [] as $file) {
@@ -692,12 +697,13 @@ class Homes extends Controller
             $filters['sortBy'],
             $filters['sortDir'],
             $pagination['page'],
-            $pagination['perPage']
+            $pagination['perPage'],
+            $userId
         );
 
         $data = $this->baseViewData();
         $data['pageTitle'] = 'Corbeille des publications';
-        $data['derStats'] = $postModel->getDashboardStats();
+        $data['derStats'] = $postModel->getDashboardStats($userId);
         $data['derPosts'] = $postsPage['items'];
         $data['derAllowedTypes'] = $postModel->getAllowedTypes();
         $data['derVisibilityFilter'] = 'archived';
