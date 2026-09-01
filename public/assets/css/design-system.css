@@ -584,6 +584,24 @@ a:hover {
     pointer-events: none;
 }
 .ds-auth__field .ds-input { padding-left: 42px; }
+.ds-auth__field .ds-input.has-toggle { padding-right: 42px; }
+.ds-auth__field__toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 0;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ds-muted-soft);
+    font-size: 1.15rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.ds-auth__field__toggle:hover { color: var(--ds-brand-600); }
 
 .ds-auth__row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 

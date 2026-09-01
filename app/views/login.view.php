@@ -42,7 +42,10 @@
                             <label class="ds-label" for="login-password">Mot de passe</label>
                             <div class="ds-auth__field">
                                 <i class='bx bx-lock-alt'></i>
-                                <input type="password" id="login-password" name="password" class="ds-input" placeholder="Votre mot de passe" required>
+                                <input type="password" id="login-password" name="password" class="ds-input has-toggle" placeholder="Votre mot de passe" required>
+                                <button type="button" class="ds-auth__field__toggle" id="login-password-toggle" aria-label="Afficher le mot de passe" aria-pressed="false">
+                                    <i class='bx bx-show'></i>
+                                </button>
                             </div>
                         </div>
 
@@ -67,6 +70,20 @@
     </main>
 
     <?php $this->view('Partials/scripts'); ?>
+    <script>
+        (function () {
+            var toggle = document.getElementById('login-password-toggle');
+            var input = document.getElementById('login-password');
+            if (!toggle || !input) { return; }
+            toggle.addEventListener('click', function () {
+                var isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                toggle.querySelector('i').className = isHidden ? 'bx bx-hide' : 'bx bx-show';
+                toggle.setAttribute('aria-label', isHidden ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+                toggle.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+            });
+        })();
+    </script>
 </body>
 
 </html>
